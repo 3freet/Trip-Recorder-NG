@@ -239,7 +239,6 @@ A trip is one ignition cycle: it starts when the car is switched on and ends whe
 What is measured?	ماذا يُقاس؟
 Speed (several times a second), battery level and the car's energy counter, plus the GPS position every few seconds. Distance comes from the car's own trip counter (from speed when that is not available).	السرعة (عدة مرات في الثانية) ومستوى البطارية وعدّاد الطاقة في السيارة، إضافة إلى موقع GPS كل بضع ثوانٍ. وتأتي المسافة من عدّاد الرحلة في السيارة نفسها (ومن السرعة عند عدم توفره).
 Does it need internet?	هل يحتاج إلى الإنترنت؟
-No. Everything is stored on this head unit. Nothing is uploaded.	لا. كل شيء يُخزَّن على هذه الشاشة ولا يُرفع أي شيء.
 How is the drive score calculated?	كيف يُحسب تقييم القيادة؟
 Simplified: 100 points, minus 5 for every hard acceleration or hard braking. It differs from the stock app, which uses settings downloaded from BYD.	بشكل مبسّط: 100 نقطة يُخصم منها 5 لكل تسارع حاد أو كبح حاد. وهو يختلف عن تطبيق BYD الأصلي الذي يستخدم إعدادات تُنزَّل من BYD.
 What is the Vehicle data link?	ما هو رابط بيانات المركبة؟
@@ -349,3 +348,64 @@ failed at %1$s: %2$s	فشل في %1$s: %2$s
 failed at %s	فشل في %s
 %1$dh %2$dm	%1$d س %2$d د
 %d min	%d دقيقة
+Updates	التحديثات
+Check for updates	التحقق من التحديثات
+Update channel	قناة التحديث
+Advanced	متقدّم
+Options for experts: which builds the update check follows	خيارات للمتقدمين: أي الإصدارات يتابعها فحص التحديثات
+Hide	إخفاء
+Show	إظهار
+Installed: %1$s%2$s   -   following: %3$s	المثبّت: %1$s%2$s   -   يتابع: %3$s
+(not a release build)	(ليس إصدارًا منشورًا)
+Dev: the newest builds, made for testing, may contain bugs	التطوير: أحدث الإصدارات، مخصّصة للتجربة وقد تحتوي على أخطاء
+Stable: tested builds (recommended)	المستقر: إصدارات مختبَرة (موصى بها)
+Stable - tested builds (recommended)	المستقر - إصدارات مختبَرة (موصى بها)
+Dev - the newest builds, for testing	التطوير - أحدث الإصدارات، للتجربة
+Checking for updates...	جارٍ التحقق من التحديثات...
+Could not check for updates: %s	تعذّر التحقق من التحديثات: %s
+No %s build has been published yet.	لم يُنشر أي إصدار بعد على قناة %s.
+You have the latest %1$s build: %2$s.	لديك أحدث إصدار على قناة %1$s: %2$s.
+A newer %1$s build is available: %2$s%3$s.	يتوفر إصدار أحدث على قناة %1$s: %2$s%3$s.
+The latest %1$s build is %2$s%3$s, which is older than the installed build %4$s. Install it anyway?	أحدث إصدار على قناة %1$s هو %2$s%3$s، وهو أقدم من الإصدار المثبّت %4$s. هل تريد تثبيته على أي حال؟
+Installed: %s	المثبّت: %s
+This switches the app from %1$s to %2$s.	هذا ينقل التطبيق من قناة %1$s إلى قناة %2$s.
+Dev builds are made for testing and may contain bugs. Going back to Stable later usually works but cannot be guaranteed if a dev build changed how trips are stored (your backup in Documents/TripRecorderNG stays safe).	إصدارات التطوير مخصّصة للتجربة وقد تحتوي على أخطاء. العودة إلى المستقر لاحقًا تنجح عادةً لكن لا يمكن ضمانها إذا غيّر إصدار التطوير طريقة تخزين الرحلات (نسختك الاحتياطية في Documents/TripRecorderNG تبقى محفوظة).
+The app restarts during the update. BYD switches its auto-start setting back on at every install: afterwards turn Trip Recorder NG OFF in 'Disable background Apps' and restart the head unit once.	يُعاد تشغيل التطبيق أثناء التحديث. تعيد BYD تفعيل إعداد التشغيل التلقائي عند كل تثبيت: بعد ذلك أوقف مفتاح Trip Recorder NG ضمن «Disable background Apps» ثم أعد تشغيل وحدة الشاشة مرة واحدة.
+Update available	تحديث متوفر
+Install	تثبيت
+Update only while the car is parked.	حدّث التطبيق أثناء توقف السيارة فقط.
+Installing needs the Vehicle data link: turn it on in Setting first. The app installs the update through the car's network debugging.	التثبيت يتطلب رابط بيانات المركبة: فعّله من الإعدادات أولًا. يثبّت التطبيق التحديث عبر تصحيح الشبكة في السيارة.
+Installing %s	تثبيت %s
+Downloading...	جارٍ التنزيل...
+Downloading... %d%%	جارٍ التنزيل... %d%%
+Checking the file...	جارٍ فحص الملف...
+Installing... the app restarts in a moment.	جارٍ التثبيت... سيُعاد تشغيل التطبيق بعد لحظات.
+The update failed: %s	فشل التحديث: %s
+The update failed.	فشل التحديث.
+The car's network debugging could not be reached. Check Setting > Vehicle data link.	تعذّر الوصول إلى تصحيح الشبكة في السيارة. راجع الإعدادات > رابط بيانات المركبة.
+The car refused this app's debugging key. Turn the Vehicle data link off and on again.	رفضت السيارة مفتاح التصحيح الخاص بالتطبيق. أوقف رابط بيانات المركبة ثم شغّله مجددًا.
+The car did not answer in time. If the app restarts by itself, the update worked.	لم تستجب السيارة في الوقت المناسب. إذا أُعيد تشغيل التطبيق من تلقاء نفسه فقد نجح التحديث.
+The update did not finish.	لم يكتمل التحديث.
+No. Everything is stored on this head unit. Nothing is uploaded. The only exception is Setting > Check for updates, which contacts GitHub, and only when you tap it.	لا. كل شيء يُخزَّن على هذه الشاشة ولا يُرفع أي شيء. الاستثناء الوحيد هو الإعدادات > التحقق من التحديثات، الذي يتصل بـ GitHub، وفقط عند الضغط عليه.
+Dev	التطوير
+Stable	المستقر
+GitHub's answer could not be read	تعذّرت قراءة ردّ GitHub
+No internet connection (GitHub cannot be reached)	لا يوجد اتصال بالإنترنت (تعذّر الوصول إلى GitHub)
+GitHub answered %s	ردّ GitHub بالرمز %s
+The connection to GitHub failed	فشل الاتصال بـ GitHub
+The download address is not from this project's releases	عنوان التنزيل ليس من إصدارات هذا المشروع
+No storage is available	لا توجد مساحة تخزين متاحة
+The file is larger than expected	حجم الملف أكبر من المتوقع
+The download is incomplete	التنزيل غير مكتمل
+The downloaded file is damaged (its checksum differs)	الملف المنزَّل تالف (اختلف مجموعه الاختباري)
+The file could not be saved	تعذّر حفظ الملف
+The file is not a valid app	الملف ليس تطبيقًا صالحًا
+The file is a different app	الملف تطبيق مختلف
+The file's signature could not be read	تعذّرت قراءة توقيع الملف
+The file is signed with a different key, so Android would not install it over this app	الملف موقَّع بمفتاح مختلف، لذلك لن يثبّته Android فوق هذا التطبيق
+The file could not be checked	تعذّر فحص الملف
+You chose not to see this reminder again. It comes back every %d openings of the app while auto-start is still blocked.\n\n	اخترت عدم عرض هذا التذكير مجددًا. يعود كل %d مرة يُفتح فيها التطبيق ما دام التشغيل التلقائي محظورًا.\n\n
+Show every time	إظهاره في كل مرة
+Don't show again	عدم الإظهار مجددًا
+This reminder will show every time the app is opened.	سيظهر هذا التذكير في كل مرة يُفتح فيها التطبيق.
+Understood. The reminder comes back after %d openings of the app.	حسنًا. سيعود التذكير بعد %d مرة يُفتح فيها التطبيق.

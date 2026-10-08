@@ -6,8 +6,8 @@
 
     <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="29" />
 
-    <!-- needed for the loopback (127.0.0.1) connections to the car's debugging service and the helper;
-         the app does not use the internet -->
+    <!-- the loopback (127.0.0.1) connections to the car's debugging service and the helper, and the manual
+         "Check for updates" (GitHub); nothing else goes online and nothing is uploaded -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />

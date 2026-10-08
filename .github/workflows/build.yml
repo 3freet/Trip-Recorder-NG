@@ -58,6 +58,7 @@ jobs:
             unset KS_PASS
             echo "::warning::No signing key available: building with a throwaway key (this APK cannot update an app signed with your own key)"
           fi
+          export VERSION_NAME="${GITHUB_REF_NAME//\//-}-${GITHUB_RUN_NUMBER}"
           ./build.sh
           mkdir -p dist
           cp TripRecorderNG.apk "dist/TripRecorderNG-${GITHUB_REF_NAME//\//-}-${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}.apk"

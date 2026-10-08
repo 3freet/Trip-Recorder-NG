@@ -51,13 +51,21 @@ final class Prefs {
     static final int AUTOSTART_UNKNOWN = 1;
     static final int AUTOSTART_BLOCKED = 2;
 
-    /** Did the car start the app by itself after the last restart? */
+    /**
+     * Did the car start the app by itself after the last restart? An install or update in the current boot comes
+     * first: BYD switched its "Disable background Apps" setting back on then, so what the earlier start of this boot
+     * showed no longer counts, and nothing is confirmed until the next restart.
+     */
     static int autoStartHealth(Context c) {
-        int boot = currentBootCount(c);
-        if (boot < 0) return AUTOSTART_UNKNOWN;
         SharedPreferences p = sp(c);
-        if (p.getInt("boot_seen_v2", -2) == boot) return AUTOSTART_OK;
-        if (p.getInt("update_boot", -2) == boot) return AUTOSTART_UNKNOWN;
+        return healthFor(currentBootCount(c), p.getInt("boot_seen_v2", -2), p.getInt("update_boot", -2));
+    }
+
+    /** The decision itself: current boot count, the boot at which the start broadcast last arrived, the boot of the last install. */
+    static int healthFor(int boot, int broadcastBoot, int installBoot) {
+        if (boot < 0) return AUTOSTART_UNKNOWN;
+        if (installBoot == boot) return AUTOSTART_UNKNOWN;
+        if (broadcastBoot == boot) return AUTOSTART_OK;
         return AUTOSTART_BLOCKED;
     }
 
@@ -152,6 +160,44 @@ final class Prefs {
 
     static String currency(Context c) {
         return sp(c).getString("price_currency", "OMR");
+    }
+
+    /** "stable", "dev", or "" when never chosen (then the update check follows the installed build's channel). */
+    static String updateChannel(Context c) {
+        return sp(c).getString("update_channel", "");
+    }
+
+    static void setUpdateChannel(Context c, String channel) {
+        sp(c).edit().putString("update_channel", channel).apply();
+    }
+
+    // ---- the auto-start reminder: "Don't show again" still reminds on every 15th opening ----------
+
+    static final int MUTED_REMINDER_EVERY = 15;
+
+    static boolean autoStartAlertMuted(Context c) {
+        return sp(c).getBoolean("autostart_alert_muted", false);
+    }
+
+    /** Muting (or un-muting) starts the count of openings from zero. */
+    static void setAutoStartAlertMuted(Context c, boolean muted) {
+        sp(c).edit().putBoolean("autostart_alert_muted", muted).putInt("autostart_muted_opens", 0).apply();
+    }
+
+    /** True when this opening, the n-th since the count started, is the one that reminds again. */
+    static boolean mutedReminderDue(int openingsBefore) {
+        return openingsBefore + 1 >= MUTED_REMINDER_EVERY;
+    }
+
+    /**
+     * Counts one opening of the app while the reminder is muted. Returns true on every 15th opening
+     * (the count then starts again), when the reminder must be shown after all.
+     */
+    static boolean countMutedOpening(Context c) {
+        int before = sp(c).getInt("autostart_muted_opens", 0);
+        boolean due = mutedReminderDue(before);
+        sp(c).edit().putInt("autostart_muted_opens", due ? 0 : before + 1).apply();
+        return due;
     }
 
     /** Empty text clears a price, which then falls back to the default. */

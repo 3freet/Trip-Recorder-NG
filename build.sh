@@ -3,6 +3,11 @@
 # Needs: JDK 21, Android SDK with a platform (android-34 or newer) and build-tools 35 or newer.
 # Set JAVA_HOME / ANDROID_SDK_ROOT if yours are not in the Homebrew locations below.
 #
+# Version: the version code is always 1 on purpose (Android refuses to install a lower version code over a
+# higher one, and switching from the dev to the stable channel must work). The version name identifies the
+# build: CI sets VERSION_NAME to "<branch>-<run number>" ("dev-9"), which is also the release tag; a build made
+# on a computer is "0.1" unless you set VERSION_NAME.
+#
 # Signing: the APK is signed with triprec.keystore (alias "triprec"). If that file does not exist a new key
 # is created with a random password, kept in triprec.keystore.pass. Both files are git-ignored. Keep them
 # (and a backup): an update only installs over an earlier build when it is signed with the same key.
@@ -15,6 +20,7 @@ SDK="${ANDROID_SDK_ROOT:-/opt/homebrew/share/android-commandlinetools}"
 BT="$(ls -d "$SDK"/build-tools/* | sort -V | tail -1)"  # needs 35+ (older d8 crashes on JDK 21 output)
 PLATFORM="$(ls -d "$SDK"/platforms/android-* | sort -V | tail -1)/android.jar"
 export PATH="$JAVA_HOME/bin:$PATH"
+VERSION_NAME="${VERSION_NAME:-0.1}"
 
 [ -f "$PLATFORM" ] || { echo "missing $PLATFORM (install a platform with sdkmanager)"; exit 1; }
 [ -x "$BT/aapt2" ] || { echo "missing build-tools (install with sdkmanager)"; exit 1; }
@@ -30,7 +36,7 @@ echo "[2/6] d8"
 echo "[3/6] aapt2 compile + link"
 "$BT/aapt2" compile --dir res -o build/res.zip
 "$BT/aapt2" link -o build/base.apk --manifest AndroidManifest.xml -I "$PLATFORM" build/res.zip -A assets \
-    --min-sdk-version 29 --target-sdk-version 29 --version-code 1 --version-name 0.1
+    --min-sdk-version 29 --target-sdk-version 29 --version-code 1 --version-name "$VERSION_NAME"
 
 echo "[4/6] add classes.dex"
 ( cd build/dex && zip -q -u ../base.apk classes.dex )

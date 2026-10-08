@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -64,6 +65,9 @@ public class MainActivity extends Activity {
     private final int[] tabIcons = new int[6];
     private int tab = TAB_THIS;
     private String overlay = null; // "detail", "settings", "qa" or null
+    private volatile boolean updateBusy;
+    private boolean advancedOpen;
+    private TextView updatesValue, channelValue;
 
     // live widgets of the currently shown page
     private Runnable pageRefresh;
@@ -78,6 +82,7 @@ public class MainActivity extends Activity {
     // ---- lifecycle -------------------------------------------------------------------------
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
+        freshOpening = b == null;
         Diag.init(this);
         buildShell();
         handleExtras(getIntent());
@@ -114,10 +119,26 @@ public class MainActivity extends Activity {
         }).start();
     }
 
+    /** A new instance of the screen (not a re-creation for a language change) counts as an opening of the app. */
+    private boolean freshOpening;
+    private static long lastStopMs;
+    /**
+     * Coming back after less than this is the same visit, not a new opening: a language change re-creates the screen
+     * within a second. (Going to BYD's settings screen from the reminder has its own 10 minute pause.)
+     */
+    private static final long NEW_OPENING_AFTER_MS = 3_000;
+
     @Override protected void onResume() {
         super.onResume();
         ui.post(ticker);
-        ui.postDelayed(autoStartCheck, 1200);
+        long away = android.os.SystemClock.elapsedRealtime() - lastStopMs;
+        if (freshOpening || away > NEW_OPENING_AFTER_MS) ui.postDelayed(autoStartCheck, 1200);
+        freshOpening = false;
+    }
+
+    @Override protected void onStop() {
+        super.onStop();
+        lastStopMs = android.os.SystemClock.elapsedRealtime();
     }
 
     @Override protected void onPause() {
@@ -126,22 +147,25 @@ public class MainActivity extends Activity {
         ui.removeCallbacks(autoStartCheck);
     }
 
-    /** The reminder is shown once per app process, so it does not nag every time the screen comes back. */
-    private static boolean autoStartAlertShown;
-
     private final Runnable autoStartCheck = new Runnable() {
         @Override public void run() {
             maybeAutoStartAlert();
         }
     };
 
+    private AlertDialog autoStartDialog;
+
     /**
      * When BYD has not let the app start by itself (its "Disable background Apps" switch is on for
-     * Trip Recorder NG), tell the user how to fix it. Skipped while driving, and in the first minutes
-     * after the head unit boots, when the start broadcast may simply not have arrived yet.
+     * Trip Recorder NG), tell the user how to fix it, every time the app is opened. The state is inferred from
+     * whether the system's start broadcast reached the app after the last restart (BYD's own switch cannot be
+     * read). Skipped while driving, in the first minutes after the head unit boots (the broadcast may simply not
+     * have arrived yet) and while the user is in BYD's settings screen. "Don't show again" mutes it, but every
+     * 15th opening it comes back anyway.
      */
     private void maybeAutoStartAlert() {
-        if (autoStartAlertShown || isFinishing() || isDestroyed()) return;
+        if (isFinishing() || isDestroyed()) return;
+        if (autoStartDialog != null && autoStartDialog.isShowing()) return;
         Intent in = getIntent();
         if (in != null && in.getBooleanExtra("skip_alert", false)) return;
         Prefs.noteRun(this);
@@ -150,7 +174,13 @@ public class MainActivity extends Activity {
         if (android.os.SystemClock.elapsedRealtime() < 180_000) return;
         double speed = RecorderService.live.speed;
         if (!Double.isNaN(speed) && speed >= 5) return;
-        autoStartAlertShown = true;
+        if (System.currentTimeMillis() - autostartScreenOpenedMs < 10 * 60_000) return;
+        boolean reminder = false;
+        if (Prefs.autoStartAlertMuted(this)) {
+            if (!Prefs.countMutedOpening(this)) return;
+            reminder = true;
+        }
+        final boolean again = reminder;
         String how = L.t("Open Setting > BYD auto-start apps, find Trip Recorder NG in 'Disable background Apps' and "
                 + "turn it OFF (OFF means the app is allowed to start). Then restart the head unit once.");
         String why = health == Prefs.AUTOSTART_BLOCKED
@@ -159,13 +189,26 @@ public class MainActivity extends Activity {
                 : L.t("Auto-start is not confirmed yet. BYD switches it back to blocked every time Trip "
                 + "Recorder is installed or updated, and until it is allowed the app does not record "
                 + "after a restart.\n\n");
+        String note = reminder
+                ? L.f("You chose not to see this reminder again. It comes back every %d openings of the app "
+                + "while auto-start is still blocked.\n\n", Prefs.MUTED_REMINDER_EVERY)
+                : "";
         try {
-            Ui.show(new AlertDialog.Builder(this)
+            autoStartDialog = Ui.show(new AlertDialog.Builder(this)
                     .setTitle(L.t("Turn off 'Disable background Apps'"))
-                    .setMessage(why + how)
+                    .setMessage(note + why + how)
                     .setPositiveButton(L.t("Open BYD settings"), new android.content.DialogInterface.OnClickListener() {
                         @Override public void onClick(android.content.DialogInterface d, int w) {
                             openAutostart();
+                        }
+                    })
+                    .setNeutralButton(again ? L.t("Show every time") : L.t("Don't show again"),
+                            new android.content.DialogInterface.OnClickListener() {
+                        @Override public void onClick(android.content.DialogInterface d, int w) {
+                            Prefs.setAutoStartAlertMuted(MainActivity.this, !again);
+                            toast(again ? L.t("This reminder will show every time the app is opened.")
+                                    : L.f("Understood. The reminder comes back after %d openings of the app.",
+                                    Prefs.MUTED_REMINDER_EVERY));
                         }
                     })
                     .setNegativeButton(L.t("Later"), null));
@@ -173,6 +216,9 @@ public class MainActivity extends Activity {
             Diag.log("could not show the auto-start reminder", t);
         }
     }
+
+    /** When the user last went to BYD's auto-start screen from this app; the reminder waits a while after that. */
+    private static long autostartScreenOpenedMs;
 
     private final Runnable ticker = new Runnable() {
         @Override public void run() {
@@ -1364,6 +1410,14 @@ public class MainActivity extends Activity {
                 showLanguageDialog();
             }
         }));
+        final View updatesRow = settingRow(L.t("Updates"), updateText(), L.t("Check for updates"),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        checkForUpdates();
+                    }
+                });
+        updatesValue = (TextView) updatesRow.getTag();
+        box.addView(updatesRow);
         final RecorderService.Live l = RecorderService.live;
         box.addView(settingRow(L.t("Trip recording service"), l.running ? L.t("Running") : L.t("Stopped"),
                 l.running ? L.t("Stop") : L.t("Start"), new View.OnClickListener() {
@@ -1513,6 +1567,26 @@ public class MainActivity extends Activity {
                         exportCsv();
                     }
                 }));
+        final View channelRow = settingRow(L.t("Update channel"), channelDescription(), L.t("Change"),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        showChannelDialog();
+                    }
+                });
+        channelValue = (TextView) channelRow.getTag();
+        channelRow.setVisibility(advancedOpen ? View.VISIBLE : View.GONE);
+        final View advancedRow = settingRow(L.t("Advanced"), L.t("Options for experts: which builds the update check follows"),
+                advancedOpen ? L.t("Hide") : L.t("Show"), null);
+        final TextView advancedButton = (TextView) ((ViewGroup) ((ViewGroup) advancedRow).getChildAt(0)).getChildAt(1);
+        advancedButton.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                advancedOpen = !advancedOpen;
+                channelRow.setVisibility(advancedOpen ? View.VISIBLE : View.GONE);
+                advancedButton.setText(advancedOpen ? L.t("Hide") : L.t("Show"));
+            }
+        });
+        box.addView(advancedRow);
+        box.addView(channelRow);
         File lf = Diag.file();
         TextView log = Ui.text(this, L.f("Log file: %s", lf == null ? "?" : L.ltr(lf.getPath())), 14, Ui.TEXT_LABEL);
         log.setPadding(0, Ui.dp(this, 18), 0, Ui.dp(this, 18));
@@ -1540,6 +1614,226 @@ public class MainActivity extends Activity {
                     }
                 })
                 .setNegativeButton(L.t("Cancel"), null));
+    }
+
+    // ---- updates (manual only) ----------------------------------------------------------------
+
+    private String updateText() {
+        return L.f("Installed: %1$s%2$s   -   following: %3$s", Updates.installedName(this),
+                Updates.installed(this) == null ? " " + L.t("(not a release build)") : "",
+                Updates.channelTitle(Updates.channel(this)));
+    }
+
+    private String channelDescription() {
+        return Updates.DEV.equals(Updates.channel(this))
+                ? L.t("Dev: the newest builds, made for testing, may contain bugs")
+                : L.t("Stable: tested builds (recommended)");
+    }
+
+    private void showChannelDialog() {
+        final String[] values = {Updates.STABLE, Updates.DEV};
+        String[] labels = {L.t("Stable - tested builds (recommended)"), L.t("Dev - the newest builds, for testing")};
+        Ui.show(new AlertDialog.Builder(this)
+                .setTitle(L.t("Update channel"))
+                .setItems(labels, new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface d, int which) {
+                        Prefs.setUpdateChannel(MainActivity.this, values[which]);
+                        if (updatesValue != null) updatesValue.setText(updateText());
+                        if (channelValue != null) channelValue.setText(channelDescription());
+                        checkForUpdates(); // offers the newest build of that channel, which may mean switching
+                    }
+                })
+                .setNegativeButton(L.t("Cancel"), null));
+    }
+
+    private void showInfo(String message) {
+        Ui.show(new AlertDialog.Builder(this)
+                .setTitle(L.t("Updates"))
+                .setMessage(message)
+                .setPositiveButton(L.t("OK"), null));
+    }
+
+    private void checkForUpdates() {
+        if (updateBusy) return;
+        updateBusy = true;
+        final String channel = Updates.channel(this);
+        toast(L.t("Checking for updates..."));
+        new Thread(new Runnable() {
+            @Override public void run() {
+                final Updates.Check c = Updates.check(MainActivity.this, channel);
+                ui.post(new Runnable() {
+                    @Override public void run() {
+                        updateBusy = false;
+                        if (!isFinishing() && !isDestroyed()) showUpdateResult(channel, c);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void showUpdateResult(String channel, Updates.Check c) {
+        String chName = Updates.channelTitle(channel);
+        if (c.error != null) {
+            showInfo(L.f("Could not check for updates: %s", c.error));
+            return;
+        }
+        if (c.latest == null) {
+            showInfo(L.f("No %s build has been published yet.", chName));
+            return;
+        }
+        final Updates.Release r = c.latest;
+        Updates.Build mine = Updates.installed(this);
+        int cmp = Updates.compare(mine, r);
+        if (cmp == 0) {
+            showInfo(L.f("You have the latest %1$s build: %2$s.", chName, r.build.name()));
+            return;
+        }
+        String when = r.publishedMs > 0
+                ? " (" + new SimpleDateFormat("d MMM yyyy", L.dateLocale()).format(new Date(r.publishedMs)) + ")" : "";
+        StringBuilder msg = new StringBuilder();
+        if (cmp > 0) {
+            msg.append(L.f("A newer %1$s build is available: %2$s%3$s.", chName, r.build.name(), when));
+        } else {
+            msg.append(L.f("The latest %1$s build is %2$s%3$s, which is older than the installed build %4$s. "
+                    + "Install it anyway?", chName, r.build.name(), when, Updates.installedName(this)));
+        }
+        msg.append("\n").append(L.f("Installed: %s", Updates.installedName(this)));
+        if (mine != null && !mine.channel.equals(channel)) {
+            msg.append("\n\n").append(L.f("This switches the app from %1$s to %2$s.",
+                    Updates.channelTitle(mine.channel), chName));
+        }
+        if (Updates.DEV.equals(channel)) {
+            msg.append("\n\n").append(L.t("Dev builds are made for testing and may contain bugs. Going back to Stable "
+                    + "later usually works but cannot be guaranteed if a dev build changed how trips are stored "
+                    + "(your backup in Documents/TripRecorderNG stays safe)."));
+        }
+        msg.append("\n\n").append(L.t("The app restarts during the update. BYD switches its auto-start setting "
+                + "back on at every install: afterwards turn Trip Recorder NG OFF in 'Disable background Apps' "
+                + "and restart the head unit once."));
+        Ui.show(new AlertDialog.Builder(this)
+                .setTitle(L.t("Update available"))
+                .setMessage(msg.toString())
+                .setPositiveButton(L.t("Install"), new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface d, int w) {
+                        startUpdate(r);
+                    }
+                })
+                .setNegativeButton(L.t("Cancel"), null));
+    }
+
+    /** Downloads the build, checks it, saves a backup and installs it through the car's loopback debugging. */
+    private void startUpdate(final Updates.Release r) {
+        if (updateBusy) return;
+        double speed = RecorderService.live.speed;
+        if (!Double.isNaN(speed) && speed >= 5) {
+            showInfo(L.t("Update only while the car is parked."));
+            return;
+        }
+        if (!Prefs.linkEnabled(this)) {
+            showInfo(L.t("Installing needs the Vehicle data link: turn it on in Setting first. The app installs "
+                    + "the update through the car's network debugging."));
+            return;
+        }
+        updateBusy = true;
+        final Context app = getApplicationContext();
+        final boolean[] cancel = {false};
+        final AlertDialog progress = Ui.show(new AlertDialog.Builder(this)
+                .setTitle(L.f("Installing %s", r.build.name()))
+                .setMessage(L.t("Downloading..."))
+                .setCancelable(false)
+                .setNegativeButton(L.t("Cancel"), new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface d, int w) {
+                        cancel[0] = true;
+                    }
+                }));
+        final long[] lastShown = {0};
+        new Thread(new Runnable() {
+            private void say(final String text, final boolean last) {
+                ui.post(new Runnable() {
+                    @Override public void run() {
+                        if (progress.isShowing()) {
+                            progress.setMessage(text);
+                            if (last && progress.getButton(android.content.DialogInterface.BUTTON_NEGATIVE) != null) {
+                                progress.getButton(android.content.DialogInterface.BUTTON_NEGATIVE).setEnabled(false);
+                            }
+                        }
+                    }
+                });
+            }
+
+            private void fail(final String why) {
+                ui.post(new Runnable() {
+                    @Override public void run() {
+                        updateBusy = false;
+                        if (progress.isShowing()) progress.dismiss();
+                        if (!isFinishing() && !isDestroyed()) showInfo(why);
+                    }
+                });
+            }
+
+            @Override public void run() {
+                try {
+                    File apk = Updates.download(app, r, new Updates.Progress() {
+                        @Override public void onProgress(long done, long total) {
+                            long now = System.currentTimeMillis();
+                            if (now - lastShown[0] < 400) return;
+                            lastShown[0] = now;
+                            say(total > 0 ? L.f("Downloading... %d%%", (int) (done * 100 / total)) : L.t("Downloading..."),
+                                    false);
+                        }
+
+                        @Override public boolean cancelled() {
+                            return cancel[0];
+                        }
+                    });
+                    say(L.t("Checking the file..."), true);
+                    String bad = Updates.verifyApk(app, apk);
+                    if (bad != null) {
+                        fail(bad);
+                        return;
+                    }
+                    try {
+                        Backup.writeMissing(app); // the trips are saved before anything is replaced
+                    } catch (Throwable t) {
+                        Diag.log("backup before update failed", t);
+                    }
+                    say(L.t("Installing... the app restarts in a moment."), true);
+                    AdbLoopback.Result res = Updates.install(app, apk);
+                    // only reached when this app was not replaced
+                    Diag.log("update install result: " + res.status + " | " + res.output.trim() + " | " + res.detail);
+                    fail(installFailure(res));
+                } catch (Updates.Cancelled c) {
+                    ui.post(new Runnable() {
+                        @Override public void run() {
+                            updateBusy = false;
+                            if (progress.isShowing()) progress.dismiss();
+                        }
+                    });
+                } catch (IOException e) {
+                    Diag.log("update download failed", e);
+                    fail(L.f("The update failed: %s", e.getMessage()));
+                } catch (Throwable t) {
+                    Diag.log("update failed", t);
+                    fail(L.t("The update failed."));
+                }
+            }
+        }).start();
+    }
+
+    private String installFailure(AdbLoopback.Result res) {
+        switch (res.status) {
+            case UNREACHABLE:
+                return L.t("The car's network debugging could not be reached. Check Setting > Vehicle data link.");
+            case REFUSED:
+                return L.t("The car refused this app's debugging key. Turn the Vehicle data link off and on again.");
+            case WAITING_FOR_APPROVAL:
+                return L.t("The car did not answer in time. If the app restarts by itself, the update worked.");
+            case ERROR:
+                return L.f("The update failed: %s", res.detail);
+            default:
+                String out = res.output.trim();
+                return out.isEmpty() ? L.t("The update did not finish.") : L.f("The update failed: %s", out);
+        }
     }
 
     private View settingRow(String title, String value, String button, View.OnClickListener l) {
@@ -1579,7 +1873,8 @@ public class MainActivity extends Activity {
                         L.t("Speed (several times a second), battery level and the car's energy counter, "
                                 + "plus the GPS position every few seconds. Distance comes from the car's own trip counter (from speed when that is not available).")},
                 {L.t("Does it need internet?"),
-                        L.t("No. Everything is stored on this head unit. Nothing is uploaded.")},
+                        L.t("No. Everything is stored on this head unit. Nothing is uploaded. The only exception is "
+                                + "Setting > Check for updates, which contacts GitHub, and only when you tap it.")},
                 {L.t("How is the drive score calculated?"),
                         L.t("Simplified: 100 points, minus 5 for every hard acceleration or hard braking. "
                                 + "It differs from the stock app, which uses settings downloaded from BYD.")},
@@ -1914,6 +2209,7 @@ public class MainActivity extends Activity {
     }
 
     private void openAutostart() {
+        autostartScreenOpenedMs = System.currentTimeMillis();
         Intent i = new Intent(Intent.ACTION_MAIN);
         i.setComponent(new ComponentName("com.byd.appstartmanagement",
                 "com.byd.appstartmanagement.frame.AppStartManagement"));

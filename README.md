@@ -27,8 +27,9 @@ models and software versions may behave differently; reports and fixes are welco
 - This is an unofficial hobby project, provided as is with no warranty (see [LICENSE](LICENSE)). You install
   and use it at your own risk. It is not endorsed or supported by BYD.
 - It reads vehicle data through BYD's internal, undocumented vehicle API. Any software update of the car can
-  change or break that. The only setting the app changes on the car is Android's data-roaming switch, and only
-  when you press the button or turn on the toggle in the Tweaks tab.
+  change or break that. The only things the app changes on the car are Android's data-roaming switch, when you press the
+  button or turn on the toggle in the Tweaks tab, and the app itself, when you choose Install after Check for
+  updates (it replaces itself with a build downloaded from this project's GitHub releases, signed with the same key).
 - The optional **Vehicle data link** starts a small helper through the head unit's own debugging service on
   127.0.0.1 (loopback ADB), with a key the app creates itself. On the tested unit the car accepted that key
   without asking, which means any app on that unit could do the same; this is a property of the car, not of
@@ -40,9 +41,11 @@ models and software versions may behave differently; reports and fixes are welco
 Trips are stored in the app's own database on the head unit. Backups and exports (JSON, CSV, GPX) are written
 to `Documents/TripRecorderNG`, a shared folder that any app with storage permission can read. They contain GPS
 tracks, so they show where you live and drive: delete or do not share them if that matters to you. The app asks
-for the INTERNET permission only for loopback connections to the helper and the car's debugging service; it
-does not send anything over the network. The only network access it triggers is the Google Maps link in trip
-details, which hands a route to the Maps app or browser when you tap it.
+for the INTERNET permission for loopback connections to the helper and the car's debugging service, and for
+**Setting > Check for updates**. The app never goes online by itself and uploads nothing. It contacts GitHub
+(`api.github.com`, and `github.com` to download a build) only when you tap Check for updates or Install; GitHub then
+sees the car's IP address and the app's build name. The Google Maps link in trip details hands a route to the Maps
+app or browser when you tap it.
 
 ## What it does
 - A foreground service starts at boot and records trips locally (SQLite). Nothing is uploaded.
@@ -147,11 +150,18 @@ shows the live range. Trips from before this update have no fuel data.
   server). Not done: scoring from seat belt, A/C, turn-signal and lane-change signals.
 
 ## Auto-start reminder
-When the app is opened and the last restart did not start it by itself (BYD's "Disable background
-Apps" switch is on for it), or auto-start is not confirmed yet (right after an install or update), a
-dialog explains how to turn the switch OFF and offers a button to open BYD's screen. It appears once per
-app launch, not while the car is moving and not in the first 3 minutes after a boot (the start
-broadcast may not have arrived yet). `adb shell am start ... --ez skip_alert true` suppresses it.
+BYD's own switch ("Disable background Apps") cannot be read, so the app infers it: if the system's start
+broadcast did not reach the app after the last restart, auto-start is blocked; right after an install or update it is
+"not confirmed yet" (BYD resets the switch then). In either case a dialog explains how to turn the switch OFF and
+offers **Open BYD settings**. It is shown **every time the app is opened**: a new start of the app, or coming back
+after the screen was away for more than 3 seconds (a language change or a dialog is not a new opening, and the
+reminder waits 10 minutes after you went to BYD's screen from it). It is not shown while the car is
+moving, nor in the first 3 minutes after a boot (the start broadcast may not have arrived yet), and it stops by
+itself once a restart has started the app.
+- **Don't show again** mutes it, but the reminder still comes back on every 15th opening of the app while
+  auto-start is blocked (openings are counted from the moment you muted; the reminder dialog then offers **Show every
+  time** to turn the mute off). Source: `MainActivity.maybeAutoStartAlert`, `Prefs.countMutedOpening`.
+- `adb shell am start ... --ez skip_alert true` suppresses it (for testing).
 
 ## Tweaks
 The Tweaks tab in the left menu holds small changes that need the shell user's rights. They are made
@@ -166,6 +176,27 @@ Under the toggle, a small line reports the roaming setting, whether the cellular
 validated (and roaming), and which network apps use right now (`NetStatus`; it reads Android's connectivity state
 and needs the `ACCESS_NETWORK_STATE` permission). Note the car's own engineering screen shows its internal flag for
 apn2, which can read "disconnected" while the connection works.
+
+## Updates
+**Setting > Updates > Check for updates** asks GitHub for the newest release of the channel you follow. It is manual
+only: the app never checks by itself. If a different build is available it offers to install it; the app downloads
+the APK, checks its size and SHA-256 against GitHub's digest, checks that it is this app and signed with the same
+key as the installed one, saves a backup of the trips, and then replaces itself through the car's loopback
+debugging and starts again. So installing needs the **Vehicle data link** to be on, and the car to be parked. BYD
+resets its auto-start switch on every install, so afterwards do the same two steps as after any update (Install /
+update). The downloaded file stays in `Android/data/org.triprecorderng/files/update`.
+- **Channels.** Releases are named `stable-N` (a push to the `stable` branch) and `dev-N` (a push to `dev`, a
+  pre-release); `N` is the build number of the CI run and counts up across both. The installed build's name is its
+  version name (`dev-9`; a build made on a computer is just `0.1`). **Setting > Advanced > Update channel** chooses
+  which channel the check follows; choosing the other one offers its newest build straight away, which is how you
+  switch between stable and dev in either direction.
+- **Why the version code is always 1.** Android refuses to install a lower version code over a higher one, which
+  would make going back from dev to stable impossible without uninstalling. With one version code, any build signed
+  with the project key installs over any other. The cost: Android's app info shows the version name, not a number.
+- **Going back from dev to stable** keeps the trips. The database is only ever extended (new tables or columns), and
+  an older build opens a newer database as it is (`TripDb.onDowngrade`), but that cannot be guaranteed for every
+  future dev change: the backup in `Documents/TripRecorderNG/backup` (written before each install) is the safety net.
+- Source: `Updates` (check, download, verification, install), `MainActivity` (the Setting rows and dialogs).
 
 ## Languages (English and Arabic)
 **Setting > Language** chooses Automatic (follows the head unit's language; Arabic only when that is Arabic,
@@ -203,7 +234,8 @@ the Documents folder, deleting an old file only after its copy is complete. The 
 `./build.sh` builds `TripRecorderNG.apk` with the plain Android SDK tools (no Gradle). It needs JDK 21 and an
 Android SDK with a platform (android-34 or newer) and build-tools 35 or newer (build-tools 34's d8 crashes on
 JDK 21 class files). The script looks for them in the Homebrew locations; set `JAVA_HOME` and
-`ANDROID_SDK_ROOT` if yours are elsewhere.
+`ANDROID_SDK_ROOT` if yours are elsewhere. `VERSION_NAME` sets the version name (CI sets `<branch>-<run number>`;
+the default is `0.1`); the version code is always 1 (see Updates).
 
 **Signing key.** The APK is signed with `triprec.keystore` (alias `triprec`). If the file does not exist the script
 creates a new key with a random password, stored in `triprec.keystore.pass`. Both files are git-ignored and must

@@ -58,6 +58,14 @@ final class TripDb extends SQLiteOpenHelper {
         db.execSQL("CREATE INDEX events_trip ON events(trip_id, ts)");
     }
 
+    /**
+     * Switching to an older build (Setting > Advanced > Update channel) opens a database a newer build already
+     * upgraded. Newer versions only add tables and columns, so the older code can keep using it.
+     */
+    @Override public void onDowngrade(SQLiteDatabase db, int oldV, int newV) {
+        Diag.log("database is newer (" + oldV + ") than this build expects (" + newV + "); using it as it is");
+    }
+
     @Override public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {
         if (oldV < 2) {
             // v2: battery and energy along the track, and the positions of hard accel/brake events
