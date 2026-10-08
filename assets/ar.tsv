@@ -409,3 +409,4 @@ Show every time	إظهاره في كل مرة
 Don't show again	عدم الإظهار مجددًا
 This reminder will show every time the app is opened.	سيظهر هذا التذكير في كل مرة يُفتح فيها التطبيق.
 Understood. The reminder comes back after %d openings of the app.	حسنًا. سيعود التذكير بعد %d مرة يُفتح فيها التطبيق.
+Details are in the log file.	التفاصيل في ملف السجل.

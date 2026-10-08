@@ -1831,8 +1831,13 @@ public class MainActivity extends Activity {
             case ERROR:
                 return L.f("The update failed: %s", res.detail);
             default:
+                // the installer's answer: "Failure [...]" or a Java stack trace; the first line is enough here
                 String out = res.output.trim();
-                return out.isEmpty() ? L.t("The update did not finish.") : L.f("The update failed: %s", out);
+                if (out.isEmpty()) return L.t("The update did not finish.");
+                int nl = out.indexOf('\n');
+                String first = nl > 0 ? out.substring(0, nl).trim() : out;
+                if (first.length() > 160) first = first.substring(0, 160) + "...";
+                return L.f("The update failed: %s", first) + (nl > 0 ? "\n" + L.t("Details are in the log file.") : "");
         }
     }
 

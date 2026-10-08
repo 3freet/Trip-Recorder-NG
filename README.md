@@ -184,7 +184,9 @@ the APK, checks its size and SHA-256 against GitHub's digest, checks that it is 
 key as the installed one, saves a backup of the trips, and then replaces itself through the car's loopback
 debugging and starts again. So installing needs the **Vehicle data link** to be on, and the car to be parked. BYD
 resets its auto-start switch on every install, so afterwards do the same two steps as after any update (Install /
-update). The downloaded file stays in `Android/data/org.triprecorderng/files/update`.
+update). The downloaded file stays in `Android/data/org.triprecorderng/files/update`. The file is streamed into the
+installer (`cat file | pm install -r -S size`, as `adb install` does): handing `pm install` the path failed on the
+tested unit with "Failed to load asset path from fd" because the system could not read the shared-storage file.
 - **Channels.** Releases are named `stable-N` (a push to the `stable` branch) and `dev-N` (a push to `dev`, a
   pre-release); `N` is the build number of the CI run and counts up across both. The installed build's name is its
   version name (`dev-9`; a build made on a computer is just `0.1`). **Setting > Advanced > Update channel** chooses

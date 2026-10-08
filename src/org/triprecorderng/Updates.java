@@ -345,12 +345,21 @@ final class Updates {
      * loopback debugging. On success the system stops this process, so the result is only seen when it failed.
      */
     static AdbLoopback.Result install(Context ctx, File apk) {
-        String path = apk.getPath();
-        if (!path.matches("[A-Za-z0-9/._-]+")) {
+        String cmd = installCommand(ctx.getPackageName(), apk.getPath(), apk.length());
+        if (cmd == null) {
             return new AdbLoopback.Result(AdbLoopback.Status.ERROR, "", "unexpected characters in the file path");
         }
-        String cmd = "pm install -r " + path + " && am start -n " + ctx.getPackageName() + "/.MainActivity";
         Diag.log("update install: " + cmd);
         return new AdbLoopback(ctx).runShell(cmd, 20_000);
+    }
+
+    /**
+     * The shell command that installs the file, or null for a path with unexpected characters. The file is streamed
+     * into the installer (as "adb install" does) instead of handing it a path: given the path, the system's package
+     * manager could not read a file in the app's shared-storage folder ("Failed to load asset path from fd").
+     */
+    static String installCommand(String pkg, String path, long size) {
+        if (!path.matches("[A-Za-z0-9/._-]+") || size <= 0) return null;
+        return "cat " + path + " | pm install -r -S " + size + " && am start -n " + pkg + "/.MainActivity";
     }
 }
