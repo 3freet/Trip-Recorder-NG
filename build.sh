@@ -36,7 +36,7 @@ echo "[2/6] d8"
 echo "[3/6] aapt2 compile + link"
 "$BT/aapt2" compile --dir res -o build/res.zip
 "$BT/aapt2" link -o build/base.apk --manifest AndroidManifest.xml -I "$PLATFORM" build/res.zip -A assets \
-    --min-sdk-version 29 --target-sdk-version 29 --version-code 1 --version-name "$VERSION_NAME"
+    --min-sdk-version 29 --target-sdk-version 29 --version-code 1 --version-name "$VERSION_NAME" --replace-version
 
 echo "[4/6] add classes.dex"
 ( cd build/dex && zip -q -u ../base.apk classes.dex )

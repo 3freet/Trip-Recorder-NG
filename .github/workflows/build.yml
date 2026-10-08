@@ -60,6 +60,11 @@ jobs:
           fi
           export VERSION_NAME="${GITHUB_REF_NAME//\//-}-${GITHUB_RUN_NUMBER}"
           ./build.sh
+          # the update check identifies a build by this name, so a wrong one must fail the build
+          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          BT="$(ls -d "$SDK"/build-tools/* | sort -V | tail -1)"
+          "$BT/aapt2" dump badging TripRecorderNG.apk | grep -q "versionName='$VERSION_NAME'" \
+            || { echo "::error::the APK's version name is not $VERSION_NAME"; exit 1; }
           mkdir -p dist
           cp TripRecorderNG.apk "dist/TripRecorderNG-${GITHUB_REF_NAME//\//-}-${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}.apk"
 
