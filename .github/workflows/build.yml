@@ -1,0 +1,63 @@
+name: Build
+
+# Builds the APK on every push and pull request to main, dev and stable.
+# Download it from the run page (Actions > the run > Artifacts).
+# To sign with your own key (so the APK installs over your existing app) add two repository secrets:
+#   SIGNING_KEYSTORE_BASE64    the keystore file, base64: base64 -i triprec.keystore | pbcopy
+#   SIGNING_KEYSTORE_PASSWORD  its password
+# Without them the build uses a throwaway key (fine for checking that it builds).
+
+on:
+  push:
+    branches: [main, dev, stable]
+  pull_request:
+    branches: [main, dev, stable]
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Android SDK packages
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-34" "build-tools;35.0.0" || echo "sdkmanager step skipped, using the preinstalled SDK"
+
+      - name: Check translations
+        run: python3 tools/check_translations.py
+
+      - name: Build
+        env:
+          EVENT: ${{ github.event_name }}
+          KS_B64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+        run: |
+          if [ "$EVENT" = "push" ] && [ -n "$KS_B64" ] && [ -n "$KS_PASS" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/signing.keystore"
+            export KEYSTORE="$RUNNER_TEMP/signing.keystore"
+          else
+            unset KS_PASS
+            echo "::warning::No signing key available: building with a throwaway key (this APK cannot update an app signed with your own key)"
+          fi
+          ./build.sh
+          mkdir -p dist
+          cp TripRecorderNG.apk "dist/TripRecorderNG-${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TripRecorderNG-${{ github.run_number }}
+          path: dist/*.apk
+          retention-days: ${{ github.ref == 'refs/heads/stable' && 90 || 14 }}

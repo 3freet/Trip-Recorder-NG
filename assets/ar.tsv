@@ -1,0 +1,351 @@
+You have a high frequency of sudden accelerations. It is recommended to stabilize the accelerator pedal, accelerate smoothly.	لديك تكرار مرتفع للتسارع المفاجئ. يُنصح بتثبيت الضغط على دواسة الوقود والتسارع بسلاسة.
+Frequent rapid acceleration will accelerate the wear and aging of parts and shorten the service life of the vehicle. We suggest you accelerate smoothly.	التسارع السريع المتكرر يزيد من تآكل القطع وتقادمها ويقصّر العمر الافتراضي للمركبة. نوصيك بالتسارع بسلاسة.
+When there are many vehicles on the road or when driving at high speeds, it is recommended to control your speed reasonably and maintain a safe distance from the vehicle in front.	عند ازدحام الطريق أو القيادة بسرعات عالية، يُنصح بالتحكم في السرعة والحفاظ على مسافة أمان من المركبة التي أمامك.
+Frequent sudden braking can accelerate wear on tires, braking systems, and cause shocks to the suspension and transmission systems. We recommend maintaining a safe distance and decelerate in advance.	الكبح المفاجئ المتكرر يزيد من تآكل الإطارات ونظام الفرامل ويسبّب صدمات لنظام التعليق ونقل الحركة. نوصي بالحفاظ على مسافة أمان وتخفيف السرعة مبكرًا.
+Driving too fast, easy to cause traffic accidents, it is recommended to follow the prescribed speed to ensure safety.	القيادة بسرعة زائدة تسهّل وقوع الحوادث المرورية، ويُنصح بالالتزام بالسرعة المحددة لضمان السلامة.
+At high speeds, your field of vision narrows, making it difficult to properly handle sudden abnormalities ahead, which can easily lead to accidents. We recommend controlling your speed reasonably.	عند السرعات العالية يضيق مجال الرؤية فيصعب التعامل مع المفاجآت أمامك، مما قد يؤدي بسهولة إلى حوادث. نوصي بالتحكم في السرعة.
+We suggest regular maintenance, avoiding peak traffic times, reducing vehicle weight, and maintaining normal tire pressure to reduce energy consumption from all aspects.	نقترح الصيانة الدورية وتجنّب أوقات الذروة وتقليل الحمولة والحفاظ على ضغط الإطارات الطبيعي لخفض استهلاك الطاقة من جميع الجوانب.
+We recommend driving at an economical speed within the speed limit, as driving too fast or too slow can increase fuel consumption.	نوصي بالقيادة بسرعة اقتصادية ضمن الحد المسموح، فالقيادة السريعة جدًا أو البطيئة جدًا تزيد الاستهلاك.
+It is recommended to rationalize the time of continuous driving, and when you feel tired, stop at a safe place to rest as soon as possible; the longer you delay, the more fatigue you will feel and increasing the risk of accidents.	يُنصح بتنظيم مدة القيادة المتواصلة، وعند الشعور بالتعب توقّف في مكان آمن للراحة في أقرب وقت؛ فكلما تأخرت زاد الإرهاق وارتفع خطر الحوادث.
+Your driving habits are excellent, please continue to keep them up!	عاداتك في القيادة ممتازة، واصل على هذا النهج!
+Charging	الشحن
+ - paused	 - متوقف مؤقتًا
+Off	متوقف
+Connected - helper running	متصل - المساعد يعمل
+Connecting...	جارٍ الاتصال...
+Waiting for the car to accept the request (tap Allow on the car screen if it asks)	بانتظار موافقة السيارة على الطلب (اضغط «سماح» على شاشة السيارة إذا ظهر الطلب)
+Not connected - 	غير متصل - 
+Connecting soon...	سيبدأ الاتصال قريبًا...
+ (retrying in %d s)	 (إعادة المحاولة بعد %d ث)
+starting	جارٍ البدء
+turned off	تم الإيقاف
+helper already running	المساعد يعمل بالفعل
+the car's network debugging (ADB) is not ready yet	تصحيح الشبكة في السيارة (ADB) غير جاهز بعد
+approval pending	بانتظار الموافقة
+debugging request was not accepted yet	لم يتم قبول طلب التصحيح بعد
+helper started	بدأ المساعد
+Open Setting > BYD auto-start apps, find Trip Recorder NG in 'Disable background Apps' and turn it OFF (OFF means the app is allowed to start). Then restart the head unit once.	افتح الإعدادات > تطبيقات التشغيل التلقائي في BYD، وابحث عن Trip Recorder NG ضمن «Disable background Apps» وأوقف مفتاحه (إيقاف المفتاح يعني السماح للتطبيق بالعمل). ثم أعد تشغيل وحدة الشاشة مرة واحدة.
+BYD did not start Trip Recorder NG by itself after the last restart, so trips are not recorded until you open the app.\n\n	لم تشغّل BYD تطبيق Trip Recorder NG تلقائيًا بعد آخر إعادة تشغيل، لذلك لا تُسجَّل الرحلات حتى تفتح التطبيق.\n\n
+Auto-start is not confirmed yet. BYD switches it back to blocked every time Trip Recorder is installed or updated, and until it is allowed the app does not record after a restart.\n\n	لم يتأكد التشغيل التلقائي بعد. تعيد BYD منعه في كل مرة يُثبَّت فيها Trip Recorder أو يُحدَّث، وحتى يُسمح به لا يسجّل التطبيق بعد إعادة التشغيل.\n\n
+Turn off 'Disable background Apps'	أوقف «Disable background Apps»
+Open BYD settings	فتح إعدادات BYD
+Later	لاحقًا
+Driving Behavior Q&A	أسئلة وأجوبة عن سلوك القيادة
+Setting	الإعدادات
+This Trip	هذه الرحلة
+My Trips	رحلاتي
+Attainment	الإنجازات
+Statistics	الإحصائيات
+Tweaks	تعديلات
+BYD API via helper	واجهة BYD عبر المساعد
+GPS only	GPS فقط
+BYD framework API	واجهة BYD المباشرة
+autoservice binder	autoservice binder
+none	لا يوجد
+Mileage (km)	المسافة (كم)
+Duration	المدة
+Average speed (km/h)	متوسط السرعة (كم/س)
+Max speed (km/h)	أقصى سرعة (كم/س)
+Battery (%)	البطارية (%)
+Energy (kWh/100km)	الطاقة (kWh/100 كم)
+Hard acceleration	تسارع حاد
+Hard braking	كبح حاد
+Drive score	تقييم القيادة
+km/h	كم/س
+Service stopped	الخدمة متوقفة
+Recording	جارٍ التسجيل
+Not recording	لا يوجد تسجيل
+Vehicle data: %s	بيانات المركبة: %s
+GPS: %s	GPS: %s
+fix	متصل
+searching	جارٍ البحث
+off	متوقف
+Power level %d	مستوى الطاقة %d
+Data link: %s	رابط البيانات: %s
+Turn on Vehicle data link in Setting for battery and energy	فعّل رابط بيانات المركبة من الإعدادات للحصول على بيانات البطارية والطاقة
+Range:	المدى:
+EV %s km	كهرباء %s كم
+fuel %s km	وقود %s كم
+Auto-start is blocked by BYD - see Setting	BYD تمنع التشغيل التلقائي - راجع الإعدادات
+No trip recorded yet	لم تُسجَّل أي رحلة بعد
+Current trip	الرحلة الحالية
+Last trip - %s	آخر رحلة - %s
+%1$d trips, %2$s km	عدد الرحلات: %1$d، المسافة: %2$s كم
+Export CSV	تصدير CSV
+No trips yet	لا توجد رحلات بعد
+Restore trips from backup	استعادة الرحلات من النسخة الاحتياطية
+Restore %d trip(s) from backup	استعادة %d رحلة من النسخة الاحتياطية
+Consumption (kWh/100km)	الاستهلاك (kWh/100 كم)
+Cost (%s)	التكلفة (%s)
+Battery used (%)	البطارية المستهلكة (%)
+Highest achievements	أعلى الإنجازات
+Longest trip	أطول رحلة
+%s km	%s كم
+Longest drive	أطول مدة قيادة
+Top speed	أعلى سرعة
+%s km/h	%s كم/س
+Most efficient (5 km+)	الأكثر كفاءة (5 كم فأكثر)
+%s /100km	%s /100 كم
+Best drive score	أفضل تقييم قيادة
+Total distance	إجمالي المسافة
+%s%% driven electric	%s%% قيادة كهربائية
+Total trips	إجمالي الرحلات
+Total drive time	إجمالي مدة القيادة
+Total cost	إجمالي التكلفة
+electricity + fuel	كهرباء + وقود
+Fuel used	الوقود المستهلك
+%s L	%s لتر
+over %d trip(s)	خلال %d رحلة
+recorded for new trips	يُسجَّل للرحلات الجديدة
+CO2 avoided (estimate)	CO2 المتجنَّب (تقدير)
+%s kg	%s كجم
+about %s trees a year	ما يعادل %s شجرة في السنة
+needs fuel data	يحتاج إلى بيانات الوقود
+Level (next: %s km)	المستوى (التالي عند %s كم)
+Level (top)	المستوى (الأعلى)
+Lv %d	المستوى %d
+Mileage	المسافة
+Consumption	الاستهلاك
+Trips	الرحلات
+Cost	التكلفة
+Fuel	الوقود
+Daily	يومي
+Monthly	شهري
+Average drive score	متوسط تقييم القيادة
+Number of trips	عدد الرحلات
+Fuel used (L)	الوقود المستهلك (لتر)
+ - last 12 months	 - آخر 12 شهرًا
+ - last 14 days	 - آخر 14 يومًا
+Trip details	تفاصيل الرحلة
+score	التقييم
+Average speed	متوسط السرعة
+Max speed	أقصى سرعة
+Battery	البطارية
+Energy used	الطاقة المستهلكة
+%s kWh	%s kWh
+%s kWh/100km	%s kWh/100 كم
+%s L/100km	%s لتر/100 كم
+Electric / hybrid distance	المسافة الكهربائية / الهجينة
+%1$s km / %2$s km	%1$s كم / %2$s كم
+Odometer change	التغير في عدّاد المسافة
+Distance measured by	تُقاس المسافة بواسطة
+car trip counter	عدّاد رحلة السيارة
+speed	السرعة
+Hard accel / braking	التسارع / الكبح الحاد
+Idle time	وقت التوقف
+Time above 100 km/h	الوقت فوق 100 كم/س
+Electricity cost	تكلفة الكهرباء
+Fuel cost	تكلفة الوقود
+Trip cost	تكلفة الرحلة
+  (fuel not recorded)	  (الوقود غير مسجَّل)
+Driving advice	نصائح القيادة
+Export GPX	تصدير GPX
+Delete	حذف
+Data roaming	التجوال بالبيانات
+Turn on now	تشغيل الآن
+Turning data roaming on...	جارٍ تشغيل التجوال بالبيانات...
+Keep data roaming on	إبقاء التجوال بالبيانات مفعّلًا
+On: applied at start-up, whenever the data link helper starts, and again within a minute if the car switches it off	مفعّل: يُطبَّق عند بدء التشغيل وكلما بدأ مساعد رابط البيانات، ويُعاد خلال دقيقة إذا أوقفته السيارة
+Off: roaming is only turned on when you press the button above	متوقف: لا يُشغَّل التجوال إلا عند الضغط على الزر أعلاه
+Turn off	إيقاف
+Turn on	تشغيل
+Needs the Vehicle data link (Setting): the change is made through the car's network debugging. Command: 	يتطلب رابط بيانات المركبة (من الإعدادات): يتم التغيير عبر تصحيح الشبكة في السيارة. الأمر: 
+%d session(s)	جلسات الشحن: %d
+about %s kWh added	تقريبًا %s kWh مضافة
+about %s	تقريبًا %s
+No charging sessions yet	لا توجد جلسات شحن بعد
+A session is recorded automatically while the car charges	تُسجَّل الجلسة تلقائيًا أثناء شحن السيارة
+Turn on Vehicle data link in Setting: charging is read from the car through it	فعّل رابط بيانات المركبة من الإعدادات: تُقرأ حالة الشحن من السيارة عبره
+Partial	جزئية
+Battery gained (%)	البطارية المضافة (%)
+Energy added (kWh)	الطاقة المضافة (kWh)
+Type	النوع
+Charging details	تفاصيل الشحن
+Battery (%) while charging - touch the chart to inspect	البطارية (%) أثناء الشحن - المس الرسم البياني لاستعراضه
+Not enough samples to draw a chart	لا توجد عيّنات كافية لرسم المخطط
+%s kW	%s kW
+charging now	يشحن الآن
+Energy added (estimate)	الطاقة المضافة (تقدير)
+Energy added	الطاقة المضافة
+Average power	متوسط القدرة
+Highest power reported	أعلى قدرة مسجَّلة
+not reported by the car	لم تُبلغ بها السيارة
+Charger	الشاحن
+Partial: this charge happened while the head unit was asleep. Only the battery level before and after is known, so the times shown are the window in which it happened, not how long it charged.	جزئية: حدث هذا الشحن أثناء سكون الشاشة. المعروف فقط مستوى البطارية قبل الشحن وبعده، لذا فالأوقات المعروضة هي الفترة التي حدث فيها الشحن وليست مدة الشحن الفعلية.
+Partial: the app missed part of this session (the head unit was asleep or the app was not running), so the battery gain and energy can be lower than the real total.	جزئية: فاتت التطبيقَ جزءٌ من هذه الجلسة (كانت الشاشة في وضع السكون أو التطبيق لا يعمل)، لذا قد تكون البطارية والطاقة المسجّلتان أقل من الإجمالي الفعلي.
+Show place	عرض الموقع
+Delete this charging session permanently?	هل تريد حذف جلسة الشحن هذه نهائيًا؟
+Cancel	إلغاء
+Language	اللغة
+Change	تغيير
+Trip recording service	خدمة تسجيل الرحلات
+Running	تعمل
+Stopped	متوقفة
+Stop	إيقاف
+Start	تشغيل
+Vehicle data source	مصدر بيانات المركبة
+Self-test	اختبار ذاتي
+Vehicle data link	رابط بيانات المركبة
+Disable	تعطيل
+Enable	تفعيل
+Vehicle data link turned off	تم إيقاف رابط بيانات المركبة
+Connecting to the car's data service...	جارٍ الاتصال بخدمة بيانات السيارة...
+Reconnect	إعادة الاتصال
+Try to connect to the car's data right now	محاولة الاتصال ببيانات السيارة الآن
+Retry now	إعادة المحاولة الآن
+Reconnecting...	جارٍ إعادة الاتصال...
+Debugging key	مفتاح التصحيح
+This app's key for the car's network debugging	مفتاح هذا التطبيق لتصحيح الشبكة في السيارة
+Forget	حذف المفتاح
+Key removed and link turned off	تم حذف المفتاح وإيقاف الرابط
+Location (GPS track)	الموقع (مسار GPS)
+Allowed	مسموح
+Not allowed	غير مسموح
+Allow	سماح
+Started automatically after the last restart	بدأ تلقائيًا بعد آخر إعادة تشغيل
+NOT started automatically after the last restart: turn Trip Recorder NG OFF in 'Disable background Apps'	لم يبدأ تلقائيًا بعد آخر إعادة تشغيل: أوقف مفتاح Trip Recorder NG ضمن «Disable background Apps»
+Not confirmed yet: turn Trip Recorder NG OFF in 'Disable background Apps', then restart the head unit once	لم يتأكد بعد: أوقف مفتاح Trip Recorder NG ضمن «Disable background Apps» ثم أعد تشغيل وحدة الشاشة مرة واحدة
+BYD auto-start apps	تطبيقات التشغيل التلقائي في BYD
+Open	فتح
+Battery optimisation	تحسين البطارية
+Keep the recorder running	إبقاء المسجّل قيد التشغيل
+Energy prices	أسعار الطاقة
+Electricity %1$s %2$s/kWh%3$s, fuel %4$s %2$s/L%5$s	الكهرباء %1$s %2$s/kWh%3$s، الوقود %4$s %2$s/لتر%5$s
+ (default)	 (افتراضي)
+Set	تعيين
+Record route (GPS track)	تسجيل المسار (تتبع GPS)
+On: trips keep their route on the map	مفعّل: تحتفظ الرحلات بمسارها على الخريطة
+Off: new trips store no route and no event positions	متوقف: لا تحفظ الرحلات الجديدة المسار ولا مواقع الأحداث
+Automatic backup	النسخ الاحتياطي التلقائي
+On: every finished trip is also saved to 	مفعّل: تُحفظ كل رحلة منتهية أيضًا في 
+Off. Backup folder: 	متوقف. مجلد النسخ الاحتياطي: 
+%d trip file(s)	عدد الملفات: %d
+newest %s	الأحدث %s
+Warning: Documents is not writable, so this copy is deleted if the app is uninstalled	تحذير: لا يمكن الكتابة في مجلد المستندات، لذا ستُحذف هذه النسخة عند إلغاء تثبيت التطبيق
+Automatic backup turned on	تم تفعيل النسخ الاحتياطي التلقائي
+Automatic backup turned off	تم إيقاف النسخ الاحتياطي التلقائي
+Back up now	نسخ احتياطي الآن
+Saves any finished trip that has no backup file yet	يحفظ كل رحلة منتهية ليس لها ملف نسخ احتياطي بعد
+Back up	نسخ احتياطي
+Restore from backup	استعادة من النسخة الاحتياطية
+Adds the trips from the backup folder that are missing here (nothing is overwritten)	يضيف الرحلات الموجودة في مجلد النسخ الاحتياطي وغير الموجودة هنا (لا يُستبدل شيء)
+Restore	استعادة
+Export all trips	تصدير كل الرحلات
+Export	تصدير
+Log file: %s	ملف السجل: %s
+Automatic (follows the head unit)	تلقائي (حسب لغة الشاشة)
+How is a trip recorded?	كيف تُسجَّل الرحلة؟
+A trip is one ignition cycle: it starts when the car is switched on and ends when it is switched off. If the ignition state cannot be read, a trip starts when the car moves and ends after three minutes standing still.	الرحلة هي دورة تشغيل واحدة: تبدأ عند تشغيل السيارة وتنتهي عند إطفائها. وإذا تعذّرت قراءة حالة التشغيل، تبدأ الرحلة عند تحرك السيارة وتنتهي بعد ثلاث دقائق من التوقف.
+What is measured?	ماذا يُقاس؟
+Speed (several times a second), battery level and the car's energy counter, plus the GPS position every few seconds. Distance comes from the car's own trip counter (from speed when that is not available).	السرعة (عدة مرات في الثانية) ومستوى البطارية وعدّاد الطاقة في السيارة، إضافة إلى موقع GPS كل بضع ثوانٍ. وتأتي المسافة من عدّاد الرحلة في السيارة نفسها (ومن السرعة عند عدم توفره).
+Does it need internet?	هل يحتاج إلى الإنترنت؟
+No. Everything is stored on this head unit. Nothing is uploaded.	لا. كل شيء يُخزَّن على هذه الشاشة ولا يُرفع أي شيء.
+How is the drive score calculated?	كيف يُحسب تقييم القيادة؟
+Simplified: 100 points, minus 5 for every hard acceleration or hard braking. It differs from the stock app, which uses settings downloaded from BYD.	بشكل مبسّط: 100 نقطة يُخصم منها 5 لكل تسارع حاد أو كبح حاد. وهو يختلف عن تطبيق BYD الأصلي الذي يستخدم إعدادات تُنزَّل من BYD.
+What is the Vehicle data link?	ما هو رابط بيانات المركبة؟
+An optional setting (off by default). When on, the app starts a small helper through the car's network debugging so it can read BYD's own vehicle data: battery level, energy counter, odometer and ignition. Without it trips are recorded from GPS only.	إعداد اختياري (متوقف افتراضيًا). عند تفعيله يشغّل التطبيق مساعدًا صغيرًا عبر تصحيح الشبكة في السيارة ليتمكن من قراءة بيانات المركبة من BYD: مستوى البطارية وعدّاد الطاقة وعدّاد المسافة وحالة التشغيل. وبدونه تُسجَّل الرحلات من GPS فقط.
+Why does recording stop after a restart?	لماذا يتوقف التسجيل بعد إعادة التشغيل؟
+BYD blocks apps from starting by themselves. Open Setting > BYD auto-start apps and turn Trip Recorder NG OFF in 'Disable background Apps'. BYD switches it back on every time the app is installed or updated, so do this again after an update.	تمنع BYD التطبيقات من البدء تلقائيًا. افتح الإعدادات > تطبيقات التشغيل التلقائي في BYD وأوقف مفتاح Trip Recorder NG ضمن «Disable background Apps». تعيد BYD تفعيل المنع في كل مرة يُثبَّت التطبيق أو يُحدَّث، لذا كرّر ذلك بعد كل تحديث.
+Where are my files?	أين ملفاتي؟
+Export CSV and GPX from My Trips or Setting. Files go to Documents/TripRecorderNG.	يمكنك تصدير CSV وGPX من «رحلاتي» أو من الإعدادات. تُحفظ الملفات في Documents/TripRecorderNG.
+Are my trips backed up?	هل رحلاتي محفوظة احتياطيًا؟
+Yes, by default. Each finished trip is also saved as a small file in Documents/TripRecorderNG/backup, so the trips survive an uninstall or a cleared app. Setting > Restore from backup adds any missing trips back.	نعم، افتراضيًا. تُحفظ كل رحلة منتهية أيضًا في ملف صغير داخل Documents/TripRecorderNG/backup، فتبقى الرحلات بعد إلغاء التثبيت أو مسح بيانات التطبيق. ويعيد «الإعدادات > استعادة من النسخة الاحتياطية» أي رحلات مفقودة.
+How is the cost calculated?	كيف تُحسب التكلفة؟
+Prices start at 0.010 OMR per kWh and 0.239 OMR per litre. Change them in Setting > Energy prices (leave a price empty to go back to the default). A trip costs the energy it took from the battery times the electricity price, plus the fuel it burned times the fuel price. This car is a plug-in hybrid, so fuel is recorded with each trip made since the update (older trips only get the electricity part). A charging session costs the energy it added times the electricity price. Charging losses are not included.	الأسعار الافتراضية 0.010 OMR لكل kWh و0.239 OMR لكل لتر. يمكنك تغييرها من «الإعدادات > أسعار الطاقة» (اترك السعر فارغًا للعودة إلى الافتراضي). تكلفة الرحلة = الطاقة التي سُحبت من البطارية × سعر الكهرباء + الوقود الذي استُهلك × سعر الوقود. هذه السيارة هجينة قابلة للشحن، لذلك يُسجَّل الوقود مع كل رحلة منذ التحديث (أما الرحلات الأقدم فتحصل على جزء الكهرباء فقط). وتكلفة جلسة الشحن = الطاقة التي أضافتها × سعر الكهرباء. ولا تُحتسب خسائر الشحن.
+What are Driving advice, CO2 avoided and the driving level?	ما هي نصائح القيادة وثاني أكسيد الكربون المتجنَّب ومستوى القيادة؟
+Driving advice on a trip uses the stock app's advice texts, chosen by simple rules (hard braking or acceleration, high average speed, high consumption, a long drive). CO2 avoided compares your trips with a typical petrol car (8 L per 100 km) minus the fuel you burned and an assumed 0.4 kg CO2 per kWh of grid electricity: it is an estimate. The driving level uses the stock app's level names but steps by the distance recorded here.	تستخدم نصائح القيادة نصوص النصائح من تطبيق BYD الأصلي، وتُختار بقواعد بسيطة (كبح أو تسارع حاد، متوسط سرعة مرتفع، استهلاك مرتفع، قيادة طويلة). ويقارن ثاني أكسيد الكربون المتجنَّب رحلاتك بسيارة بنزين نموذجية (8 لتر لكل 100 كم) مطروحًا منه الوقود الذي استهلكته وافتراض 0.4 كجم لكل kWh من كهرباء الشبكة: وهو تقدير. أما مستوى القيادة فيستخدم أسماء مستويات التطبيق الأصلي لكن بحسب المسافة المسجَّلة هنا.
+What are Tweaks?	ما هي «تعديلات»؟
+Small changes to the car that need the shell user's rights, made through the car's network debugging, so they need the Vehicle data link. The first one turns mobile data roaming on (settings put global data_roaming 1). "Keep data roaming on" repeats it at start-up, whenever the helper starts, and within a minute if something switches roaming off.	تغييرات صغيرة على السيارة تحتاج صلاحيات مستخدم shell وتتم عبر تصحيح الشبكة في السيارة، لذلك تتطلب رابط بيانات المركبة. أولها يشغّل التجوال بالبيانات (settings put global data_roaming 1). و«إبقاء التجوال بالبيانات مفعّلًا» يكرّره عند بدء التشغيل وكلما بدأ المساعد وخلال دقيقة إذا أوقف شيء ما التجوال.
+How are charging sessions recorded?	كيف تُسجَّل جلسات الشحن؟
+With the Vehicle data link on, the app reads the car's charging state. A session starts when the car begins charging and ends a minute after it stops. It stores the battery level along the way. This car does not report charging power or energy, so the kWh added is an estimate: the battery percentage gained times the kWh per percent measured on your own trips. The head unit sleeps when the car is off and the app cannot record while it sleeps: a session it only saw part of is marked Partial, and the final battery level is read as soon as the unit wakes. If the whole charge happened while it slept, the app compares the battery level with the last one it saw and records the rise as a Partial session.	عند تفعيل رابط بيانات المركبة يقرأ التطبيق حالة الشحن في السيارة. تبدأ الجلسة عندما تبدأ السيارة بالشحن وتنتهي بعد دقيقة من توقفه، ويُحفظ مستوى البطارية على طول الجلسة. لا تُبلغ هذه السيارة بقدرة الشحن أو طاقته، لذلك فإن kWh المضافة تقدير: نسبة البطارية المضافة × kWh لكل نسبة مئوية مقاسة من رحلاتك. وتنام الشاشة عند إطفاء السيارة ولا يستطيع التطبيق التسجيل أثناء نومها: فالجلسة التي رأى جزءًا منها فقط تُوسَم «جزئية» ويُقرأ مستوى البطارية النهائي فور استيقاظ الشاشة. وإذا تم الشحن كله أثناء النوم، يقارن التطبيق مستوى البطارية بآخر مستوى رآه ويسجّل الارتفاع كجلسة جزئية.
+What do the colours and charts on a trip show?	ماذا تعرض الألوان والرسوم البيانية في الرحلة؟
+The route is coloured by speed (green slow, red fast). Red and amber dots mark hard braking and hard acceleration. Under the map, pick Speed, Battery, Elevation or Efficiency and touch the chart to see that moment on the map. Battery, Efficiency and event dots are recorded for trips made after the update; older trips show speed and elevation only.	يُلوَّن المسار بحسب السرعة (الأخضر بطيء والأحمر سريع). وتشير النقاط الحمراء والكهرمانية إلى الكبح الحاد والتسارع الحاد. أسفل الخريطة اختر السرعة أو البطارية أو الارتفاع أو الكفاءة والمس الرسم البياني لترى تلك اللحظة على الخريطة. تُسجَّل البطارية والكفاءة ونقاط الأحداث للرحلات التي تمت بعد التحديث؛ أما الرحلات الأقدم فتعرض السرعة والارتفاع فقط.
+Turn on Vehicle data link?	تفعيل رابط بيانات المركبة؟
+This adds battery, energy, odometer and ignition data to your trips.\n\nTo get them, Trip Recorder NG uses the car's own network debugging (ADB) on this head unit to start a small helper. Depending on the head unit, the car may ask you to allow debugging for this app (tick "Always allow" and tap Allow); on some units it is accepted automatically. After that the helper starts by itself each time the car boots.\n\nYou can switch it off here at any time (this stops the helper), and "Forget" deletes the app's key.	يضيف هذا بيانات البطارية والطاقة وعدّاد المسافة وحالة التشغيل إلى رحلاتك.\n\nللحصول عليها يستخدم Trip Recorder NG تصحيح الشبكة (ADB) في هذه الشاشة لتشغيل مساعد صغير. وبحسب الشاشة قد تطلب السيارة السماح بالتصحيح لهذا التطبيق (ضع علامة «السماح دائمًا» ثم اضغط سماح)، وفي بعض الوحدات يُقبل تلقائيًا. بعد ذلك يبدأ المساعد من تلقاء نفسه في كل مرة تُشغَّل فيها السيارة.\n\nيمكنك إيقافه هنا في أي وقت (وهذا يوقف المساعد)، و«حذف المفتاح» يحذف مفتاح التطبيق.
+Currency	العملة
+Electricity price per kWh	سعر الكهرباء لكل kWh
+default %s	الافتراضي %s
+Fuel price per litre	سعر الوقود لكل لتر
+Electricity %1$s %2$s/kWh     Fuel %3$s %2$s/L	الكهرباء %1$s %2$s/kWh     الوقود %3$s %2$s/لتر
+Used to work out what each trip and each charge cost. Leave a price empty to use the default. The cost counts the energy taken from the battery, so charging losses are not included.	يُستخدم لحساب تكلفة كل رحلة وكل عملية شحن. اترك السعر فارغًا لاستخدام السعر الافتراضي. تحتسب التكلفة الطاقة المسحوبة من البطارية، لذا لا تُحتسب خسائر الشحن.
+Save	حفظ
+Prices saved	تم حفظ الأسعار
+Everything is already backed up (%d files)	كل شيء محفوظ احتياطيًا بالفعل (%d ملفًا)
+Backed up %1$d item(s) (%2$d files in %3$s)	تم النسخ الاحتياطي لـ %1$d عنصر (%2$d ملفًا في %3$s)
+Restore trips from backup?	استعادة الرحلات من النسخة الاحتياطية؟
+Trips found in the backup folder that are not in the app yet will be added. Existing trips are not changed.	ستُضاف الرحلات الموجودة في مجلد النسخ الاحتياطي وغير الموجودة في التطبيق. لا تتغير الرحلات الحالية.
+%1$d trip(s) and %2$d charging session(s) restored	تمت استعادة %1$d رحلة و%2$d جلسة شحن
+%d already in the app	موجود بالفعل في التطبيق: %d
+%d could not be read	تعذّرت قراءة %d
+Delete this trip permanently?	هل تريد حذف هذه الرحلة نهائيًا؟
+Saved %s	تم الحفظ: %s
+Export failed: %s	فشل التصدير: %s
+OK	موافق
+Could not open settings	تعذّر فتح الإعدادات
+Not available on this unit	غير متاح في هذه الوحدة
+This trip has no GPS track	لا يوجد مسار GPS لهذه الرحلة
+Could not open Google Maps	تعذّر فتح خرائط Google
+Wi-Fi	Wi-Fi
+cellular	شبكة الجوال
+ethernet	إيثرنت
+other	أخرى
+Network status unavailable	حالة الشبكة غير متاحة
+on	مفعّل
+unknown	غير معروف
+not connected	غير متصل
+connected, internet works	متصل والإنترنت يعمل
+ (roaming)	 (تجوال)
+connected, no internet yet	متصل ولا يوجد إنترنت بعد
+nothing	لا شيء
+Roaming setting: %1$s   |   Cellular: %2$s   |   Apps use: %3$s	إعداد التجوال: %1$s   |   الجوال: %2$s   |   التطبيقات تستخدم: %3$s
+Trip recording	تسجيل الرحلات
+Starting...	جارٍ البدء...
+No vehicle data	لا توجد بيانات للمركبة
+Connecting to the car's data...	جارٍ الاتصال ببيانات السيارة...
+Waiting for ignition	بانتظار تشغيل السيارة
+Waiting for movement	بانتظار الحركة
+Recording: %.1f km	جارٍ التسجيل: %.1f كم
+No GPS track for this trip	لا يوجد مسار GPS لهذه الرحلة
+Tap the map to open this trip in Google Maps	المس الخريطة لفتح هذه الرحلة في خرائط Google
+130+ km/h	130+ كم/س
+hard braking %d	كبح حاد %d
+hard accel %d	تسارع حاد %d
+Novice on the road	مبتدئ على الطريق
+Familiar with the road	ألِف الطريق
+Handling it with ease	يتعامل بسهولة
+In command	متحكّم
+A cut above	أرفع شأنًا
+Fluent driver	سائق طليق
+Skilled driver	سائق ماهر
+Veteran driver	سائق متمرّس
+Steady as a mountain	ثابت كالجبل
+Solid as a rock	صلب كالصخر
+Outdrives everyone	يتفوق على الجميع
+Mastery	إتقان
+Wizard of the wheel	ساحر المقود
+Peak performance	قمة الأداء
+One with the car	واحد مع السيارة
+Mountain-pass legend	أسطورة الممرات الجبلية
+Speed	السرعة
+Elevation	الارتفاع
+Efficiency	الكفاءة
+No speed data	لا توجد بيانات سرعة
+Speed (km/h) - touch the chart to see it on the map	السرعة (كم/س) - المس الرسم البياني لرؤيتها على الخريطة
+Battery along the route was not recorded for this trip (%1$s%% -> %2$s%%)	لم تُسجَّل البطارية على طول المسار لهذه الرحلة (%1$s%% -> %2$s%%)
+No battery data for this trip	لا توجد بيانات بطارية لهذه الرحلة
+Battery (%) - touch the chart to see it on the map	البطارية (%) - المس الرسم البياني لرؤيتها على الخريطة
+No altitude data for this trip	لا توجد بيانات ارتفاع لهذه الرحلة
+Energy along the route was not recorded for this trip	لم تُسجَّل الطاقة على طول المسار لهذه الرحلة
+Not enough distance in any speed band	لا توجد مسافة كافية في أي نطاق سرعة
+  -  whole trip %s	  -  الرحلة كاملة %s
+kWh/100km by speed (km/h)	kWh/100 كم بحسب السرعة (كم/س)
+Elevation (m)  -  climb %1$d m, descent %2$d m	الارتفاع (م)  -  صعود %1$d م، هبوط %2$d م
+%d m	%d م
+On	مفعّل
+Unknown	غير معروف
+turned on at %s	تم التشغيل في %s
+command sent at %1$s (the setting still reads %2$s)	أُرسل الأمر في %1$s (الإعداد لا يزال %2$s)
+failed at %1$s: %2$s	فشل في %1$s: %2$s
+failed at %s	فشل في %s
+%1$dh %2$dm	%1$d س %2$d د
+%d min	%d دقيقة

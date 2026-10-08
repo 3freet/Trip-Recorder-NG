@@ -1,0 +1,15 @@
+# build output
+/build/
+*.apk
+*.idsig
+
+# signing key and its password: never publish these (see build.sh)
+*.keystore
+*.jks
+*.pass
+.keystore-pass
+
+# local files
+.DS_Store
+*.log
+.claude/
