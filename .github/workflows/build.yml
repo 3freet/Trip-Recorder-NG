@@ -2,6 +2,8 @@ name: Build
 
 # Builds the APK on every push and pull request to main, dev and stable.
 # Download it from the run page (Actions > the run > Artifacts).
+# A push to dev or stable also publishes a GitHub Release with the APK (dev: pre-release "dev-N",
+# stable: release "stable-N"), but only when the build was signed with your key (the two secrets below).
 # To sign with your own key (so the APK installs over your existing app) add two repository secrets:
 #   SIGNING_KEYSTORE_BASE64    the keystore file, base64: base64 -i triprec.keystore | pbcopy
 #   SIGNING_KEYSTORE_PASSWORD  its password
@@ -23,6 +25,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    outputs:
+      signed: ${{ steps.build.outputs.signed }}
     steps:
       - uses: actions/checkout@v7
 
@@ -40,6 +44,7 @@ jobs:
         run: python3 tools/check_translations.py
 
       - name: Build
+        id: build
         env:
           EVENT: ${{ github.event_name }}
           KS_B64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
@@ -48,16 +53,43 @@ jobs:
           if [ "$EVENT" = "push" ] && [ -n "$KS_B64" ] && [ -n "$KS_PASS" ]; then
             echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/signing.keystore"
             export KEYSTORE="$RUNNER_TEMP/signing.keystore"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
           else
             unset KS_PASS
             echo "::warning::No signing key available: building with a throwaway key (this APK cannot update an app signed with your own key)"
           fi
           ./build.sh
           mkdir -p dist
-          cp TripRecorderNG.apk "dist/TripRecorderNG-${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}.apk"
+          cp TripRecorderNG.apk "dist/TripRecorderNG-${GITHUB_REF_NAME//\//-}-${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}.apk"
 
       - uses: actions/upload-artifact@v7
         with:
           name: TripRecorderNG-${{ github.run_number }}
           path: dist/*.apk
           retention-days: ${{ github.ref == 'refs/heads/stable' && 90 || 14 }}
+
+  release:
+    # only for pushes to dev and stable, and only for APKs signed with the real key
+    needs: build
+    if: >-
+      github.event_name == 'push' && needs.build.outputs.signed == 'true' &&
+      (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/stable')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: TripRecorderNG-${{ github.run_number }}
+          path: dist
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          TAG="${BRANCH}-${GITHUB_RUN_NUMBER}"
+          if [ "$BRANCH" = "stable" ]; then KIND=(--latest); else KIND=(--prerelease); fi
+          gh release create "$TAG" dist/*.apk --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Trip Recorder NG ${BRANCH} build ${GITHUB_RUN_NUMBER}" "${KIND[@]}" --generate-notes \
+            --notes "Signed with the project's release key, so it installs over earlier builds. After installing, turn Trip Recorder NG OFF in the car's Disable background Apps list and restart the head unit once (BYD resets that switch on every install). Unofficial, use at your own risk: see the README."

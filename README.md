@@ -273,7 +273,11 @@ socket protected by a random token. Trips then get battery used, consumption and
 - A GitHub Actions workflow (`.github/workflows/build.yml`) builds the APK on every push and pull request to
   these three branches, after checking the translations. Download the APK from the run page (Actions > the run
   > Artifacts); builds of `stable` are kept 90 days, the others 14.
-- To get APKs signed with your own key (so they install over your existing app), add two repository secrets:
+- A push to `dev` also publishes a **pre-release** (`dev-N`) and a push to `stable` a **release** (`stable-N`) on the
+  Releases page, with the signed APK attached, so you can download builds without opening Actions. A release is only
+  published when the build was signed with the project's key (the secrets below), never with a throwaway key.
+- To get APKs signed with your own key (so they install over your existing app, and so releases are published),
+  add two repository secrets:
   `SIGNING_KEYSTORE_BASE64` (`base64 -i triprec.keystore | pbcopy`) and `SIGNING_KEYSTORE_PASSWORD`. Without
   them the build uses a throwaway key: good enough to see that it builds, but it cannot update an installed
   app. Pull requests never get the secrets.
