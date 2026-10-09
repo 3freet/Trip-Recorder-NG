@@ -12,6 +12,14 @@ models and software versions may behave differently; reports and fixes are welco
 > **Not affiliated with BYD.** "BYD" and "DiLink" belong to their owners and are used here only to say what
 > the app works with. Read the [Disclaimer](#disclaimer) before installing.
 
+## Why this exists
+The car's own trip recorder is part of BYD's My Car app ("Driving behavior"). It relies on a BYD server, and on the
+author's car it ceased to work after BYD applied geo-restrictions to the server the app connects to. The car kept
+driving, but its trip recorder was no longer usable.
+
+Trip Recorder NG was written to fill that gap. It records the same kind of data directly on the head unit, keeps
+everything on the car, and needs neither a BYD server nor a BYD account, so a geo-restriction cannot switch it off.
+
 ## Quick start
 1. Build the APK with `./build.sh` (see [Build](#build)).
 2. Install it on the head unit over ADB: `adb install -r TripRecorderNG.apk` (you need ADB access to the head
