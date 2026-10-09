@@ -1,13 +1,13 @@
 name: Build
 
-# Builds the APK on pushes and pull requests to main, dev and stable. A push to dev or stable also
-# publishes a GitHub Release with the signed APK.
+# Builds the APK on pushes and pull requests to main and stable. A push to main publishes a dev
+# pre-release and a push to stable publishes a release, both with the signed APK.
 
 on:
   push:
-    branches: [main, dev, stable]
+    branches: [main, stable]
   pull_request:
-    branches: [main, dev, stable]
+    branches: [main, stable]
 
 concurrency:
   group: build-${{ github.ref }}
@@ -21,6 +21,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       signed: ${{ steps.build.outputs.signed }}
+      version: ${{ steps.build.outputs.version }}
     steps:
       - uses: actions/checkout@v7
 
@@ -52,7 +53,14 @@ jobs:
             unset KS_PASS
             echo "::warning::No signing key available: building with a throwaway key (this APK cannot update an app signed with your own key)"
           fi
-          export VERSION_NAME="${GITHUB_REF_NAME//\//-}-${GITHUB_RUN_NUMBER}"
+          # the build's name: dev-N from main, stable-N from stable, anything else is not a release build
+          case "$EVENT:$GITHUB_REF_NAME" in
+            push:stable) CHANNEL=stable ;;
+            push:main) CHANNEL=dev ;;
+            *) CHANNEL="build-${GITHUB_REF_NAME//\//-}" ;;
+          esac
+          export VERSION_NAME="${CHANNEL}-${GITHUB_RUN_NUMBER}"
+          echo "version=$VERSION_NAME" >> "$GITHUB_OUTPUT"
           ./build.sh
           # the update check identifies a build by this name, so a wrong one must fail the build
           SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
@@ -60,7 +68,7 @@ jobs:
           "$BT/aapt2" dump badging TripRecorderNG.apk | grep -q "versionName='$VERSION_NAME'" \
             || { echo "::error::the APK's version name is not $VERSION_NAME"; exit 1; }
           mkdir -p dist
-          cp TripRecorderNG.apk "dist/TripRecorderNG-${GITHUB_REF_NAME//\//-}-${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}.apk"
+          cp TripRecorderNG.apk "dist/TripRecorderNG-${VERSION_NAME}-${GITHUB_SHA::7}.apk"
 
       - uses: actions/upload-artifact@v7
         with:
@@ -69,11 +77,11 @@ jobs:
           retention-days: ${{ github.ref == 'refs/heads/stable' && 90 || 14 }}
 
   release:
-    # only for pushes to dev and stable, and only for APKs signed with the real key
+    # only for pushes to main and stable, and only for APKs signed with the real key
     needs: build
     if: >-
       github.event_name == 'push' && needs.build.outputs.signed == 'true' &&
-      (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/stable')
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable')
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -86,10 +94,9 @@ jobs:
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
-          BRANCH: ${{ github.ref_name }}
+          VERSION: ${{ needs.build.outputs.version }}
         run: |
-          TAG="${BRANCH}-${GITHUB_RUN_NUMBER}"
-          if [ "$BRANCH" = "stable" ]; then KIND=(--latest); else KIND=(--prerelease); fi
-          gh release create "$TAG" dist/*.apk --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "Trip Recorder NG ${BRANCH} build ${GITHUB_RUN_NUMBER}" "${KIND[@]}" --generate-notes \
+          case "$VERSION" in stable-*) KIND=(--latest) ;; *) KIND=(--prerelease) ;; esac
+          gh release create "$VERSION" dist/*.apk --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Trip Recorder NG ${VERSION%-*} build ${VERSION##*-}" "${KIND[@]}" --generate-notes \
             --notes "After installing, turn Trip Recorder NG OFF in the car's Disable background Apps list and restart the head unit once (BYD resets that switch on every install). Unofficial, use at your own risk: see the README."

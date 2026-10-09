@@ -5,7 +5,7 @@
 #
 # Version: the version code is always 1 on purpose (Android refuses to install a lower version code over a
 # higher one, and switching from the dev to the stable channel must work). The version name identifies the
-# build: CI sets VERSION_NAME to "<branch>-<run number>" ("dev-9"), which is also the release tag; a build made
+# build: CI sets VERSION_NAME to "<channel>-<run number>" ("dev-9"), which is also the release tag; a build made
 # on a computer is "0.1" unless you set VERSION_NAME.
 #
 # Signing: the APK is signed with triprec.keystore (alias "triprec"). If that file does not exist a new key
