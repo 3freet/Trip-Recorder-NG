@@ -13,12 +13,11 @@ models and software versions may behave differently; reports and fixes are welco
 > the app works with. Read the [Disclaimer](#disclaimer) before installing.
 
 ## Why this exists
-The car's own trip recorder is part of BYD's My Car app ("Driving behavior"). It relies on a BYD server, and on the
-author's car it ceased to work after BYD applied geo-restrictions to the server the app connects to. The car kept
-driving, but its trip recorder was no longer usable.
+BYD's own trip recorder, part of the My Car app ("Driving behavior"), depends on a BYD server. BYD has applied
+geo-restrictions to that server, so in the affected regions the recorder no longer works.
 
-Trip Recorder NG was written to fill that gap. It records the same kind of data directly on the head unit, keeps
-everything on the car, and needs neither a BYD server nor a BYD account, so a geo-restriction cannot switch it off.
+Trip Recorder NG fills that gap. It records the same kind of data directly on the head unit, keeps everything on
+the car, and needs neither a BYD server nor a BYD account, so a geo-restriction cannot switch it off.
 
 ## Quick start
 1. Build the APK with `./build.sh` (see [Build](#build)).
