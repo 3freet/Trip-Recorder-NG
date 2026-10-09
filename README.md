@@ -187,9 +187,8 @@ resets its auto-start switch on every install, so afterwards do the same two ste
 update). The downloaded file stays in `Android/data/org.triprecorderng/files/update`. The file is streamed into the
 installer (`cat file | pm install -r -S size`, as `adb install` does): handing `pm install` the path failed on the
 tested unit with "Failed to load asset path from fd" because the system could not read the shared-storage file.
-- **Channels.** Releases are named `stable-N` (a push to the `stable` branch) and `dev-N` (a push to `dev`, a
-  pre-release); `N` is the build number of the CI run and counts up across both. The installed build's name is its
-  version name (`dev-9`; a build made on a computer is just `0.1`). **Setting > Advanced > Update channel** chooses
+- **Channels.** Releases are named `stable-N` and `dev-N` (dev builds are pre-releases); `N` counts up across
+  both. The installed build's name is its version name (`dev-9`; a build made on a computer is just `0.1`). **Setting > Advanced > Update channel** chooses
   which channel the check follows; choosing the other one offers its newest build straight away, which is how you
   switch between stable and dev in either direction.
 - **Why the version code is always 1.** Android refuses to install a lower version code over a higher one, which
@@ -222,22 +221,12 @@ dates use Arabic month and day names.
   no code change needed.
 - The app name "Trip Recorder NG" is never translated: the title bar, notification and launcher label are the same in both languages.
 
-## Name and package
-The app is **Trip Recorder NG**, package `org.triprecorderng`; the title bar, notification and launcher label say
-the same in every language. Earlier versions of this project used the package `org.triprec`. A different package
-is a different app to Android, so it starts with empty data and has its own entry in BYD's "Disable background
-Apps" list. Trips and charging sessions move over with **Setting > Restore from backup**, which also reads the
-folders of earlier versions (`Downloads/TripRecorder/backup`, `Downloads/TripRecorderNG/backup`); new backups and
-exports go to `Documents/TripRecorderNG`. At start the app moves any files left in the old Downloads folders into
-the Documents folder, deleting an old file only after its copy is complete. The helper process is named
-`triprecng_helper`; starting it also stops one left by the old app.
-
 ## Build
 `./build.sh` builds `TripRecorderNG.apk` with the plain Android SDK tools (no Gradle). It needs JDK 21 and an
 Android SDK with a platform (android-34 or newer) and build-tools 35 or newer (build-tools 34's d8 crashes on
 JDK 21 class files). The script looks for them in the Homebrew locations; set `JAVA_HOME` and
-`ANDROID_SDK_ROOT` if yours are elsewhere. `VERSION_NAME` sets the version name (CI sets `<branch>-<run number>`;
-the default is `0.1`); the version code is always 1 (see Updates).
+`ANDROID_SDK_ROOT` if yours are elsewhere. `VERSION_NAME` sets the version name (the default is `0.1`);
+the version code is always 1 (see Updates).
 
 **Signing key.** The APK is signed with `triprec.keystore` (alias `triprec`). If the file does not exist the script
 creates a new key with a random password, stored in `triprec.keystore.pass`. Both files are git-ignored and must
@@ -301,20 +290,6 @@ socket protected by a random token. Trips then get battery used, consumption and
 - Real drives were recorded with GPS routes and, with the link on, battery and energy per trip (e.g. one
   186 km trip, 99% to 27%, 22.9 kWh).
 - Not confirmed: auto-start after a real head-unit restart with the BYD switch off for the newest install.
-
-## Branches and automatic builds
-- `dev`: work in progress. `main`: tested code. `stable`: the version you run in the car.
-- A GitHub Actions workflow (`.github/workflows/build.yml`) builds the APK on every push and pull request to
-  these three branches, after checking the translations. Download the APK from the run page (Actions > the run
-  > Artifacts); builds of `stable` are kept 90 days, the others 14.
-- A push to `dev` also publishes a **pre-release** (`dev-N`) and a push to `stable` a **release** (`stable-N`) on the
-  Releases page, with the signed APK attached, so you can download builds without opening Actions. A release is only
-  published when the build was signed with the project's key (the secrets below), never with a throwaway key.
-- To get APKs signed with your own key (so they install over your existing app, and so releases are published),
-  add two repository secrets:
-  `SIGNING_KEYSTORE_BASE64` (`base64 -i triprec.keystore | pbcopy`) and `SIGNING_KEYSTORE_PASSWORD`. Without
-  them the build uses a throwaway key: good enough to see that it builds, but it cannot update an installed
-  app. Pull requests never get the secrets.
 
 ## Third-party content
 The GPL license below covers the code and original material written for this project. It does **not** cover

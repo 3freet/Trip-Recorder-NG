@@ -1,13 +1,7 @@
 name: Build
 
-# Builds the APK on every push and pull request to main, dev and stable.
-# Download it from the run page (Actions > the run > Artifacts).
-# A push to dev or stable also publishes a GitHub Release with the APK (dev: pre-release "dev-N",
-# stable: release "stable-N"), but only when the build was signed with your key (the two secrets below).
-# To sign with your own key (so the APK installs over your existing app) add two repository secrets:
-#   SIGNING_KEYSTORE_BASE64    the keystore file, base64: base64 -i triprec.keystore | pbcopy
-#   SIGNING_KEYSTORE_PASSWORD  its password
-# Without them the build uses a throwaway key (fine for checking that it builds).
+# Builds the APK on pushes and pull requests to main, dev and stable. A push to dev or stable also
+# publishes a GitHub Release with the signed APK.
 
 on:
   push:
@@ -98,4 +92,4 @@ jobs:
           if [ "$BRANCH" = "stable" ]; then KIND=(--latest); else KIND=(--prerelease); fi
           gh release create "$TAG" dist/*.apk --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "Trip Recorder NG ${BRANCH} build ${GITHUB_RUN_NUMBER}" "${KIND[@]}" --generate-notes \
-            --notes "Signed with the project's release key, so it installs over earlier builds. After installing, turn Trip Recorder NG OFF in the car's Disable background Apps list and restart the head unit once (BYD resets that switch on every install). Unofficial, use at your own risk: see the README."
+            --notes "After installing, turn Trip Recorder NG OFF in the car's Disable background Apps list and restart the head unit once (BYD resets that switch on every install). Unofficial, use at your own risk: see the README."
