@@ -1,11 +1,13 @@
 name: Build
 
 # Builds the APK on pushes and pull requests to main and stable. A push to main publishes a dev
-# pre-release and a push to stable publishes a release, both with the signed APK.
+# pre-release and a push to stable publishes a release, both with the signed APK. A push that only
+# changes documentation files does nothing.
 
 on:
   push:
     branches: [main, stable]
+    paths-ignore: ['**.md', 'LICENSE', '.gitignore']
   pull_request:
     branches: [main, stable]
 
