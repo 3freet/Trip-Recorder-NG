@@ -75,23 +75,33 @@ final class Exporter {
         return out;
     }
 
+    /** The file name a trip's GPX gets, from the start time. */
+    static String gpxFileName(long startMs) {
+        return "trip-" + new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date(startMs)) + ".gpx";
+    }
+
+    /** One GPX track with every point of the trip; points are {time ms, lat, lon, altitude, ...}. */
+    static String gpx(long startMs, List<double[]> pts) {
+        StringBuilder sb = new StringBuilder(pts.size() * 90 + 300);
+        sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        sb.append("<gpx version=\"1.1\" creator=\"TripRecorder\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n");
+        sb.append("<trk><name>").append(local(startMs)).append("</name><trkseg>\n");
+        for (double[] p : pts) {
+            sb.append("<trkpt lat=\"").append(String.format(Locale.US, "%.6f", p[1])).append("\" lon=\"")
+                    .append(String.format(Locale.US, "%.6f", p[2])).append("\"><ele>")
+                    .append(String.format(Locale.US, "%.1f", p[3])).append("</ele><time>").append(iso((long) p[0]))
+                    .append("</time></trkpt>\n");
+        }
+        sb.append("</trkseg></trk>\n</gpx>\n");
+        return sb.toString();
+    }
+
     static File exportGpx(Context ctx, Trip t) throws IOException {
         List<double[]> pts = TripDb.get(ctx).points(t.id);
-        String stamp = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date(t.startMs));
-        File out = new File(dir(ctx), "trip-" + stamp + ".gpx");
+        File out = new File(dir(ctx), gpxFileName(t.startMs));
         FileWriter w = new FileWriter(out, false);
         try {
-            w.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-            w.write("<gpx version=\"1.1\" creator=\"TripRecorder\" "
-                    + "xmlns=\"http://www.topografix.com/GPX/1/1\">\n");
-            w.write("<trk><name>" + local(t.startMs) + "</name><trkseg>\n");
-            for (double[] p : pts) {
-                w.write("<trkpt lat=\"" + String.format(Locale.US, "%.6f", p[1]) + "\" lon=\""
-                        + String.format(Locale.US, "%.6f", p[2]) + "\"><ele>"
-                        + String.format(Locale.US, "%.1f", p[3]) + "</ele><time>" + iso((long) p[0])
-                        + "</time></trkpt>\n");
-            }
-            w.write("</trkseg></trk>\n</gpx>\n");
+            w.write(gpx(t.startMs, pts));
         } finally {
             w.close();
         }

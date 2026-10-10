@@ -60,7 +60,7 @@ final class RouteView extends View {
                 Shader.TileMode.CLAMP));
         setOnClickListener(new OnClickListener() {
             @Override public void onClick(View v) {
-                MapLink.open(getContext(), pts);
+                MapLink.choose(getContext(), pts);
             }
         });
     }
@@ -101,7 +101,7 @@ final class RouteView extends View {
             c.drawText(L.t("No GPS track for this trip"), w / 2f, h / 2f, msg);
             return;
         }
-        c.drawText(L.t("Tap the map to open this trip in Google Maps"), w / 2f, h - 10 * d, hint);
+        c.drawText(L.t("Tap the map to open this trip in a map app"), w / 2f, h - 10 * d, hint);
 
         double minLat = 90, maxLon = -180;
         maxLat = -90;

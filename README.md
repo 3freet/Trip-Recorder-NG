@@ -26,8 +26,9 @@ The head unit's screen, showing the app's built-in sample trips and charging ses
 |---|---|
 | ![This Trip](docs/screenshots/01-this-trip.png) | ![My Trips](docs/screenshots/02-my-trips.png) |
 | ![Trip details: route coloured by speed, events and charts](docs/screenshots/03-trip-details.png) | ![Charging details](docs/screenshots/05-charging-details.png) |
-| ![Attainment](docs/screenshots/06-attainment.png) | ![Statistics](docs/screenshots/07-statistics.png) |
-| ![My Trips in Arabic](docs/screenshots/08-arabic-my-trips.png) | ![Trip details in Arabic](docs/screenshots/09-arabic-trip-details.png) |
+| ![Open track with: exact track in OsmAnd, road routes in other apps](docs/screenshots/10-open-track-with.png) | ![Attainment](docs/screenshots/06-attainment.png) |
+| ![Statistics](docs/screenshots/07-statistics.png) | ![My Trips in Arabic](docs/screenshots/08-arabic-my-trips.png) |
+| ![Trip details in Arabic](docs/screenshots/09-arabic-trip-details.png) | |
 
 The Arabic screens are mirrored right to left in the content area, with the menu kept on the left.
 
@@ -63,8 +64,7 @@ tracks, so they show where you live and drive: delete or do not share them if th
 for the INTERNET permission for loopback connections to the helper and the car's debugging service, and for
 **Setting > Check for updates**. The app never goes online by itself and uploads nothing. It contacts GitHub
 (`api.github.com`, and `github.com` to download a build) only when you tap Check for updates or Install; GitHub then
-sees the car's IP address and the app's build name. The Google Maps link in trip details hands a route to the Maps
-app or browser when you tap it.
+sees the car's IP address and the app's build name. Opening a trip in a map app (trip details) hands the trip to the app you pick.
 
 ## What it does
 - A foreground service starts at boot and records trips locally (SQLite). Nothing is uploaded.
@@ -80,10 +80,17 @@ app or browser when you tap it.
 - Not available in GPS-only mode: ignition state, battery %, energy counter, odometer
   (those columns show "--").
 - Export: CSV (all trips) and GPX (per trip) to Documents/TripRecorderNG.
-- Trip details: tapping the track opens the trip in Google Maps (`MapLink`) as a driving route from the
-  start to the end through up to 8 waypoints that keep the track's shape. Google Maps cannot draw an
-  arbitrary polyline from a link, so it follows the roads between those points (the 186 km test trip
-  showed 207 km in Maps). Needs internet on the car; falls back to the browser if the Maps app is missing.
+- Trip details: tapping the track opens an **Open track with** list of the map apps installed on the car
+  (`MapLink`, `TrackProvider`):
+  - Apps that can open GPX files, such as OsmAnd, get the trip as a GPX file and draw the **exact track**,
+    off-road parts included. This is the entry to use when the route left the roads.
+  - Google Maps, Yandex and 2GIS cannot open GPX or draw an arbitrary line from a link, so they get the trip as
+    a driving route (start, end and up to 8 shape points as waypoints). They follow the roads between those
+    points, so the list marks them "Follows roads, not the exact track" (the 186 km test trip showed 207 km in
+    Maps) and they need internet on the car.
+  - "Other apps" hands the GPX file to Android's own chooser (file managers and other GPX viewers).
+  The list is built from what is installed; the GPX file is a temporary copy in the app's cache and is only readable
+  by the app you pick.
 
 ## Backup and restore
 Each finished trip and charging session is also written as a small JSON file (summary, track, events,

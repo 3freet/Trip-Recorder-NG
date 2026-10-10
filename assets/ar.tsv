@@ -305,7 +305,6 @@ Waiting for ignition	بانتظار تشغيل السيارة
 Waiting for movement	بانتظار الحركة
 Recording: %.1f km	جارٍ التسجيل: %.1f كم
 No GPS track for this trip	لا يوجد مسار GPS لهذه الرحلة
-Tap the map to open this trip in Google Maps	المس الخريطة لفتح هذه الرحلة في خرائط Google
 130+ km/h	130+ كم/س
 hard braking %d	كبح حاد %d
 hard accel %d	تسارع حاد %d
@@ -410,3 +409,11 @@ Don't show again	عدم الإظهار مجددًا
 This reminder will show every time the app is opened.	سيظهر هذا التذكير في كل مرة يُفتح فيها التطبيق.
 Understood. The reminder comes back after %d openings of the app.	حسنًا. سيعود التذكير بعد %d مرة يُفتح فيها التطبيق.
 Details are in the log file.	التفاصيل في ملف السجل.
+Tap the map to open this trip in a map app	المس الخريطة لفتح هذه الرحلة في تطبيق خرائط
+Open track with	فتح المسار باستخدام
+Could not open the track	تعذّر فتح المسار
+Exact track (GPX)	المسار الدقيق (GPX)
+Follows roads, not the exact track	يتبع الطرق وليس المسار الدقيق
+Other apps...	تطبيقات أخرى...
+Apps that open GPX files	تطبيقات تفتح ملفات GPX
+No map app that opens GPX files is installed. OsmAnd is one.	لا يوجد تطبيق خرائط يفتح ملفات GPX. OsmAnd أحدها.

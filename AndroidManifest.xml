@@ -48,6 +48,13 @@
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="false">
 
+        <!-- serves a trip's GPX file to the map app the user picks (access is granted per URI) -->
+        <provider
+            android:name=".TrackProvider"
+            android:authorities="org.triprecorderng.tracks"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
