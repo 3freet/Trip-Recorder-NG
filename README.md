@@ -20,7 +20,7 @@ Trip Recorder NG fills that gap. It records the same kind of data directly on th
 the car, and needs neither a BYD server nor a BYD account, so a geo-restriction cannot switch it off.
 
 ## Screenshots
-The head unit's screen, showing the app's built-in sample trips and charging sessions (not real trips).
+The head unit's screen, showing the app's built-in sample trips and charging sessions.
 
 | | |
 |---|---|
@@ -236,7 +236,7 @@ dates use Arabic month and day names.
 - **Adding or changing a text.** Wrap the string in `L.t`, then add the pair to `assets/ar.tsv` (or run
   `python3 tools/check_translations.py`, which lists texts that are missing from the file, entries no longer used,
   placeholder differences and UI strings that were not wrapped). The Arabic wording is plain Modern Standard
-  Arabic written by the assistant and not yet reviewed by a native speaker; edit `ar.tsv` directly to improve it,
+  Arabic and has not yet been reviewed by a native speaker; edit `ar.tsv` directly to improve it,
   no code change needed.
 - The app name "Trip Recorder NG" is never translated: the title bar, notification and launcher label are the same in both languages.
 
