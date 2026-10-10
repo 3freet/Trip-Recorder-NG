@@ -113,7 +113,21 @@ final class RouteView extends View {
             maxLon = Math.max(maxLon, p[2]);
         }
         double midLat = (minLat + maxLat) / 2.0;
+        double midLon = (minLon + maxLon) / 2.0;
         kx = Math.cos(Math.toRadians(midLat));
+        // about 25 m: the car stayed where it was (anything wider than this is a real track)
+        boolean stayedPut = maxLat - minLat < 0.00025 && (maxLon - minLon) * kx < 0.00025;
+        // a track smaller than about 65 m is drawn at that scale and centred, instead of being blown up
+        final double minSpanDeg = 0.0006;
+        if (maxLat - minLat < minSpanDeg) {
+            minLat = midLat - minSpanDeg / 2;
+            maxLat = midLat + minSpanDeg / 2;
+        }
+        if ((maxLon - minLon) * kx < minSpanDeg) {
+            double half = minSpanDeg / kx / 2;
+            minLon = midLon - half;
+            maxLon = midLon + half;
+        }
         double spanX = Math.max(1e-6, (maxLon - minLon) * kx);
         double spanY = Math.max(1e-6, maxLat - minLat);
         float pad = 28 * d;
@@ -138,6 +152,7 @@ final class RouteView extends View {
         c.drawCircle(px(pts.get(0)[2]), py(pts.get(0)[1]), 7 * d, dot);
         dot.setColor(Ui.RED);
         c.drawCircle(lastX, lastY, 7 * d, dot);
+        if (stayedPut) c.drawText(L.t("The car did not move"), w / 2f, usableH * 0.78f, msg);
 
         // hard braking (red) and hard acceleration (amber) markers
         int accel = 0, brake = 0;

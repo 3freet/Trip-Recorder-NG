@@ -912,7 +912,7 @@ public class MainActivity extends Activity {
         row.addView(leftCol, new LinearLayout.LayoutParams(0, -1, 1f));
         new Thread(new Runnable() {
             @Override public void run() {
-                final List<double[]> pts = TripDb.get(MainActivity.this).points(t.id);
+                final List<double[]> pts = TripAnalysis.holdStill(TripDb.get(MainActivity.this).points(t.id));
                 final List<double[]> events = TripDb.get(MainActivity.this).events(t.id);
                 ui.post(new Runnable() {
                     @Override public void run() {

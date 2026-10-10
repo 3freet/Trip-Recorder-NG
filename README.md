@@ -127,6 +127,12 @@ samples, including across a stretch with no samples; across a real data hole (li
 sample. The efficiency chart ignores samples where the car was standing still. Source: `RecorderService`,
 `TripAnalysis`, `TripChartView`.
 
+A parked car's GPS fix wanders by tens of metres, and a long idle session would draw that as a scribble. Samples
+taken while the car's speed reads under 1 km/h therefore keep the position (and altitude) of the last moving sample
+when a trip is shown or exported (`TripAnalysis.holdStill`; the stored points are not changed, so older trips are
+cleaned up too). A trip that never moved shows a single dot and "The car did not move"; the map never zooms in to
+less than about 65 m.
+
 ## Trip distance
 The distance of a trip is read from the car's own trip counter (the instrument cluster's journey
 mileage, `BYDAutoInstrumentDevice.getCurrentJourneyDriveMileage`, 0.1 km steps, via the helper), added up

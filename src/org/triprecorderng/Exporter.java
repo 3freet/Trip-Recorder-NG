@@ -97,7 +97,7 @@ final class Exporter {
     }
 
     static File exportGpx(Context ctx, Trip t) throws IOException {
-        List<double[]> pts = TripDb.get(ctx).points(t.id);
+        List<double[]> pts = TripAnalysis.holdStill(TripDb.get(ctx).points(t.id));
         File out = new File(dir(ctx), gpxFileName(t.startMs));
         FileWriter w = new FileWriter(out, false);
         try {

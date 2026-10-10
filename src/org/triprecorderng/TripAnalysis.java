@@ -1,5 +1,6 @@
 package org.triprecorderng;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** Derived series for the trip details screen. Points are {ts, lat, lon, alt, gps km/h, car km/h, bearing, soc, kWh}. */
@@ -8,6 +9,33 @@ final class TripAnalysis {
 
     static final double[] BAND_LIMITS = {30, 60, 90, 120};
     static final String[] BAND_NAMES = {"0-30", "30-60", "60-90", "90-120", "120+"};
+
+    /** A sample whose speed is below this was taken with the car standing still. */
+    static final double STILL_KMH = 1.0;
+
+    /**
+     * The points with the position and altitude of every sample taken while the car stood still replaced by those of
+     * the sample before it (so, in the end, by those of the last moving sample, or the first sample of a trip that
+     * starts standing). A parked car's GPS fix wanders by tens of metres, which would otherwise draw a scribble on the
+     * map and in an exported track. The stored points are not changed, so older trips are cleaned up too.
+     */
+    static List<double[]> holdStill(List<double[]> pts) {
+        List<double[]> out = new ArrayList<>(pts.size());
+        double[] anchor = null;
+        for (double[] p : pts) {
+            if (anchor != null && p.length > 4 && speed(p) < STILL_KMH) {
+                double[] q = p.clone();
+                q[1] = anchor[1];
+                q[2] = anchor[2];
+                q[3] = anchor[3];
+                out.add(q);
+            } else {
+                out.add(p);
+                anchor = p;
+            }
+        }
+        return out;
+    }
 
     static double speed(double[] p) {
         double v = p.length > 5 && !Double.isNaN(p[5]) ? p[5] : p[4];
