@@ -19,6 +19,18 @@ geo-restrictions to that server, so in the affected regions the recorder no long
 Trip Recorder NG fills that gap. It records the same kind of data directly on the head unit, keeps everything on
 the car, and needs neither a BYD server nor a BYD account, so a geo-restriction cannot switch it off.
 
+## Screenshots
+The head unit's screen, showing the app's built-in sample trips and charging sessions (not real trips).
+
+| | |
+|---|---|
+| ![This Trip](docs/screenshots/01-this-trip.png) | ![My Trips](docs/screenshots/02-my-trips.png) |
+| ![Trip details: route coloured by speed, events and charts](docs/screenshots/03-trip-details.png) | ![Charging details](docs/screenshots/05-charging-details.png) |
+| ![Attainment](docs/screenshots/06-attainment.png) | ![Statistics](docs/screenshots/07-statistics.png) |
+| ![My Trips in Arabic](docs/screenshots/08-arabic-my-trips.png) | ![Trip details in Arabic](docs/screenshots/09-arabic-trip-details.png) |
+
+The Arabic screens are mirrored right to left in the content area, with the menu kept on the left.
+
 ## Quick start
 1. Build the APK with `./build.sh` (see [Build](#build)).
 2. Install it on the head unit over ADB: `adb install -r TripRecorderNG.apk` (you need ADB access to the head
