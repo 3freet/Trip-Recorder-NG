@@ -130,6 +130,15 @@ final class Prefs {
         sp(c).edit().putBoolean("keep_roaming", on).apply();
     }
 
+    /** Whether the Tweaks screen's "keep AVAS off" is switched on. Off by default. */
+    static boolean keepAvasOff(Context c) {
+        return sp(c).getBoolean("keep_avas_off", false);
+    }
+
+    static void setKeepAvasOff(Context c, boolean on) {
+        sp(c).edit().putBoolean("keep_avas_off", on).apply();
+    }
+
     /** Whether trips store their GPS route and event positions. On by default. */
     static boolean recordRoute(Context c) {
         return sp(c).getBoolean("record_route", true);

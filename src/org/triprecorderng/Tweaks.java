@@ -9,8 +9,9 @@ import java.util.Locale;
 
 /**
  * Small system tweaks that need the shell user's rights, run through the car's loopback debugging
- * (the same route that starts the data-link helper): keep mobile data roaming on, and ask the car to connect
- * to BYD's cloud. Reading the roaming setting needs no special right, only changing it does.
+ * (the same route that starts the data-link helper): keep mobile data roaming on, ask the car to connect
+ * to BYD's cloud, and turn the car's external EV sound (AVAS) off. Reading the roaming setting needs no special
+ * right, only changing it does.
  */
 final class Tweaks {
     private Tweaks() {}
@@ -24,8 +25,19 @@ final class Tweaks {
      */
     static final String CLOUD_COMMAND = "service call cloudmanager 1 i32 4";
 
+    /** What the AVAS tool does, for the note on the Tweaks screen. */
+    static final String AVAS_CALL = "BYDAutoEngineDevice.setEngineVoiceSimulatorState(0)";
+
     private static final long CHECK_EVERY_MS = 60_000;
     private static final long RETRY_AFTER_FAILURE_MS = 30_000;
+
+    /** Where the AVAS tool writes what it did: the shell user's own scratch folder. */
+    private static final String AVAS_OUT = "/data/local/tmp/triprecng-avas.out";
+    /** The car can bring AVAS back on a little after it starts, so a start-up run keeps checking this long. */
+    private static final int AVAS_KEEP_SECONDS = 90;
+    private static final long AVAS_RETRY_MS = 30_000;
+    private static final long AVAS_START_GAP_MS = 60_000;
+    private static final int AVAS_MAX_TRIES = 6;
 
     private static boolean busy;
     private static long lastAttemptMs;
@@ -81,6 +93,124 @@ final class Tweaks {
                 }
             }
         }, "tweak-cloud");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    private static boolean avasBusy;
+    private static boolean avasPending;
+    private static int avasTries;
+    private static long avasLastAttemptMs;
+    private static long avasStartMs;
+    private static volatile String avasResult = "";
+
+    /** One line for the Tweaks screen: what the button does until it has been used, then how it went. */
+    static String avasText() {
+        return avasResult.isEmpty()
+                ? L.t("Turns the car's external EV sound (AVAS) off, the same switch as in the control center")
+                : avasResult;
+    }
+
+    /**
+     * Starts the AVAS tool as the shell user and prints what it did once its first attempt is done.
+     * keepSeconds = 0 is a single attempt; more keeps checking in the background for that long.
+     */
+    private static String avasCommand(Context ctx, int keepSeconds) {
+        return "P=$(pidof triprecng_avas); [ -n \"$P\" ] && kill -9 $P; rm -f " + AVAS_OUT + "; "
+                + "(CLASSPATH=" + ctx.getApplicationInfo().sourceDir + " nohup app_process /system/bin "
+                + "--nice-name=triprecng_avas org.triprecorderng.AvasTool " + keepSeconds
+                + " > " + AVAS_OUT + " 2>&1 < /dev/null &); "
+                + "i=0; while [ $i -lt 30 ] && ! grep -q '^result=' " + AVAS_OUT + " 2>/dev/null; "
+                + "do sleep 0.5; i=$((i+1)); done; cat " + AVAS_OUT;
+    }
+
+    private static String avasWord(String output) {
+        for (String line : output.split("\n")) {
+            line = line.trim();
+            if (line.startsWith("result=")) return line.substring(7);
+        }
+        return "";
+    }
+
+    /** Turns AVAS off now (a button press). Never blocks the caller. */
+    static void avasOff(Context ctx) {
+        runAvas(ctx, 0, "button");
+    }
+
+    /**
+     * The car brings AVAS back on every time it starts. When the user switched "Keep AVAS off" on, a start (the
+     * service starting, or the ignition coming on) turns it off again and keeps checking for a short while. If
+     * the car's debugging is not ready yet, the periodic ensureAvas() tries again.
+     */
+    static void avasStart(Context ctx, String why, boolean force) {
+        if (!Prefs.keepAvasOff(ctx)) return;
+        long now = System.currentTimeMillis();
+        synchronized (Tweaks.class) {
+            if (!force && now - avasStartMs < AVAS_START_GAP_MS) return;
+            avasStartMs = now;
+            avasPending = true;
+            avasTries = 0;
+        }
+        runAvas(ctx, AVAS_KEEP_SECONDS, why);
+    }
+
+    /** Re-tries a start-up that could not be applied yet. Cheap when nothing is waiting. */
+    static void ensureAvas(Context ctx, String why) {
+        if (!avasPending || !Prefs.keepAvasOff(ctx)) return;
+        runAvas(ctx, AVAS_KEEP_SECONDS, why);
+    }
+
+    private static void runAvas(final Context ctx, final int keepSeconds, final String why) {
+        final Context app = ctx.getApplicationContext();
+        synchronized (Tweaks.class) {
+            if (avasBusy) return;
+            long now = System.currentTimeMillis();
+            if (keepSeconds > 0) {
+                // a start-up run: only while one is waiting, a few tries, 30 s apart
+                if (!avasPending || avasTries >= AVAS_MAX_TRIES) return;
+                if (avasTries > 0 && now - avasLastAttemptMs < AVAS_RETRY_MS) return;
+                avasTries++;
+            }
+            avasBusy = true;
+            avasLastAttemptMs = now;
+        }
+        Thread t = new Thread(new Runnable() {
+            @Override public void run() {
+                String when = new SimpleDateFormat("HH:mm", L.dateLocale()).format(new Date());
+                boolean done = false;
+                try {
+                    AdbLoopback.Result r = new AdbLoopback(app).runShell(avasCommand(app, keepSeconds), 30_000);
+                    String word = r.status == AdbLoopback.Status.OK ? avasWord(r.output) : "";
+                    if (word.equals("turned_off")) {
+                        avasResult = L.f("turned off at %s", when);
+                        done = true;
+                    } else if (word.equals("already_off")) {
+                        avasResult = L.f("already off at %s", when);
+                        done = true;
+                    } else if (word.equals("unavailable")) {
+                        avasResult = L.f("failed at %1$s: %2$s", when, L.t("not available on this car"));
+                        done = true; // nothing to retry
+                    } else if (word.equals("still_on")) {
+                        avasResult = L.f("failed at %1$s: %2$s", when, L.t("the car kept it on"));
+                    } else if (r.status != AdbLoopback.Status.OK) {
+                        avasResult = L.f("failed at %1$s: %2$s", when,
+                                r.status.name().toLowerCase(Locale.US).replace('_', ' '));
+                    } else {
+                        avasResult = L.f("failed at %s", when);
+                    }
+                    Diag.log("tweak avas (" + why + "): " + r.status + " " + r.detail + " | "
+                            + r.output.trim().replace('\n', ' '));
+                } catch (Throwable e) {
+                    avasResult = L.f("failed at %s", when);
+                    Diag.log("tweak avas failed", e);
+                } finally {
+                    synchronized (Tweaks.class) {
+                        avasBusy = false;
+                        if (done) avasPending = false;
+                    }
+                }
+            }
+        }, "tweak-avas");
         t.setDaemon(true);
         t.start();
     }

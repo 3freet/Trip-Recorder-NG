@@ -1088,9 +1088,32 @@ public class MainActivity extends Activity {
         box.addView(cloudRow);
         final TextView cloudText = (TextView) cloudRow.getTag();
 
+        final View avasRow = settingRow(L.t("AVAS (external EV sound)"), Tweaks.avasText(), L.t("Turn off now"),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        Tweaks.avasOff(MainActivity.this);
+                        toast(L.t("Turning AVAS off..."));
+                    }
+                });
+        box.addView(avasRow);
+        final TextView avasText = (TextView) avasRow.getTag();
+
+        boolean keepAvas = Prefs.keepAvasOff(this);
+        box.addView(settingRow(L.t("Keep AVAS off"),
+                keepAvas ? L.t("On: turned off at every start-up and whenever the car is switched on")
+                        : L.t("Off: AVAS is only turned off when you press the button above"),
+                keepAvas ? L.t("Turn off") : L.t("Turn on"), new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        boolean on = !Prefs.keepAvasOff(MainActivity.this);
+                        Prefs.setKeepAvasOff(MainActivity.this, on);
+                        if (on) Tweaks.avasStart(MainActivity.this, "switched on", true);
+                        renderCurrentTab();
+                    }
+                }));
+
         TextView note = Ui.text(this, L.t("Needs the Vehicle data link (Setting): the changes are made through the car's "
-                + "network debugging. Commands: ") + Tweaks.ROAMING_COMMAND + "  |  " + Tweaks.CLOUD_COMMAND, 14,
-                Ui.TEXT_LABEL);
+                + "network debugging. Commands: ") + Tweaks.ROAMING_COMMAND + "  |  " + Tweaks.CLOUD_COMMAND
+                + "  |  " + Tweaks.AVAS_CALL, 14, Ui.TEXT_LABEL);
         note.setPadding(0, Ui.dp(this, 16), 0, Ui.dp(this, 16));
         box.addView(note);
 
@@ -1100,6 +1123,7 @@ public class MainActivity extends Activity {
                 stateText.setText(Tweaks.roamingText(MainActivity.this));
                 netText.setText(NetStatus.line(MainActivity.this));
                 cloudText.setText(Tweaks.cloudText());
+                avasText.setText(Tweaks.avasText());
             }
         };
         return col;

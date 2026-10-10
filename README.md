@@ -47,9 +47,10 @@ The Arabic screens are mirrored right to left in the content area, with the menu
 - This is an unofficial hobby project, provided as is with no warranty (see [LICENSE](LICENSE)). You install
   and use it at your own risk. It is not endorsed or supported by BYD.
 - It reads vehicle data through BYD's internal, undocumented vehicle API. Any software update of the car can
-  change or break that. The only things the app changes on the car are Android's data-roaming switch, when you press the
-  button or turn on the toggle in the Tweaks tab, and the app itself, when you choose Install after Check for
-  updates (it replaces itself with a build downloaded from this project's GitHub releases, signed with the same key).
+  change or break that. The only things the app changes on the car are Android's data-roaming switch, the request to
+  connect to BYD's cloud and the AVAS (external EV sound) switch, when you press the button or turn on the toggle in
+  the Tweaks tab, and the app itself, when you choose Install after Check for updates (it replaces itself with a
+  build downloaded from this project's GitHub releases, signed with the same key).
 - The optional **Vehicle data link** starts a small helper through the head unit's own debugging service on
   127.0.0.1 (loopback ADB), with a key the app creates itself. On the tested unit the car accepted that key
   without asking, which means any app on that unit could do the same; this is a property of the car, not of
@@ -211,6 +212,15 @@ apn2, which can read "disconnected" while the connection works.
 The **Connect to BYD cloud** button runs `service call cloudmanager 1 i32 4`, which asks the car's cloud service to connect
 to BYD's server over whatever network is available, whether or not the car's own mobile connection (APN3) is up, so the
 BYD phone app can reach the car. It is only run when you press the button; the line under it shows when it was sent.
+
+**AVAS (external EV sound)**: the car brings this switch back on every time it starts, and the control center's
+switch is the only way to turn it off. **Turn off now** sets the same switch to off through BYD's vehicle API
+(`BYDAutoEngineDevice.setEngineVoiceSimulatorState(0)`), run by a small one-shot process (`AvasTool`) under the shell
+user. **Keep AVAS off** (off by default) does that when the app starts and whenever the ignition comes on, and keeps
+checking for 90 seconds, because the car can bring it back shortly after it starts. At other times it leaves the
+switch alone, so turning it on yourself stays on until the next start. The line under the button shows when it was
+last applied. AVAS is the car's warning sound for pedestrians, which some regions require: check your local rules
+before keeping it off.
 
 ## Updates
 **Setting > Updates > Check for updates** asks GitHub for the newest release of the channel you follow. It is manual

@@ -120,6 +120,7 @@ public class RecorderService extends Service {
     private double lastAlt;
     private double lastBearing;
     private boolean ignitionWasKnown = true;
+    private boolean ignitionWasOn;
     private long lastDistLogMs;
     private long lastDataMs;
     private long motionSinceMs;
@@ -159,6 +160,7 @@ public class RecorderService extends Service {
             charges.resume();
             ChargeRecorder.repairSplits(this, db);
             Tweaks.ensureRoaming(this, true, "service start");
+            Tweaks.avasStart(this, "service start", false);
             lastTickMs = SystemClock.elapsedRealtime();
             handler.postDelayed(tick, TICK_MS);
             if (Prefs.autoBackup(this)) {
@@ -252,6 +254,7 @@ public class RecorderService extends Service {
             HelperLauncher.ensureAsync(this, false); // throttled by its own back-off
         }
         Tweaks.ensureRoaming(this, false, "periodic check");
+        Tweaks.ensureAvas(this, "periodic check");
         live.lastTickWall = wall;
         live.gps = gps.isStarted();
         live.gpsFix = gps.fresh(5000) != null;
@@ -282,6 +285,8 @@ public class RecorderService extends Service {
         }
         boolean ignitionKnown = !Double.isNaN(power) && power != 255;
         boolean ignitionOn = ignitionKnown && (power == 2 || power == 3 || power == 4);
+        if (ignitionOn && !ignitionWasOn) Tweaks.avasStart(this, "ignition on", false);
+        if (ignitionKnown) ignitionWasOn = ignitionOn;
         boolean moving = !Double.isNaN(speed) && speed >= MOVING_KMH;
 
         if (trip == null) {

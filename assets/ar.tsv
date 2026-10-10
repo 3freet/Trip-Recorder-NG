@@ -423,3 +423,14 @@ Connect now	اتصل الآن
 Asking the car to connect...	جارٍ طلب اتصال السيارة...
 Asks the car to connect to BYD's server over any network, for the BYD phone app	يطلب من السيارة الاتصال بخادم BYD عبر أي شبكة، لتطبيق BYD على الهاتف
 sent at %s	أُرسل في %s
+AVAS (external EV sound)	AVAS (صوت السيارة الخارجي)
+Turns the car's external EV sound (AVAS) off, the same switch as in the control center	يوقف صوت السيارة الخارجي (AVAS)، وهو المفتاح نفسه في مركز التحكم
+Turn off now	إيقاف الآن
+Turning AVAS off...	جارٍ إيقاف AVAS...
+Keep AVAS off	إبقاء AVAS متوقفًا
+On: turned off at every start-up and whenever the car is switched on	مفعّل: يُوقَف عند كل بدء تشغيل وكلما شُغّلت السيارة
+Off: AVAS is only turned off when you press the button above	متوقف: لا يُوقَف AVAS إلا عند الضغط على الزر أعلاه
+turned off at %s	تم الإيقاف في %s
+already off at %s	كان متوقفًا في %s
+not available on this car	غير متاح في هذه السيارة
+the car kept it on	أبقته السيارة مفعّلًا
