@@ -7,7 +7,7 @@ name: Build
 on:
   push:
     branches: [main, stable]
-    paths-ignore: ['**.md', 'LICENSE', '.gitignore']
+    paths-ignore: ['**.md', 'LICENSE', '.gitignore', 'docs/**']
   pull_request:
     branches: [main, stable]
 
