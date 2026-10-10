@@ -1078,8 +1078,19 @@ public class MainActivity extends Activity {
         netText.setPadding(0, Ui.dp(this, 8), 0, 0);
         box.addView(netText);
 
-        TextView note = Ui.text(this, L.t("Needs the Vehicle data link (Setting): the change is made through the car's "
-                + "network debugging. Command: ") + Tweaks.ROAMING_COMMAND, 14, Ui.TEXT_LABEL);
+        final View cloudRow = settingRow(L.t("Connect to BYD cloud"), Tweaks.cloudText(), L.t("Connect now"),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        Tweaks.connectCloud(MainActivity.this);
+                        toast(L.t("Asking the car to connect..."));
+                    }
+                });
+        box.addView(cloudRow);
+        final TextView cloudText = (TextView) cloudRow.getTag();
+
+        TextView note = Ui.text(this, L.t("Needs the Vehicle data link (Setting): the changes are made through the car's "
+                + "network debugging. Commands: ") + Tweaks.ROAMING_COMMAND + "  |  " + Tweaks.CLOUD_COMMAND, 14,
+                Ui.TEXT_LABEL);
         note.setPadding(0, Ui.dp(this, 16), 0, Ui.dp(this, 16));
         box.addView(note);
 
@@ -1088,6 +1099,7 @@ public class MainActivity extends Activity {
             @Override public void run() {
                 stateText.setText(Tweaks.roamingText(MainActivity.this));
                 netText.setText(NetStatus.line(MainActivity.this));
+                cloudText.setText(Tweaks.cloudText());
             }
         };
         return col;

@@ -208,6 +208,9 @@ Under the toggle, a small line reports the roaming setting, whether the cellular
 validated (and roaming), and which network apps use right now (`NetStatus`; it reads Android's connectivity state
 and needs the `ACCESS_NETWORK_STATE` permission). Note the car's own engineering screen shows its internal flag for
 apn2, which can read "disconnected" while the connection works.
+The **Connect to BYD cloud** button runs `service call cloudmanager 1 i32 4`, which asks the car's cloud service to connect
+to BYD's server over whatever network is available, whether or not the car's own mobile connection (APN3) is up, so the
+BYD phone app can reach the car. It is only run when you press the button; the line under it shows when it was sent.
 
 ## Updates
 **Setting > Updates > Check for updates** asks GitHub for the newest release of the channel you follow. It is manual

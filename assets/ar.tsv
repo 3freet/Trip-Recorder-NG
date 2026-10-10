@@ -149,7 +149,6 @@ On: applied at start-up, whenever the data link helper starts, and again within 
 Off: roaming is only turned on when you press the button above	متوقف: لا يُشغَّل التجوال إلا عند الضغط على الزر أعلاه
 Turn off	إيقاف
 Turn on	تشغيل
-Needs the Vehicle data link (Setting): the change is made through the car's network debugging. Command: 	يتطلب رابط بيانات المركبة (من الإعدادات): يتم التغيير عبر تصحيح الشبكة في السيارة. الأمر: 
 %d session(s)	جلسات الشحن: %d
 about %s kWh added	تقريبًا %s kWh مضافة
 about %s	تقريبًا %s
@@ -418,3 +417,9 @@ Other apps...	تطبيقات أخرى...
 Apps that open GPX files	تطبيقات تفتح ملفات GPX
 No map app that opens GPX files is installed. OsmAnd is one.	لا يوجد تطبيق خرائط يفتح ملفات GPX. OsmAnd أحدها.
 The car did not move	لم تتحرك السيارة
+Needs the Vehicle data link (Setting): the changes are made through the car's network debugging. Commands: 	يتطلب رابط بيانات المركبة (من الإعدادات): تتم التغييرات عبر تصحيح الشبكة في السيارة. الأوامر: 
+Connect to BYD cloud	الاتصال بسحابة BYD
+Connect now	اتصل الآن
+Asking the car to connect...	جارٍ طلب اتصال السيارة...
+Asks the car to connect to BYD's server over any network, for the BYD phone app	يطلب من السيارة الاتصال بخادم BYD عبر أي شبكة، لتطبيق BYD على الهاتف
+sent at %s	أُرسل في %s

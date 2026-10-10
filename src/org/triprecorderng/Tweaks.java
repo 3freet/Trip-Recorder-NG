@@ -9,14 +9,20 @@ import java.util.Locale;
 
 /**
  * Small system tweaks that need the shell user's rights, run through the car's loopback debugging
- * (the same route that starts the data-link helper). Today there is one: keep mobile data roaming on.
- * Reading the setting needs no special right, only changing it does.
+ * (the same route that starts the data-link helper): keep mobile data roaming on, and ask the car to connect
+ * to BYD's cloud. Reading the roaming setting needs no special right, only changing it does.
  */
 final class Tweaks {
     private Tweaks() {}
 
     /** The one command this tweak runs. */
     static final String ROAMING_COMMAND = "settings put global data_roaming 1";
+
+    /**
+     * Makes the car's cloud service connect to BYD's server over whatever network is available, whether or not
+     * the car's own mobile connection (APN3) is up, so the BYD phone app can reach the car.
+     */
+    static final String CLOUD_COMMAND = "service call cloudmanager 1 i32 4";
 
     private static final long CHECK_EVERY_MS = 60_000;
     private static final long RETRY_AFTER_FAILURE_MS = 30_000;
@@ -34,6 +40,49 @@ final class Tweaks {
         } catch (Throwable t) {
             return -1;
         }
+    }
+
+    private static boolean cloudBusy;
+    private static volatile String cloudResult = "";
+
+    /** One line for the Tweaks screen: what the button does until it has been used, then how it went. */
+    static String cloudText() {
+        return cloudResult.isEmpty()
+                ? L.t("Asks the car to connect to BYD's server over any network, for the BYD phone app")
+                : cloudResult;
+    }
+
+    /** Runs the cloud command now (a button press). Never blocks the caller. */
+    static void connectCloud(final Context ctx) {
+        final Context app = ctx.getApplicationContext();
+        synchronized (Tweaks.class) {
+            if (cloudBusy) return;
+            cloudBusy = true;
+        }
+        Thread t = new Thread(new Runnable() {
+            @Override public void run() {
+                String when = new SimpleDateFormat("HH:mm", L.dateLocale()).format(new Date());
+                try {
+                    AdbLoopback.Result r = new AdbLoopback(app).runShell(CLOUD_COMMAND, 20_000);
+                    if (r.status == AdbLoopback.Status.OK) {
+                        cloudResult = L.f("sent at %s", when);
+                    } else {
+                        cloudResult = L.f("failed at %1$s: %2$s", when,
+                                r.status.name().toLowerCase(Locale.US).replace('_', ' '));
+                    }
+                    Diag.log("tweak cloud: " + r.status + " " + r.detail + " | " + r.output.trim());
+                } catch (Throwable e) {
+                    cloudResult = L.f("failed at %s", when);
+                    Diag.log("tweak cloud failed", e);
+                } finally {
+                    synchronized (Tweaks.class) {
+                        cloudBusy = false;
+                    }
+                }
+            }
+        }, "tweak-cloud");
+        t.setDaemon(true);
+        t.start();
     }
 
     static String roamingText(Context ctx) {
