@@ -236,8 +236,7 @@ dates use Arabic month and day names.
 - **Adding or changing a text.** Wrap the string in `L.t`, then add the pair to `assets/ar.tsv` (or run
   `python3 tools/check_translations.py`, which lists texts that are missing from the file, entries no longer used,
   placeholder differences and UI strings that were not wrapped). The Arabic wording is plain Modern Standard
-  Arabic and has not yet been reviewed by a native speaker; edit `ar.tsv` directly to improve it,
-  no code change needed.
+  Arabic and has not yet been reviewed by a native speaker; edit `ar.tsv` directly to improve it, no code change needed.
 - The app name "Trip Recorder NG" is never translated: the title bar, notification and launcher label are the same in both languages.
 
 ## Build
