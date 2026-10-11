@@ -255,6 +255,7 @@ public class RecorderService extends Service {
         }
         Tweaks.ensureRoaming(this, false, "periodic check");
         Tweaks.ensureAvas(this, "periodic check");
+        Tweaks.ensureModem(this);
         live.lastTickWall = wall;
         live.gps = gps.isStarted();
         live.gpsFix = gps.fresh(5000) != null;

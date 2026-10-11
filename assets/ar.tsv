@@ -142,12 +142,7 @@ Driving advice	نصائح القيادة
 Export GPX	تصدير GPX
 Delete	حذف
 Data roaming	التجوال بالبيانات
-Turn on now	تشغيل الآن
-Turning data roaming on...	جارٍ تشغيل التجوال بالبيانات...
 Keep data roaming on	إبقاء التجوال بالبيانات مفعّلًا
-On: applied at start-up, whenever the data link helper starts, and again within a minute if the car switches it off	مفعّل: يُطبَّق عند بدء التشغيل وكلما بدأ مساعد رابط البيانات، ويُعاد خلال دقيقة إذا أوقفته السيارة
-Off: roaming is only turned on when you press the button above	متوقف: لا يُشغَّل التجوال إلا عند الضغط على الزر أعلاه
-Turn off	إيقاف
 Turn on	تشغيل
 %d session(s)	جلسات الشحن: %d
 about %s kWh added	تقريبًا %s kWh مضافة
@@ -180,13 +175,9 @@ Change	تغيير
 Trip recording service	خدمة تسجيل الرحلات
 Running	تعمل
 Stopped	متوقفة
-Stop	إيقاف
-Start	تشغيل
 Vehicle data source	مصدر بيانات المركبة
 Self-test	اختبار ذاتي
 Vehicle data link	رابط بيانات المركبة
-Disable	تعطيل
-Enable	تفعيل
 Vehicle data link turned off	تم إيقاف رابط بيانات المركبة
 Connecting to the car's data service...	جارٍ الاتصال بخدمة بيانات السيارة...
 Reconnect	إعادة الاتصال
@@ -284,18 +275,7 @@ Not available on this unit	غير متاح في هذه الوحدة
 This trip has no GPS track	لا يوجد مسار GPS لهذه الرحلة
 Could not open Google Maps	تعذّر فتح خرائط Google
 Wi-Fi	Wi-Fi
-cellular	شبكة الجوال
-ethernet	إيثرنت
-other	أخرى
 Network status unavailable	حالة الشبكة غير متاحة
-on	مفعّل
-unknown	غير معروف
-not connected	غير متصل
-connected, internet works	متصل والإنترنت يعمل
- (roaming)	 (تجوال)
-connected, no internet yet	متصل ولا يوجد إنترنت بعد
-nothing	لا شيء
-Roaming setting: %1$s   |   Cellular: %2$s   |   Apps use: %3$s	إعداد التجوال: %1$s   |   الجوال: %2$s   |   التطبيقات تستخدم: %3$s
 Trip recording	تسجيل الرحلات
 Starting...	جارٍ البدء...
 No vehicle data	لا توجد بيانات للمركبة
@@ -340,8 +320,6 @@ Elevation (m)  -  climb %1$d m, descent %2$d m	الارتفاع (م)  -  صعو�
 %d m	%d م
 On	مفعّل
 Unknown	غير معروف
-turned on at %s	تم التشغيل في %s
-command sent at %1$s (the setting still reads %2$s)	أُرسل الأمر في %1$s (الإعداد لا يزال %2$s)
 failed at %1$s: %2$s	فشل في %1$s: %2$s
 failed at %s	فشل في %s
 %1$dh %2$dm	%1$d س %2$d د
@@ -417,20 +395,57 @@ Other apps...	تطبيقات أخرى...
 Apps that open GPX files	تطبيقات تفتح ملفات GPX
 No map app that opens GPX files is installed. OsmAnd is one.	لا يوجد تطبيق خرائط يفتح ملفات GPX. OsmAnd أحدها.
 The car did not move	لم تتحرك السيارة
-Needs the Vehicle data link (Setting): the changes are made through the car's network debugging. Commands: 	يتطلب رابط بيانات المركبة (من الإعدادات): تتم التغييرات عبر تصحيح الشبكة في السيارة. الأوامر: 
 Connect to BYD cloud	الاتصال بسحابة BYD
 Connect now	اتصل الآن
-Asking the car to connect...	جارٍ طلب اتصال السيارة...
-Asks the car to connect to BYD's server over any network, for the BYD phone app	يطلب من السيارة الاتصال بخادم BYD عبر أي شبكة، لتطبيق BYD على الهاتف
-sent at %s	أُرسل في %s
 AVAS (external EV sound)	AVAS (صوت السيارة الخارجي)
 Turns the car's external EV sound (AVAS) off, the same switch as in the control center	يوقف صوت السيارة الخارجي (AVAS)، وهو المفتاح نفسه في مركز التحكم
 Turn off now	إيقاف الآن
-Turning AVAS off...	جارٍ إيقاف AVAS...
 Keep AVAS off	إبقاء AVAS متوقفًا
-On: turned off at every start-up and whenever the car is switched on	مفعّل: يُوقَف عند كل بدء تشغيل وكلما شُغّلت السيارة
-Off: AVAS is only turned off when you press the button above	متوقف: لا يُوقَف AVAS إلا عند الضغط على الزر أعلاه
 turned off at %s	تم الإيقاف في %s
 already off at %s	كان متوقفًا في %s
 not available on this car	غير متاح في هذه السيارة
 the car kept it on	أبقته السيارة مفعّلًا
+Modem reboot	إعادة تشغيل المودم
+Reboot now	إعادة التشغيل الآن
+Reboot the modem?	إعادة تشغيل المودم؟
+The car's mobile connection drops for about a minute while the modem restarts.	ينقطع اتصال السيارة الخلوي لنحو دقيقة أثناء إعادة تشغيل المودم.
+Reboot	إعادة التشغيل
+refused by the phone service	رفضته خدمة الهاتف
+Automatic reboot at %s: 	إعادة تشغيل تلقائية في %s: 
+LTE back after %d s	عاد LTE بعد %d ث
+still not on LTE: reboot again	لا يزال خارج LTE: أعد التشغيل مرة أخرى
+Details	التفاصيل
+Changes need the Vehicle data link turned on in	تتطلب التغييرات تفعيل رابط بيانات المركبة من
+Re-applied at start-up and whenever the car switches it off.	يُعاد تطبيقه عند بدء التشغيل وكلما أوقفته السيارة.
+Links the car to BYD's server over any network, for the phone app.	يربط السيارة بخادم BYD عبر أي شبكة، لتطبيق الهاتف.
+Request sent	تم إرسال الطلب
+Turning off...	جارٍ الإيقاف...
+Turned off	تم الإيقاف
+Turned off at every start-up and whenever the car is switched on.	يُوقَف عند كل بدء تشغيل وكلما شُغّلت السيارة.
+A full modem reboot using AT commands (AT+CFUN=1,1). The mobile connection drops for about a minute.	إعادة تشغيل كاملة للمودم باستخدام أوامر AT ‏(AT+CFUN=1,1). ينقطع الاتصال الخلوي لنحو دقيقة.
+Rebooting...	جارٍ إعادة التشغيل...
+Rebooted	تمت إعادة التشغيل
+Reboot automatically	إعادة التشغيل تلقائيًا
+When the mobile connections APN2 and APN3 are both down and there is no signal.	عندما يكون اتصالا الجوال APN2 وAPN3 منقطعين ولا توجد إشارة.
+Connection	الاتصال
+Roaming setting	إعداد التجوال
+Cellular	الشبكة الخلوية
+Roaming	تجوال
+Apps use	التطبيقات تستخدم
+How changes are made	كيف تُجرى التغييرات
+Changes go through the car's network debugging, so the Vehicle data link must be turned on in Setting.	تتم التغييرات عبر تصحيح الشبكة في السيارة، لذا يجب تفعيل رابط بيانات المركبة من الإعدادات.
+Applied at start-up, whenever the data link helper starts, and again within a minute if the car switches it off.	يُطبَّق عند بدء التشغيل وكلما بدأ مساعد رابط البيانات، ويُعاد خلال دقيقة إذا أوقفته السيارة.
+Applied at start-up and whenever the ignition comes on, and checked again for 90 seconds, because the car can bring it back on shortly after it starts. At other times it is left alone.	يُطبَّق عند بدء التشغيل وكلما شُغّل المحرك، ويُعاد فحصه لمدة 90 ثانية لأن السيارة قد تعيد تشغيله بعد البدء بقليل. وفي بقية الأوقات يُترك كما هو.
+Restarts the modem with AT commands, as Engineer Mode's AT Command Tool does. The line under the button says how long LTE took to come back.	يعيد تشغيل المودم بأوامر AT كما تفعل أداة أوامر AT في وضع المهندس. يوضح السطر تحت الزر كم استغرق عودة LTE.
+Runs the reboot by itself when APN2 and APN3 have both been down and the modem has had no signal for about 2.5 minutes: at most 3 times in a row, 15 minutes apart.	ينفّذ إعادة التشغيل تلقائيًا عندما يكون APN2 وAPN3 منقطعين ولا توجد إشارة للمودم لنحو دقيقتين ونصف: بحد أقصى 3 مرات متتالية، بفاصل 15 دقيقة.
+Commands	الأوامر
+Connected	متصل
+Not connected	غير متصل
+Internet works	الإنترنت يعمل
+No internet yet	لا إنترنت بعد
+Ethernet	إيثرنت
+Other	أخرى
+Nothing	لا شيء
+General	عام
+Keeping it running	إبقاء التسجيل يعمل
+Backup and export	النسخ الاحتياطي والتصدير

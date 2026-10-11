@@ -40,7 +40,7 @@ The Arabic screens are mirrored right to left in the content area, with the menu
 4. In the car's Setting > BYD auto-start apps ("Disable background Apps"), turn **Trip Recorder NG OFF**
    (OFF = allowed to start), then restart the head unit once. Without this BYD blocks the app from starting
    by itself. This switch is reset by **every** install or update (see [Install / update](#install--update)).
-5. Optional but recommended: Setting > Vehicle data link > Enable, to get battery, energy, odometer, fuel and
+5. Optional but recommended: switch on Setting > Vehicle data link, to get battery, energy, odometer, fuel and
    charging data (see [Vehicle data link](#vehicle-data-link-optional-off-by-default)).
 
 ## Disclaimer
@@ -48,13 +48,13 @@ The Arabic screens are mirrored right to left in the content area, with the menu
   and use it at your own risk. It is not endorsed or supported by BYD.
 - It reads vehicle data through BYD's internal, undocumented vehicle API. Any software update of the car can
   change or break that. The only things the app changes on the car are Android's data-roaming switch, the request to
-  connect to BYD's cloud and the AVAS (external EV sound) switch, when you press the button or turn on the toggle in
-  the Tweaks tab, and the app itself, when you choose Install after Check for updates (it replaces itself with a
+  connect to BYD's cloud, the AVAS (external EV sound) switch and a modem reboot, when you press the button or turn
+  on the toggle in the Tweaks tab, and the app itself, when you choose Install after Check for updates (it replaces itself with a
   build downloaded from this project's GitHub releases, signed with the same key).
 - The optional **Vehicle data link** starts a small helper through the head unit's own debugging service on
   127.0.0.1 (loopback ADB), with a key the app creates itself. On the tested unit the car accepted that key
   without asking, which means any app on that unit could do the same; this is a property of the car, not of
-  this app. Leave the link off if you are not comfortable with that. **Disable** stops the helper and
+  this app. Leave the link off if you are not comfortable with that. Switching it off stops the helper and
   **Forget** deletes the key.
 - Do not operate the screen while driving. The app records by itself and needs no attention on the road.
 
@@ -197,30 +197,46 @@ itself once a restart has started the app.
 - `adb shell am start ... --ez skip_alert true` suppresses it (for testing).
 
 ## Tweaks
-The Tweaks tab in the left menu holds small changes that need the shell user's rights. They are made
-through the car's loopback debugging (`AdbLoopback`), the same route that starts the helper, so they need
-the Vehicle data link. The first one is data roaming: **Turn on now** runs
-`settings put global data_roaming 1`; **Keep data roaming on** (off by default) runs it again at app
-start, whenever the helper has just been started, and within a minute if the setting is found off (the
-setting is read without special rights; the command only runs when it is not 1, at most once a
-minute, 30 s after a failure). The status line shows the live value. Tested on the car: button, switch-off
-from the shell (restored in ~60 s), helper restart (instant) and app restart. Source: `Tweaks`.
-Under the toggle, a small line reports the roaming setting, whether the cellular internet connection is up and
-validated (and roaming), and which network apps use right now (`NetStatus`; it reads Android's connectivity state
-and needs the `ACCESS_NETWORK_STATE` permission). Note the car's own engineering screen shows its internal flag for
-apn2, which can read "disconnected" while the connection works.
-The **Connect to BYD cloud** button runs `service call cloudmanager 1 i32 4`, which asks the car's cloud service to connect
-to BYD's server over whatever network is available, whether or not the car's own mobile connection (APN3) is up, so the
-BYD phone app can reach the car. It is only run when you press the button; the line under it shows when it was sent.
+The Tweaks tab in the left menu holds small changes that need the shell user's rights. They are made through the
+car's loopback debugging (`AdbLoopback`), the same route that starts the helper, so they need the Vehicle data link.
+Each tweak is a card with a switch or a button; the **Details** button opens a sheet that explains how each one
+works and lists the exact commands. The card on the right shows the roaming setting, whether the cellular internet
+connection is up and validated (and roaming), and which network apps use right now (`NetStatus`; it reads Android's
+connectivity state and needs the `ACCESS_NETWORK_STATE` permission). Source: `TweaksPage` (the screen) and `Tweaks`
+(the actions).
+
+**Data roaming**: the switch sets `settings put global data_roaming 1` or `0`. **Keep data roaming on** (off by
+default) runs the "on" command again at app start, whenever the helper has just been started, and within a minute if
+the setting is found off (the setting is read without special rights; the command only runs when it is not 1, at most
+once a minute, 30 s after a failure). Switching roaming off also switches that option off, otherwise it would be
+switched back on within a minute. Note the car's own engineering screen shows its internal flag for apn2, which can
+read "disconnected" while the connection works.
+
+**Connect to BYD cloud** runs `service call cloudmanager 1 i32 4`, which asks the car's cloud service to connect to
+BYD's server over whatever network is available, whether or not the car's own mobile connection (APN3) is up, so the
+BYD phone app can reach the car. It is only run when you press the button.
 
 **AVAS (external EV sound)**: the car brings this switch back on every time it starts, and the control center's
 switch is the only way to turn it off. **Turn off now** sets the same switch to off through BYD's vehicle API
 (`BYDAutoEngineDevice.setEngineVoiceSimulatorState(0)`), run by a small one-shot process (`AvasTool`) under the shell
 user. **Keep AVAS off** (off by default) does that when the app starts and whenever the ignition comes on, and keeps
 checking for 90 seconds, because the car can bring it back shortly after it starts. At other times it leaves the
-switch alone, so turning it on yourself stays on until the next start. The line under the button shows when it was
-last applied. AVAS is the car's warning sound for pedestrians, which some regions require: check your local rules
-before keeping it off.
+switch alone, so turning it on yourself stays on until the next start. AVAS is the car's warning sound for
+pedestrians, which some regions require: check your local rules before keeping it off.
+
+**Modem reboot**: a full modem reboot using AT commands, for when the car's mobile connection is stuck. After a
+confirmation it sends `AT+CFUN=1,1` (full functionality, reset first) to the modem, the same command Engineer Mode's
+AT Command Tool sends. It goes through the phone service (`service call phoneEx 45`, `invokeOemRilRequestRawBySlot`
+for SIM slot 0), which the shell user is allowed to use. The mobile connection drops for about a minute. The modem is
+then asked for its own LTE registration (`AT+CEREG?`, once a second for up to a minute), so the line under the button
+says **LTE back after N s**, or **still not on LTE: reboot again**: after a reboot the modem sometimes registers on 2G
+first, where this SIM gets no data, and a second reboot fixes it.
+
+**Reboot automatically** (off by default) runs that reboot by itself when both mobile connections (the car's APN2 and
+APN3, read from `net.lte.apn2.real_state` and `net.lte.apn3.real_state`) are down and the modem has no network type
+although the SIM is loaded, for about 2.5 minutes in a row. It looks every 30 seconds while the recorder runs, reboots
+at most 3 times in a row, at least 15 minutes apart, and starts counting again once a connection is back. Anything
+unclear (the properties cannot be read, the SIM is still loading) counts as "not stuck".
 
 ## Updates
 **Setting > Updates > Check for updates** asks GitHub for the newest release of the channel you follow. It is manual
@@ -294,7 +310,7 @@ automatically, and warns on This Trip when it did not.
 `--ez clear_demo true` removes them.
 
 ## Vehicle data link (optional, OFF by default)
-Setting > Vehicle data link > Enable. When on, the app asks the car's own network debugging (ADB, on
+The Setting > Vehicle data link switch turns it on. When on, the app asks the car's own network debugging (ADB, on
 127.0.0.1) to start a small helper process under the shell user (`Helper`). The helper can call BYD's
 vehicle API and serves ignition, battery %, energy counter and odometer to the app over a loopback
 socket protected by a random token. Trips then get battery used, consumption and odometer change.
@@ -309,7 +325,7 @@ socket protected by a random token. Trips then get battery used, consumption and
   "Not connected - ... (retrying in N s)"). Typical times: ~6 s from Enable to data, ~10-14 s to
   recover after the helper is killed. A trip is not started in GPS-only mode while the helper is
   still connecting (25 s hold), so the ignition-based start is used when the link is on.
-- **Disable** stops the helper and the retries (GPS-only again). **Forget** (Setting > Debugging key)
+- Switching it off stops the helper and the retries (GPS-only again). **Forget** (Setting > Debugging key)
   deletes the app's key. Whatever the car stored on its side (if anything) is outside the app's reach;
   "Revoke debugging authorizations" in the car's developer options, if the unit has it, clears that.
 - Source: `AdbKey`, `AdbLoopback`, `Helper`, `HelperVehicle`, `HelperLauncher`, `Prefs`.

@@ -139,6 +139,15 @@ final class Prefs {
         sp(c).edit().putBoolean("keep_avas_off", on).apply();
     }
 
+    /** Whether the modem is rebooted by itself when both mobile connections are down with no signal. Off by default. */
+    static boolean autoModemReboot(Context c) {
+        return sp(c).getBoolean("auto_modem_reboot", false);
+    }
+
+    static void setAutoModemReboot(Context c, boolean on) {
+        sp(c).edit().putBoolean("auto_modem_reboot", on).apply();
+    }
+
     /** Whether trips store their GPS route and event positions. On by default. */
     static boolean recordRoute(Context c) {
         return sp(c).getBoolean("record_route", true);

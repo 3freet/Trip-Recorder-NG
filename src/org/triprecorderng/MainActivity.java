@@ -66,7 +66,6 @@ public class MainActivity extends Activity {
     private int tab = TAB_THIS;
     private String overlay = null; // "detail", "settings", "qa" or null
     private volatile boolean updateBusy;
-    private boolean advancedOpen;
     private TextView updatesValue, channelValue;
 
     // live widgets of the currently shown page
@@ -418,6 +417,7 @@ public class MainActivity extends Activity {
     }
 
     private void showOverlay(String which) {
+        if ("settings".equals(which) && !"settings".equals(overlay)) SettingsPage.resetScroll();
         overlay = which;
         pageRefresh = null;
         setChrome(true);
@@ -1038,95 +1038,19 @@ public class MainActivity extends Activity {
 
     // ---- Tweaks ----------------------------------------------------------------------------
     private View tweaksPage() {
-        LinearLayout col = new LinearLayout(this);
-        col.setOrientation(LinearLayout.VERTICAL);
-        TextView title = pageTitle(L.t("Tweaks"));
-        title.setPadding(Ui.dp(this, 4), 0, 0, Ui.dp(this, 12));
-        col.addView(title);
-
-        ScrollView sv = new ScrollView(this);
-        sv.setVerticalScrollBarEnabled(false);
-        LinearLayout box = card();
-        box.setPadding(Ui.dp(this, 28), Ui.dp(this, 8), Ui.dp(this, 28), Ui.dp(this, 8));
-        sv.addView(box, new ViewGroup.LayoutParams(-1, -2));
-
-        final View stateRow = settingRow(L.t("Data roaming"),
-                Tweaks.roamingText(this), L.t("Turn on now"), new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        Tweaks.applyRoaming(MainActivity.this, "button");
-                        toast(L.t("Turning data roaming on..."));
-                    }
-                });
-        box.addView(stateRow);
-        final TextView stateText = (TextView) stateRow.getTag();
-
-        boolean keep = Prefs.keepRoaming(this);
-        final View keepRow = settingRow(L.t("Keep data roaming on"),
-                keep ? L.t("On: applied at start-up, whenever the data link helper starts, and again within a "
-                        + "minute if the car switches it off")
-                        : L.t("Off: roaming is only turned on when you press the button above"),
-                keep ? L.t("Turn off") : L.t("Turn on"), new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        boolean on = !Prefs.keepRoaming(MainActivity.this);
-                        Prefs.setKeepRoaming(MainActivity.this, on);
-                        if (on) Tweaks.ensureRoaming(MainActivity.this, true, "switched on");
-                        renderCurrentTab();
-                    }
-                });
-        box.addView(keepRow);
-        final TextView netText = Ui.text(this, NetStatus.line(this), 14, Ui.TEXT_LABEL);
-        netText.setPadding(0, Ui.dp(this, 8), 0, 0);
-        box.addView(netText);
-
-        final View cloudRow = settingRow(L.t("Connect to BYD cloud"), Tweaks.cloudText(), L.t("Connect now"),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        Tweaks.connectCloud(MainActivity.this);
-                        toast(L.t("Asking the car to connect..."));
-                    }
-                });
-        box.addView(cloudRow);
-        final TextView cloudText = (TextView) cloudRow.getTag();
-
-        final View avasRow = settingRow(L.t("AVAS (external EV sound)"), Tweaks.avasText(), L.t("Turn off now"),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        Tweaks.avasOff(MainActivity.this);
-                        toast(L.t("Turning AVAS off..."));
-                    }
-                });
-        box.addView(avasRow);
-        final TextView avasText = (TextView) avasRow.getTag();
-
-        boolean keepAvas = Prefs.keepAvasOff(this);
-        box.addView(settingRow(L.t("Keep AVAS off"),
-                keepAvas ? L.t("On: turned off at every start-up and whenever the car is switched on")
-                        : L.t("Off: AVAS is only turned off when you press the button above"),
-                keepAvas ? L.t("Turn off") : L.t("Turn on"), new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        boolean on = !Prefs.keepAvasOff(MainActivity.this);
-                        Prefs.setKeepAvasOff(MainActivity.this, on);
-                        if (on) Tweaks.avasStart(MainActivity.this, "switched on", true);
-                        renderCurrentTab();
-                    }
-                }));
-
-        TextView note = Ui.text(this, L.t("Needs the Vehicle data link (Setting): the changes are made through the car's "
-                + "network debugging. Commands: ") + Tweaks.ROAMING_COMMAND + "  |  " + Tweaks.CLOUD_COMMAND
-                + "  |  " + Tweaks.AVAS_CALL, 14, Ui.TEXT_LABEL);
-        note.setPadding(0, Ui.dp(this, 16), 0, Ui.dp(this, 16));
-        box.addView(note);
-
-        col.addView(sv, new LinearLayout.LayoutParams(-1, 0, 1f));
-        pageRefresh = new Runnable() {
-            @Override public void run() {
-                stateText.setText(Tweaks.roamingText(MainActivity.this));
-                netText.setText(NetStatus.line(MainActivity.this));
-                cloudText.setText(Tweaks.cloudText());
-                avasText.setText(Tweaks.avasText());
+        return TweaksPage.build(this, new TweaksPage.Host() {
+            @Override public void openSetting() {
+                showOverlay("settings");
             }
-        };
-        return col;
+
+            @Override public void confirmModemReboot() {
+                MainActivity.this.confirmModemReboot();
+            }
+
+            @Override public void refresher(Runnable r) {
+                pageRefresh = r;
+            }
+        });
     }
 
     // ---- Charging --------------------------------------------------------------------------
@@ -1435,199 +1359,136 @@ public class MainActivity extends Activity {
 
     // ---- settings and Q&A ------------------------------------------------------------------
     private View settingsPage() {
-        ScrollView sv = new ScrollView(this);
-        sv.setVerticalScrollBarEnabled(false);
-        LinearLayout box = card();
-        box.setPadding(Ui.dp(this, 28), Ui.dp(this, 8), Ui.dp(this, 28), Ui.dp(this, 8));
-        sv.addView(box, new ViewGroup.LayoutParams(-1, -2));
+        return SettingsPage.build(this, new SettingsPage.Host() {
+            @Override public void toast(String s) {
+                MainActivity.this.toast(s);
+            }
 
-        box.addView(settingRow(L.t("Language"), languageName(), L.t("Change"), new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                showLanguageDialog();
+            @Override public void rebuildSoon() {
+                refreshSettingsSoon();
             }
-        }));
-        final View updatesRow = settingRow(L.t("Updates"), updateText(), L.t("Check for updates"),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        checkForUpdates();
-                    }
-                });
-        updatesValue = (TextView) updatesRow.getTag();
-        box.addView(updatesRow);
-        final RecorderService.Live l = RecorderService.live;
-        box.addView(settingRow(L.t("Trip recording service"), l.running ? L.t("Running") : L.t("Stopped"),
-                l.running ? L.t("Stop") : L.t("Start"), new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        if (RecorderService.live.running) {
-                            stopService(new Intent(MainActivity.this, RecorderService.class));
-                        } else {
-                            startRecorder();
-                        }
-                        ui.postDelayed(new Runnable() {
-                            @Override public void run() {
-                                if (overlay != null) showOverlay("settings");
-                            }
-                        }, 800);
-                    }
-                }));
-        box.addView(settingRow(L.t("Vehicle data source"), vehicleName(l.vehicle), L.t("Self-test"), new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                selfTest();
+
+            @Override public String languageName() {
+                return MainActivity.this.languageName();
             }
-        }));
-        boolean linkOn = Prefs.linkEnabled(this);
-        final View linkRow = settingRow(L.t("Vehicle data link"), HelperLauncher.statusText(this),
-                linkOn ? L.t("Disable") : L.t("Enable"), new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        if (Prefs.linkEnabled(MainActivity.this)) {
-                            HelperLauncher.disable(MainActivity.this);
-                            toast(L.t("Vehicle data link turned off"));
-                            refreshSettingsSoon();
-                        } else if (Prefs.linkConsented(MainActivity.this)) {
-                            HelperLauncher.enable(MainActivity.this);
-                            toast(L.t("Connecting to the car's data service..."));
-                            refreshSettingsSoon();
-                        } else {
-                            confirmEnableLink();
-                        }
-                    }
-                });
-        box.addView(linkRow);
-        final TextView linkStatus = (TextView) linkRow.getTag();
-        if (linkOn) {
-            box.addView(settingRow(L.t("Reconnect"), L.t("Try to connect to the car's data right now"),
-                    L.t("Retry now"), new View.OnClickListener() {
-                        @Override public void onClick(View v) {
-                            HelperLauncher.ensureAsync(MainActivity.this, true);
-                            toast(L.t("Reconnecting..."));
-                            refreshSettingsSoon();
-                        }
-                    }));
-        }
-        box.addView(settingRow(L.t("Debugging key"), L.t("This app's key for the car's network debugging"),
-                L.t("Forget"), new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        HelperLauncher.disable(MainActivity.this);
-                        HelperLauncher.forgetKey(MainActivity.this);
-                        toast(L.t("Key removed and link turned off"));
-                        refreshSettingsSoon();
-                    }
-                }));
-        pageRefresh = new Runnable() {
-            @Override public void run() {
-                linkStatus.setText(HelperLauncher.statusText(MainActivity.this));
+
+            @Override public void showLanguageDialog() {
+                MainActivity.this.showLanguageDialog();
             }
-        };
-        boolean loc = checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED;
-        box.addView(settingRow(L.t("Location (GPS track)"), loc ? L.t("Allowed") : L.t("Not allowed"), L.t("Allow"),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        requestPerms(true);
+
+            @Override public String updateText() {
+                return MainActivity.this.updateText();
+            }
+
+            @Override public String channelDescription() {
+                return MainActivity.this.channelDescription();
+            }
+
+            @Override public void checkForUpdates() {
+                MainActivity.this.checkForUpdates();
+            }
+
+            @Override public void showChannelDialog() {
+                MainActivity.this.showChannelDialog();
+            }
+
+            @Override public void bindUpdateViews(TextView updates, TextView channel) {
+                updatesValue = updates;
+                channelValue = channel;
+            }
+
+            @Override public void toggleRecorder() {
+                if (RecorderService.live.running) {
+                    stopService(new Intent(MainActivity.this, RecorderService.class));
+                } else {
+                    startRecorder();
+                }
+                ui.postDelayed(new Runnable() {
+                    @Override public void run() {
+                        if (overlay != null) showOverlay("settings");
                     }
-                }));
-        int health = Prefs.autoStartHealth(this);
-        String autoText = health == Prefs.AUTOSTART_OK
-                ? L.t("Started automatically after the last restart")
-                : health == Prefs.AUTOSTART_BLOCKED
-                ? L.t("NOT started automatically after the last restart: turn Trip Recorder NG OFF in "
-                + "'Disable background Apps'")
-                : L.t("Not confirmed yet: turn Trip Recorder NG OFF in 'Disable background Apps', then "
-                + "restart the head unit once");
-        box.addView(settingRow(L.t("BYD auto-start apps"), autoText, L.t("Open"),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        openAutostart();
-                    }
-                }));
-        box.addView(settingRow(L.t("Battery optimisation"), L.t("Keep the recorder running"), L.t("Open"),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        openBattery();
-                    }
-                }));
-        box.addView(settingRow(L.t("Energy prices"),
-                L.f("Electricity %1$s %2$s/kWh%3$s, fuel %4$s %2$s/L%5$s", Ui.f(Cost.elecPrice(this), "%.4f"),
-                        Prefs.currency(this), Cost.elecIsDefault(this) ? L.t(" (default)") : "",
-                        Ui.f(Cost.fuelPrice(this), "%.3f"), Cost.fuelIsDefault(this) ? L.t(" (default)") : ""),
-                L.t("Set"), new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        showPriceDialog();
-                    }
-                }));
-        boolean routeOn = Prefs.recordRoute(this);
-        box.addView(settingRow(L.t("Record route (GPS track)"),
-                routeOn ? L.t("On: trips keep their route on the map")
-                        : L.t("Off: new trips store no route and no event positions"),
-                routeOn ? L.t("Turn off") : L.t("Turn on"), new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        Prefs.setRecordRoute(MainActivity.this, !Prefs.recordRoute(MainActivity.this));
-                        refreshSettingsSoon();
-                    }
-                }));
-        final Backup.Status bs = Backup.status(this);
-        boolean autoBk = Prefs.autoBackup(this);
-        box.addView(settingRow(L.t("Automatic backup"),
-                (autoBk ? L.t("On: every finished trip is also saved to ") : L.t("Off. Backup folder: "))
-                        + L.ltr(bs.dir.getPath()) + "\n" + L.f("%d trip file(s)", bs.files)
-                        + (bs.newestMs > 0 ? L.sep() + L.f("newest %s",
-                        new SimpleDateFormat("d MMM HH:mm", L.dateLocale()).format(new Date(bs.newestMs)))
-                        : "")
-                        + (bs.publicFolder ? "" : "\n" + L.t("Warning: Documents is not writable, so this copy is "
-                        + "deleted if the app is uninstalled")),
-                autoBk ? L.t("Turn off") : L.t("Turn on"), new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        boolean on = !Prefs.autoBackup(MainActivity.this);
-                        Prefs.setAutoBackup(MainActivity.this, on);
-                        if (on) backupNow(false);
-                        toast(on ? L.t("Automatic backup turned on") : L.t("Automatic backup turned off"));
-                        refreshSettingsSoon();
-                    }
-                }));
-        box.addView(settingRow(L.t("Back up now"), L.t("Saves any finished trip that has no backup file yet"),
-                L.t("Back up"), new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        backupNow(true);
-                    }
-                }));
-        box.addView(settingRow(L.t("Restore from backup"),
-                L.t("Adds the trips from the backup folder that are missing here (nothing is overwritten)"),
-                L.t("Restore"), new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        confirmRestore();
-                    }
-                }));
-        box.addView(settingRow(L.t("Export all trips"), "Documents/TripRecorderNG/trips.csv", L.t("Export"),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        exportCsv();
-                    }
-                }));
-        final View channelRow = settingRow(L.t("Update channel"), channelDescription(), L.t("Change"),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        showChannelDialog();
-                    }
-                });
-        channelValue = (TextView) channelRow.getTag();
-        channelRow.setVisibility(advancedOpen ? View.VISIBLE : View.GONE);
-        final View advancedRow = settingRow(L.t("Advanced"), L.t("Options for experts: which builds the update check follows"),
-                advancedOpen ? L.t("Hide") : L.t("Show"), null);
-        final TextView advancedButton = (TextView) ((ViewGroup) ((ViewGroup) advancedRow).getChildAt(0)).getChildAt(1);
-        advancedButton.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                advancedOpen = !advancedOpen;
-                channelRow.setVisibility(advancedOpen ? View.VISIBLE : View.GONE);
-                advancedButton.setText(advancedOpen ? L.t("Hide") : L.t("Show"));
+                }, 800);
+            }
+
+            @Override public String vehicleName(String raw) {
+                return MainActivity.vehicleName(raw);
+            }
+
+            @Override public void selfTest() {
+                MainActivity.this.selfTest();
+            }
+
+            @Override public void toggleLink() {
+                if (Prefs.linkEnabled(MainActivity.this)) {
+                    HelperLauncher.disable(MainActivity.this);
+                    toast(L.t("Vehicle data link turned off"));
+                    refreshSettingsSoon();
+                } else if (Prefs.linkConsented(MainActivity.this)) {
+                    HelperLauncher.enable(MainActivity.this);
+                    toast(L.t("Connecting to the car's data service..."));
+                    refreshSettingsSoon();
+                } else {
+                    confirmEnableLink();
+                }
+            }
+
+            @Override public void reconnect() {
+                HelperLauncher.ensureAsync(MainActivity.this, true);
+                toast(L.t("Reconnecting..."));
+                refreshSettingsSoon();
+            }
+
+            @Override public void forgetKey() {
+                HelperLauncher.disable(MainActivity.this);
+                HelperLauncher.forgetKey(MainActivity.this);
+                toast(L.t("Key removed and link turned off"));
+                refreshSettingsSoon();
+            }
+
+            @Override public boolean locationAllowed() {
+                return checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED;
+            }
+
+            @Override public void requestLocation() {
+                requestPerms(true);
+            }
+
+            @Override public void openAutostart() {
+                MainActivity.this.openAutostart();
+            }
+
+            @Override public void openBattery() {
+                MainActivity.this.openBattery();
+            }
+
+            @Override public void showPriceDialog() {
+                MainActivity.this.showPriceDialog();
+            }
+
+            @Override public void toggleBackup(boolean on) {
+                Prefs.setAutoBackup(MainActivity.this, on);
+                if (on) MainActivity.this.backupNow(false);
+                toast(on ? L.t("Automatic backup turned on") : L.t("Automatic backup turned off"));
+                refreshSettingsSoon();
+            }
+
+            @Override public void backupNow() {
+                MainActivity.this.backupNow(true);
+            }
+
+            @Override public void confirmRestore() {
+                MainActivity.this.confirmRestore();
+            }
+
+            @Override public void exportCsv() {
+                MainActivity.this.exportCsv();
+            }
+
+            @Override public void refresher(Runnable r) {
+                pageRefresh = r;
             }
         });
-        box.addView(advancedRow);
-        box.addView(channelRow);
-        File lf = Diag.file();
-        TextView log = Ui.text(this, L.f("Log file: %s", lf == null ? "?" : L.ltr(lf.getPath())), 14, Ui.TEXT_LABEL);
-        log.setPadding(0, Ui.dp(this, 18), 0, Ui.dp(this, 18));
-        box.addView(log);
-        return sv;
     }
 
     /** The language choice as shown in the Language row (the language names are always in their own language). */
@@ -1877,28 +1738,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    private View settingRow(String title, String value, String button, View.OnClickListener l) {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(0, Ui.dp(this, 14), 0, Ui.dp(this, 14));
-        LinearLayout left = new LinearLayout(this);
-        left.setOrientation(LinearLayout.VERTICAL);
-        left.addView(Ui.text(this, title, 20, Ui.TEXT_VALUE));
-        TextView v = Ui.text(this, value, 15, Ui.TEXT_LABEL);
-        v.setPadding(0, Ui.dp(this, 5), 0, 0);
-        left.addView(v);
-        row.setTag(v);
-        row.addView(left, new LinearLayout.LayoutParams(0, -2, 1f));
-        row.addView(pill(button, l));
-        LinearLayout wrap = new LinearLayout(this);
-        wrap.setOrientation(LinearLayout.VERTICAL);
-        wrap.addView(row);
-        wrap.addView(Ui.divider(this));
-        wrap.setTag(v);
-        return wrap;
-    }
-
     private View qaPage() {
         ScrollView sv = new ScrollView(this);
         sv.setVerticalScrollBarEnabled(false);
@@ -2142,6 +1981,18 @@ public class MainActivity extends Activity {
                 });
             }
         }).start();
+    }
+
+    private void confirmModemReboot() {
+        Ui.show(new AlertDialog.Builder(this)
+                .setTitle(L.t("Reboot the modem?"))
+                .setMessage(L.t("The car's mobile connection drops for about a minute while the modem restarts."))
+                .setPositiveButton(L.t("Reboot"), new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface d, int w) {
+                        Tweaks.rebootModem(MainActivity.this, "button");
+                    }
+                })
+                .setNegativeButton(L.t("Cancel"), null));
     }
 
     private void confirmDelete(final Trip t) {
