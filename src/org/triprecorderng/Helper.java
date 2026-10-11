@@ -19,10 +19,12 @@ import java.util.Locale;
  *
  * Protocol (one request per line): "get" -> "v3 speed power soc elec drive odo fuel ev hev fuelPct
  * elecRange fuelRange journey error";
- * "chg" -> "c1 bms gun work power kwh" (charging device, nan where unavailable).
+ * "chg" -> "c1 bms gun work power kwh" (charging device, nan where unavailable);
+ * "net" -> "n1 apn2real apn2state apn3real apn3state networkType simState" (the car's two mobile connections
+ * and the radio, read from system properties; "-" where empty).
  */
 public final class Helper {
-    static final String VERSION = "4";
+    static final String VERSION = "5";
     private static BydFrameworkVehicle vehicle;
     private static String bindError;
     private static String token;
@@ -97,6 +99,8 @@ public final class Helper {
                     w.println(snapshot());
                 } else if (line.equals("chg")) {
                     w.println(chargeSnapshot());
+                } else if (line.equals("net")) {
+                    w.println(netSnapshot());
                 } else if (line.equals("exit")) {
                     w.println("bye");
                     System.exit(0);
@@ -113,6 +117,23 @@ public final class Helper {
                 // nothing to do
             }
         }
+    }
+
+    /** One system property, "-" when it is empty or cannot be read; spaces would break the line. */
+    private static String prop(String key) {
+        try {
+            Class<?> c = Class.forName("android.os.SystemProperties");
+            String v = (String) c.getMethod("get", String.class, String.class).invoke(null, key, "");
+            return v == null || v.isEmpty() ? "-" : v.replace(' ', '_');
+        } catch (Throwable t) {
+            return "-";
+        }
+    }
+
+    private static String netSnapshot() {
+        return "n1 " + prop("net.lte.apn2.real_state") + " " + prop("net.lte.apn2.state") + " "
+                + prop("net.lte.apn3.real_state") + " " + prop("net.lte.apn3.state") + " "
+                + prop("gsm.network.type") + " " + prop("gsm.sim.state");
     }
 
     private static String num(double v) {

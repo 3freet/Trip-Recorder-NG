@@ -118,6 +118,28 @@ final class HelperVehicle implements Vehicle {
         }
     }
 
+    /**
+     * The car's two mobile connections and the radio: {apn2 real state, apn2 state, apn3 real state, apn3 state,
+     * network type, SIM state}, "" where the helper had nothing. Null when the helper cannot answer.
+     */
+    synchronized String[] net() {
+        if (socket == null) return null;
+        try {
+            out.println("net");
+            String line = in.readLine();
+            if (line == null) throw new IOException("helper closed the connection");
+            String[] p = line.split(" ");
+            if (p.length < 7 || !p[0].equals("n1")) return null; // an older helper does not know the request
+            String[] r = new String[6];
+            for (int i = 0; i < 6; i++) r[i] = p[i + 1].equals("-") ? "" : p[i + 1].replace('_', ' ');
+            return r;
+        } catch (IOException e) {
+            error = "helper link lost (" + e.getMessage() + ")";
+            close();
+            return null;
+        }
+    }
+
     /** Asks the helper process to stop. */
     synchronized void requestExit() {
         if (out != null) out.println("exit");

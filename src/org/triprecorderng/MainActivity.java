@@ -1591,6 +1591,13 @@ public class MainActivity extends Activity {
                     + "Install it anyway?", chName, r.build.name(), when, Updates.installedName(this)));
         }
         msg.append("\n").append(L.f("Installed: %s", Updates.installedName(this)));
+        if (cmp > 0) {
+            String changes = Updates.changesSince(c.all, channel, mine, r);
+            if (!changes.isEmpty()) {
+                msg.append("\n\n").append(L.t("What's new"));
+                for (String line : changes.split("\n")) msg.append('\n').append(line.isEmpty() ? "" : L.ltr(line));
+            }
+        }
         if (mine != null && !mine.channel.equals(channel)) {
             msg.append("\n\n").append(L.f("This switches the app from %1$s to %2$s.",
                     Updates.channelTitle(mine.channel), chName));

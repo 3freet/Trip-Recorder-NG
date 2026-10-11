@@ -120,6 +120,7 @@ final class Updates {
         String assetUrl;
         String sha256; // lower-case hex, or null when GitHub gave none
         long size;
+        String notes = ""; // the release's own text (its change list is in there)
     }
 
     /** What GitHub's release list says, as releases that carry an APK (drafts and odd tags are skipped). */
@@ -145,6 +146,7 @@ final class Updates {
                 r.assetName = name;
                 r.assetUrl = as.optString("browser_download_url", "");
                 r.size = as.optLong("size", 0);
+                r.notes = o.isNull("body") ? "" : o.optString("body", "");
                 String digest = as.optString("digest", "");
                 r.sha256 = digest.startsWith("sha256:") ? digest.substring(7).toLowerCase(Locale.US) : null;
                 try {
@@ -175,11 +177,90 @@ final class Updates {
         return Integer.compare(release.build.number, installed.number);
     }
 
+    // ---- what changed --------------------------------------------------------------------------
+
+    private static final String CHANGES_HEADING = "## What changed";
+    private static final int MAX_CHANGES_CHARS = 3000;
+
+    /**
+     * The change list of one release: the text after "## What changed" up to the "---" line, tidied for a dialog.
+     * Empty for a release that has none (older releases only have GitHub's own list of pull requests).
+     */
+    static String cleanNotes(String body) {
+        if (body == null) return "";
+        String b = body.replace("\r", "");
+        int h = b.indexOf(CHANGES_HEADING);
+        if (h < 0) return "";
+        b = b.substring(h + CHANGES_HEADING.length());
+        int cut = b.indexOf("\n---");
+        if (cut >= 0) b = b.substring(0, cut);
+        StringBuilder sb = new StringBuilder();
+        for (String raw : b.split("\n")) {
+            String line = raw.trim();
+            if (line.isEmpty()) continue;
+            boolean head = false;
+            if (line.startsWith("### ")) {
+                line = line.substring(4);
+                head = true;
+            } else if (line.length() > 4 && line.startsWith("**") && line.endsWith("**")) {
+                line = line.substring(2, line.length() - 2);
+                head = true;
+            } else if (line.startsWith("- ")) {
+                line = "\u2022 " + line.substring(2);
+            }
+            line = line.replace("**", "").replace("`", "");
+            if (head && sb.length() > 0) sb.append('\n');
+            sb.append(line).append('\n');
+        }
+        return sb.toString().trim();
+    }
+
+    /**
+     * The changes of every release of the channel after the installed build, up to the newest one, newest first.
+     * With a build made on a computer (no build number) only the newest release's list is used. Empty when no
+     * release has a change list.
+     */
+    static String changesSince(List<Release> all, String channel, Build installed, Release latest) {
+        if (latest == null) return "";
+        int from = installed == null ? latest.build.number - 1 : installed.number;
+        List<Release> list = new ArrayList<>();
+        for (Release r : all) {
+            if (!r.build.channel.equals(channel)) continue;
+            if (r.build.number > from && r.build.number <= latest.build.number) list.add(r);
+        }
+        java.util.Collections.sort(list, new java.util.Comparator<Release>() {
+            @Override public int compare(Release a, Release b) {
+                return Integer.compare(b.build.number, a.build.number);
+            }
+        });
+        List<String> parts = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        for (Release r : list) {
+            String n = cleanNotes(r.notes);
+            if (n.isEmpty()) continue;
+            parts.add(n);
+            names.add(r.build.name());
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < parts.size(); i++) {
+            if (i > 0) sb.append("\n\n");
+            if (parts.size() > 1) sb.append(names.get(i)).append('\n');
+            sb.append(parts.get(i));
+        }
+        String out = sb.toString();
+        if (out.length() > MAX_CHANGES_CHARS) {
+            int nl = out.lastIndexOf('\n', MAX_CHANGES_CHARS);
+            out = out.substring(0, nl > 0 ? nl : MAX_CHANGES_CHARS) + "\n...";
+        }
+        return out;
+    }
+
     // ---- check -------------------------------------------------------------------------------
 
     static final class Check {
-        Release latest; // null when the channel has no release yet
-        String error;   // null when the check worked
+        Release latest;     // null when the channel has no release yet
+        List<Release> all = new ArrayList<>(); // every release the list had, for the change notes
+        String error;       // null when the check worked
     }
 
     /** Asks GitHub for the releases of a channel. Blocking: call it from a background thread. */
@@ -187,7 +268,8 @@ final class Updates {
         Check c = new Check();
         try {
             byte[] body = httpGet(ctx, API_URL);
-            c.latest = latest(parseReleases(new String(body, "UTF-8")), channel);
+            c.all = parseReleases(new String(body, "UTF-8"));
+            c.latest = latest(c.all, channel);
         } catch (IOException e) {
             c.error = describe(e);
             Diag.log("update check failed: " + e);

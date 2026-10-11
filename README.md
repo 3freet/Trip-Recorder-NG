@@ -200,10 +200,15 @@ itself once a restart has started the app.
 The Tweaks tab in the left menu holds small changes that need the shell user's rights. They are made through the
 car's loopback debugging (`AdbLoopback`), the same route that starts the helper, so they need the Vehicle data link.
 Each tweak is a card with a switch or a button; the **Details** button opens a sheet that explains how each one
-works and lists the exact commands. The card on the right shows the roaming setting, whether the cellular internet
-connection is up and validated (and roaming), and which network apps use right now (`NetStatus`; it reads Android's
-connectivity state and needs the `ACCESS_NETWORK_STATE` permission). Source: `TweaksPage` (the screen) and `Tweaks`
-(the actions).
+works and lists the exact commands. The Connection card on the right shows whether the cellular internet connection
+is up and validated (and roaming) and which network apps use right now (`NetStatus`; it reads Android's connectivity
+state and needs the `ACCESS_NETWORK_STATE` permission). With the Vehicle data link on, the same card also
+shows the mobile network (LTE, 3G, 2G or no signal) and the state of the car's two mobile connections, APN2 (the
+internet one) and APN3 (BYD's), with the raw values under them. The helper reads them from the system properties
+`net.lte.apn2.real_state`, `net.lte.apn3.real_state`, `gsm.network.type` and `gsm.sim.state` (request `net`, helper
+protocol v5) every 30 seconds, and a line is written to the log (`modem: apn2=... apn3=... net=... sim=...`)
+whenever one of them changes, so a real outage leaves its exact values behind. Source: `TweaksPage` (the screen) and
+`Tweaks` (the actions).
 
 **Data roaming**: the switch sets `settings put global data_roaming 1` or `0`. **Keep data roaming on** (off by
 default) runs the "on" command again at app start, whenever the helper has just been started, and within a minute if
@@ -234,13 +239,14 @@ first, where this SIM gets no data, and a second reboot fixes it.
 
 **Reboot automatically** (off by default) runs that reboot by itself when both mobile connections (the car's APN2 and
 APN3, read from `net.lte.apn2.real_state` and `net.lte.apn3.real_state`) are down and the modem has no network type
-although the SIM is loaded, for about 2.5 minutes in a row. It looks every 30 seconds while the recorder runs, reboots
-at most 3 times in a row, at least 15 minutes apart, and starts counting again once a connection is back. Anything
-unclear (the properties cannot be read, the SIM is still loading) counts as "not stuck".
+although the SIM is loaded, for about 2.5 minutes in a row. It uses the same 30-second readings, reboots at most
+3 times in a row, at least 15 minutes apart, and starts counting again once a connection is back. Anything unclear
+(the properties cannot be read, the SIM is still loading) counts as "not stuck".
 
 ## Updates
 **Setting > Updates > Check for updates** asks GitHub for the newest release of the channel you follow. It is manual
-only: the app never checks by itself. If a different build is available it offers to install it; the app downloads
+only: the app never checks by itself. If a different build is available it offers to install it, with the list of what changed in the builds since
+the installed one (taken from the releases' notes); the app downloads
 the APK, checks its size and SHA-256 against GitHub's digest, checks that it is this app and signed with the same
 key as the installed one, saves a backup of the trips, and then replaces itself through the car's loopback
 debugging and starts again. So installing needs the **Vehicle data link** to be on, and the car to be parked. BYD

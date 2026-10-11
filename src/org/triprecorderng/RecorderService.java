@@ -34,6 +34,7 @@ public class RecorderService extends Service {
     // ---- timing and thresholds -------------------------------------------------------------
     private static final long TICK_MS = 250;
     private static final long POWER_POLL_MS = 1000;
+    private static final long NET_POLL_MS = 30_000;
     private static final long SLOW_POLL_MS = 5000;
     private static final long SAVE_MOVING_MS = 30_000;
     private static final long SAVE_IDLE_MS = 10_000;
@@ -108,6 +109,7 @@ public class RecorderService extends Service {
 
     private long lastTickMs;
     private long lastPowerPollMs;
+    private long lastNetPollMs;
     private long lastSlowPollMs;
     private long lastSaveMs;
     private long lastPointMs;
@@ -255,7 +257,10 @@ public class RecorderService extends Service {
         }
         Tweaks.ensureRoaming(this, false, "periodic check");
         Tweaks.ensureAvas(this, "periodic check");
-        Tweaks.ensureModem(this);
+        if (v instanceof HelperVehicle && now - lastNetPollMs >= NET_POLL_MS) {
+            lastNetPollMs = now;
+            Tweaks.noteNet(this, ((HelperVehicle) v).net());
+        }
         live.lastTickWall = wall;
         live.gps = gps.isStarted();
         live.gpsFix = gps.fresh(5000) != null;

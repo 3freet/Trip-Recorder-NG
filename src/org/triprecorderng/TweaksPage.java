@@ -36,13 +36,17 @@ final class TweaksPage {
     private Kit.SwitchView keepAvasSwitch;
     private ActionView modem;
     private Kit.SwitchView autoModemSwitch;
-    private View dotRoam;
-    private TextView connRoam;
     private View dotCell;
     private TextView connCell;
     private TextView connCellNote;
     private TextView connBadge;
     private TextView connApps;
+    private View dotNet;
+    private TextView connNet;
+    private View dotApn;
+    private TextView connApn2;
+    private TextView connApn3;
+    private TextView connRaw;
     private FrameLayout sheet;
 
     static View build(Context c, Host host) {
@@ -247,20 +251,7 @@ final class TweaksPage {
         card.setPadding(k.d(16), k.d(14), k.d(16), k.d(14));
         card.addView(k.label(L.t("Connection"), 13, Kit.MUTED, Kit.BOLD));
 
-        // roaming setting
-        LinearLayout r1 = k.row();
-        r1.setGravity(Gravity.TOP);
-        dotRoam = dot();
-        r1.addView(dotRoam, dotParams());
-        LinearLayout t1 = k.column();
-        t1.addView(k.label(L.t("Roaming setting"), 12.5f, Kit.MUTED, Kit.MEDIUM));
-        connRoam = k.label("", 16, Kit.TEXT, Kit.BOLD);
-        t1.addView(connRoam);
-        r1.addView(t1);
-        card.addView(r1, k.gap(-1, -2, 0, 12));
-        card.addView(thinLine(), k.gap(-1, 1, 0, 12));
-
-        // cellular
+        // cellular (the roaming setting itself is the first card on the left)
         LinearLayout r2 = k.row();
         r2.setGravity(Gravity.TOP);
         dotCell = dot();
@@ -281,6 +272,43 @@ final class TweaksPage {
         t2.addView(connCellNote);
         r2.addView(t2);
         card.addView(r2, k.gap(-1, -2, 0, 12));
+        card.addView(thinLine(), k.gap(-1, 1, 0, 12));
+
+        // the radio and the car's two mobile connections (read by the helper)
+        LinearLayout rn = k.row();
+        rn.setGravity(Gravity.TOP);
+        dotNet = dot();
+        rn.addView(dotNet, dotParams());
+        LinearLayout tn = k.column();
+        tn.addView(k.label(L.t("Mobile network"), 12.5f, Kit.MUTED, Kit.MEDIUM));
+        connNet = k.label("", 16, Kit.TEXT, Kit.BOLD);
+        tn.addView(connNet);
+        rn.addView(tn);
+        card.addView(rn, k.gap(-1, -2, 0, 12));
+        card.addView(thinLine(), k.gap(-1, 1, 0, 12));
+
+        LinearLayout ra = k.row();
+        ra.setGravity(Gravity.TOP);
+        dotApn = dot();
+        ra.addView(dotApn, dotParams());
+        LinearLayout both = k.row();
+        both.setGravity(Gravity.TOP);
+        LinearLayout c2 = k.column();
+        c2.addView(k.label("APN2", 12.5f, Kit.MUTED, Kit.MEDIUM));
+        connApn2 = k.label("", 16, Kit.TEXT, Kit.BOLD);
+        c2.addView(connApn2);
+        both.addView(c2, new LinearLayout.LayoutParams(0, -2, 1f));
+        LinearLayout c3 = k.column();
+        c3.addView(k.label("APN3", 12.5f, Kit.MUTED, Kit.MEDIUM));
+        connApn3 = k.label("", 16, Kit.TEXT, Kit.BOLD);
+        c3.addView(connApn3);
+        both.addView(c3, new LinearLayout.LayoutParams(0, -2, 1f));
+        ra.addView(both, new LinearLayout.LayoutParams(0, -2, 1f));
+        card.addView(ra, k.gap(-1, -2, 0, 12));
+        connRaw = k.label("", 11, Kit.MUTED, Kit.REGULAR);
+        connRaw.setTypeface(Typeface.MONOSPACE);
+        connRaw.setTextDirection(View.TEXT_DIRECTION_LTR);
+        card.addView(connRaw, k.gap(-1, -2, 0, 6));
         card.addView(thinLine(), k.gap(-1, 1, 0, 12));
 
         // apps
@@ -454,8 +482,6 @@ final class TweaksPage {
         modem.update(Tweaks.MODEM);
 
         NetStatus.Snapshot n = NetStatus.read(c);
-        connRoam.setText(n.roamingSetting == 1 ? L.t("On") : n.roamingSetting == 0 ? L.t("Off") : L.t("Unknown"));
-        setDot(dotRoam, n.roamingSetting == 1 ? Kit.ACCENT : Kit.DOT_OFF);
         if (!n.available) {
             connCell.setText(L.t("Network status unavailable"));
             connCellNote.setText("");
@@ -468,10 +494,40 @@ final class TweaksPage {
             setDot(dotCell, !n.cellular ? Kit.DOT_OFF : n.validated ? Kit.ACCENT : Kit.AMBER);
             connBadge.setVisibility(n.cellular && n.roamingNow ? View.VISIBLE : View.GONE);
         }
+        showModem(Tweaks.net());
         connApps.setText(n.appsUse == NetStatus.APPS_WIFI ? L.t("Wi-Fi")
                 : n.appsUse == NetStatus.APPS_CELLULAR ? L.t("Cellular")
                 : n.appsUse == NetStatus.APPS_ETHERNET ? L.t("Ethernet")
                 : n.appsUse == NetStatus.APPS_OTHER ? L.t("Other") : L.t("Nothing"));
+    }
+
+    /** The radio and the two mobile connections, from the helper's latest reading (nothing without the link). */
+    private void showModem(Tweaks.Net m) {
+        boolean fresh = m != null && Prefs.linkEnabled(c) && System.currentTimeMillis() - m.atMs < 120_000;
+        if (!fresh) {
+            connNet.setText("-");
+            connApn2.setText("-");
+            connApn3.setText("-");
+            connRaw.setText(L.t("Needs the Vehicle data link"));
+            setDot(dotNet, Kit.DOT_OFF);
+            setDot(dotApn, Kit.DOT_OFF);
+            return;
+        }
+        int gen = Tweaks.generation(m.type);
+        boolean simOk = m.sim.equals("LOADED") || m.sim.equals("READY");
+        String type = gen == 4 ? "LTE" : gen == 5 ? "5G" : gen == 3 ? "3G" : gen == 2 ? "2G" : "";
+        if (gen == 0) {
+            connNet.setText(simOk || m.sim.isEmpty() ? L.t("No signal") : L.t("SIM not ready"));
+        } else {
+            connNet.setText(gen >= 4 ? type : type + " (" + m.type + ")");
+        }
+        setDot(dotNet, gen >= 4 ? Kit.ACCENT : Kit.AMBER);
+        int d2 = Tweaks.apnDown(m.apn2Real, m.apn2State);
+        int d3 = Tweaks.apnDown(m.apn3Real, m.apn3State);
+        connApn2.setText(d2 < 0 ? "-" : d2 == 1 ? L.t("Disconnected") : L.t("Connected"));
+        connApn3.setText(d3 < 0 ? "-" : d3 == 1 ? L.t("Disconnected") : L.t("Connected"));
+        setDot(dotApn, d2 < 0 || d3 < 0 ? Kit.DOT_OFF : d2 == 0 && d3 == 0 ? Kit.ACCENT : Kit.AMBER);
+        connRaw.setText(m.lines());
     }
 
     // ---- a card with one button that shows what is going on -----------------------------------------------

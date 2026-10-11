@@ -299,12 +299,9 @@ final class Tweaks {
 
     /** The modem must stay without a connection and signal this long before an automatic reboot. */
     private static final long MODEM_DOWN_MS = 150_000;
-    private static final long MODEM_CHECK_MS = 30_000;
     private static final long MODEM_COOLDOWN_MS = 15 * 60_000;
     private static final int MODEM_MAX_AUTO = 3;
 
-    private static boolean modemProbing;
-    private static long modemProbeMs;
     private static long modemDownSinceMs;
     private static long modemAutoMs;
     private static int modemAutoCount;
@@ -395,45 +392,79 @@ final class Tweaks {
         t.start();
     }
 
-    // ---- automatic modem reboot --------------------------------------------------------------------------
+    // ---- the car's mobile connections and the automatic modem reboot ---------------------------------------
     static final int VERDICT_UNKNOWN = 0;
     static final int VERDICT_FINE = 1;
     static final int VERDICT_STUCK = 2;
 
-    /** Reads the car's two mobile connections and the radio state, as one line. */
-    private static final String MODEM_PROBE = "echo \"a2=$(getprop net.lte.apn2.real_state)/"
-            + "$(getprop net.lte.apn2.state) a3=$(getprop net.lte.apn3.real_state)/$(getprop net.lte.apn3.state) "
-            + "net=$(getprop gsm.network.type) sim=$(getprop gsm.sim.state)\"";
+    /** One reading of the car's two mobile connections and the radio, as the helper read it from the system. */
+    static final class Net {
+        final String apn2Real, apn2State, apn3Real, apn3State, type, sim;
+        final long atMs;
 
-    private static String field(String out, String key) {
-        Matcher m = Pattern.compile("(?:^|\\s)" + key + "=(\\S*)").matcher(out);
-        return m.find() ? m.group(1) : "";
+        Net(String[] v, long atMs) {
+            apn2Real = v[0];
+            apn2State = v[1];
+            apn3Real = v[2];
+            apn3State = v[3];
+            type = v[4];
+            sim = v[5];
+            this.atMs = atMs;
+        }
+
+        boolean sameAs(Net o) {
+            return o != null && apn2Real.equals(o.apn2Real) && apn2State.equals(o.apn2State)
+                    && apn3Real.equals(o.apn3Real) && apn3State.equals(o.apn3State) && type.equals(o.type)
+                    && sim.equals(o.sim);
+        }
+
+        /** The raw values on separate lines, for the Connection card. */
+        String lines() {
+            return "apn2  " + apn2Real + " / " + apn2State + "\napn3  " + apn3Real + " / " + apn3State
+                    + "\nnet  " + type + "   sim  " + sim;
+        }
+
+        /** The raw values on one line, which is also what is written to the log whenever they change. */
+        @Override public String toString() {
+            return "apn2=" + apn2Real + "/" + apn2State + " apn3=" + apn3Real + "/" + apn3State + " net=" + type
+                    + " sim=" + sim;
+        }
     }
 
-    /** "<real state>/<state>" of one APN: 1 = down, 0 = up, -1 = not known. */
-    private static int apnDown(String pair) {
-        int i = pair.indexOf('/');
-        String real = i < 0 ? pair : pair.substring(0, i);
-        String state = i < 0 ? "" : pair.substring(i + 1);
+    private static volatile Net net;
+
+    /** The latest reading, or null before the first one (the helper has to be running). */
+    static Net net() {
+        return net;
+    }
+
+    /** "<real state>", "<state>" of one connection: 1 = down, 0 = up, -1 = not known. */
+    static int apnDown(String real, String state) {
         if (real.isEmpty()) return -1;
         return !real.equals("connect") && !state.equals("connect") ? 1 : 0;
     }
 
+    /** The radio generation of a network type name: 0 none, 2, 3, 4 (LTE) or 5. */
+    static int generation(String type) {
+        int comma = type.indexOf(',');
+        String t = (comma >= 0 ? type.substring(0, comma) : type).trim().toUpperCase(Locale.US);
+        if (t.isEmpty() || t.equals("UNKNOWN")) return 0;
+        if (t.startsWith("NR")) return 5;
+        if (t.startsWith("LTE") || t.equals("IWLAN")) return 4;
+        if (t.equals("GPRS") || t.equals("EDGE") || t.equals("GSM") || t.equals("CDMA") || t.equals("1XRTT")) return 2;
+        return 3; // UMTS, HSPA and friends
+    }
+
     /**
-     * Stuck means: both mobile connections (APN2 and APN3) are down and the modem has no signal (no network
-     * type) although the SIM is loaded, so it is not just restarting. Anything unclear is "unknown".
+     * Stuck means: both mobile connections (APN2 and APN3) are down and the modem has no signal (no network type)
+     * although the SIM is loaded, so it is not just restarting. Anything unclear is "unknown".
      */
-    static int modemVerdict(String out) {
-        int d2 = apnDown(field(out, "a2"));
-        int d3 = apnDown(field(out, "a3"));
+    static int modemVerdict(String a2Real, String a2State, String a3Real, String a3State, String type, String sim) {
+        int d2 = apnDown(a2Real, a2State);
+        int d3 = apnDown(a3Real, a3State);
         if (d2 < 0 || d3 < 0) return VERDICT_UNKNOWN;
-        String net = field(out, "net");
-        int comma = net.indexOf(',');
-        if (comma >= 0) net = net.substring(0, comma);
-        String sim = field(out, "sim");
-        boolean noSignal = net.isEmpty() || net.equalsIgnoreCase("unknown");
         boolean simOk = sim.equals("LOADED") || sim.equals("READY");
-        return d2 == 1 && d3 == 1 && noSignal && simOk ? VERDICT_STUCK : VERDICT_FINE;
+        return d2 == 1 && d3 == 1 && generation(type) == 0 && simOk ? VERDICT_STUCK : VERDICT_FINE;
     }
 
     /** The user switched the automatic reboot on or off: forget what was seen so far. */
@@ -445,53 +476,38 @@ final class Tweaks {
     }
 
     /**
-     * Called every second by the recorder. While the automatic reboot is switched on it looks at the car's mobile
-     * connections every 30 s, and reboots the modem when they have all been down with no signal for 2.5 minutes:
-     * at most 3 times in a row, 15 minutes apart. Cheap when it is switched off.
+     * Called by the recorder with a fresh reading (every 30 s while the helper runs). It keeps the latest one for
+     * the Connection card and writes a line to the log whenever a value changes, so a real outage leaves the
+     * exact values behind. While the automatic reboot is switched on it also reboots the modem when both
+     * connections have been down with no signal for 2.5 minutes: at most 3 times in a row, 15 minutes apart.
      */
-    static void ensureModem(Context ctx) {
-        // without the Vehicle data link there is no approved debugging connection to look through
-        if (!Prefs.autoModemReboot(ctx) || !Prefs.linkEnabled(ctx)) return;
-        long now = System.currentTimeMillis();
-        final Context app = ctx.getApplicationContext();
+    static void noteNet(Context ctx, String[] v) {
+        if (v == null || v.length < 6) return;
+        long at = System.currentTimeMillis();
+        Net n = new Net(v, at);
+        Net old = net;
+        net = n;
+        if (old == null || !old.sameAs(n)) Diag.log("modem: " + n);
+        boolean reboot = false;
         synchronized (Tweaks.class) {
-            if (modemProbing || MODEM.state == Action.BUSY) return;
-            if (now - modemProbeMs < MODEM_CHECK_MS) return;
-            modemProbeMs = now;
-            modemProbing = true;
-        }
-        Thread t = new Thread(new Runnable() {
-            @Override public void run() {
-                boolean reboot = false;
-                try {
-                    AdbLoopback.Result r = new AdbLoopback(app).runShell(MODEM_PROBE, 15_000);
-                    int verdict = r.status == AdbLoopback.Status.OK ? modemVerdict(r.output) : VERDICT_UNKNOWN;
-                    long at = System.currentTimeMillis();
-                    synchronized (Tweaks.class) {
-                        if (verdict != VERDICT_STUCK) {
-                            if (verdict == VERDICT_FINE) modemAutoCount = 0; // the outage is over
-                            modemDownSinceMs = 0;
-                        } else if (modemDownSinceMs == 0) {
-                            modemDownSinceMs = at;
-                            Diag.log("modem: both APNs down and no signal, watching (" + r.output.trim() + ")");
-                        } else if (at - modemDownSinceMs >= MODEM_DOWN_MS && at - modemAutoMs >= MODEM_COOLDOWN_MS
-                                && modemAutoCount < MODEM_MAX_AUTO) {
-                            modemAutoMs = at;
-                            modemAutoCount++;
-                            reboot = true;
-                        }
-                    }
-                } catch (Throwable e) {
-                    Diag.log("modem probe failed", e);
-                } finally {
-                    synchronized (Tweaks.class) {
-                        modemProbing = false;
-                    }
-                }
-                if (reboot) rebootModem(app, "auto");
+            if (!Prefs.autoModemReboot(ctx) || !Prefs.linkEnabled(ctx) || MODEM.state == Action.BUSY) {
+                modemDownSinceMs = 0;
+                return;
             }
-        }, "tweak-modem-probe");
-        t.setDaemon(true);
-        t.start();
+            int verdict = modemVerdict(n.apn2Real, n.apn2State, n.apn3Real, n.apn3State, n.type, n.sim);
+            if (verdict != VERDICT_STUCK) {
+                if (verdict == VERDICT_FINE) modemAutoCount = 0; // the outage is over
+                modemDownSinceMs = 0;
+            } else if (modemDownSinceMs == 0) {
+                modemDownSinceMs = at;
+                Diag.log("modem: both connections down and no signal, watching");
+            } else if (at - modemDownSinceMs >= MODEM_DOWN_MS && at - modemAutoMs >= MODEM_COOLDOWN_MS
+                    && modemAutoCount < MODEM_MAX_AUTO) {
+                modemAutoMs = at;
+                modemAutoCount++;
+                reboot = true;
+            }
+        }
+        if (reboot) rebootModem(ctx, "auto");
     }
 }

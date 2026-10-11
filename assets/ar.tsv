@@ -425,7 +425,6 @@ Rebooted	تمت إعادة التشغيل
 Reboot automatically	إعادة التشغيل تلقائيًا
 When the mobile connections APN2 and APN3 are both down and there is no signal.	عندما يكون اتصالا الجوال APN2 وAPN3 منقطعين ولا توجد إشارة.
 Connection	الاتصال
-Roaming setting	إعداد التجوال
 Cellular	الشبكة الخلوية
 Roaming	تجوال
 Apps use	التطبيقات تستخدم
@@ -446,3 +445,9 @@ Nothing	لا شيء
 General	عام
 Backup and export	النسخ الاحتياطي والتصدير
 The update was installed. If the app does not open by itself, open it again.	تم تثبيت التحديث. إن لم يفتح التطبيق من تلقاء نفسه فافتحه مرة أخرى.
+What's new	الجديد
+Mobile network	شبكة الجوال
+No signal	لا توجد إشارة
+SIM not ready	الشريحة غير جاهزة
+Disconnected	منقطع
+Needs the Vehicle data link	يتطلب رابط بيانات المركبة
