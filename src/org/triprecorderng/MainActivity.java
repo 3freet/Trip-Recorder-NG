@@ -1458,10 +1458,6 @@ public class MainActivity extends Activity {
                 MainActivity.this.openAutostart();
             }
 
-            @Override public void openBattery() {
-                MainActivity.this.openBattery();
-            }
-
             @Override public void showPriceDialog() {
                 MainActivity.this.showPriceDialog();
             }
@@ -2113,15 +2109,6 @@ public class MainActivity extends Activity {
             } catch (Throwable t2) {
                 toast(L.t("Could not open settings"));
             }
-        }
-    }
-
-    private void openBattery() {
-        try {
-            startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                    Uri.parse("package:" + getPackageName())));
-        } catch (Throwable t) {
-            toast(L.t("Not available on this unit"));
         }
     }
 

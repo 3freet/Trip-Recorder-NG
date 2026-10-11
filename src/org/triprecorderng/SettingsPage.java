@@ -55,8 +55,6 @@ final class SettingsPage {
 
         void openAutostart();
 
-        void openBattery();
-
         void showPriceDialog();
 
         void toggleBackup(boolean on);
@@ -116,7 +114,6 @@ final class SettingsPage {
         generalSection(left);
         recordingSection(left);
         linkSection(right);
-        keepRunningSection(right);
         backupSection(right);
         File lf = Diag.file();
         TextView log = k.label(L.f("Log file: %s", lf == null ? "?" : L.ltr(lf.getPath())), 12, Kit.MUTED, Kit.MEDIUM);
@@ -242,7 +239,21 @@ final class SettingsPage {
                         host.requestLocation();
                     }
                 });
-        section(into, L.t("Trip recording"), serviceRow, route, sourceRow, location);
+        int health = Prefs.autoStartHealth(c);
+        String autoText = health == Prefs.AUTOSTART_OK
+                ? L.t("Started automatically after the last restart")
+                : health == Prefs.AUTOSTART_BLOCKED
+                ? L.t("NOT started automatically after the last restart: turn Trip Recorder NG OFF in "
+                + "'Disable background Apps'")
+                : L.t("Not confirmed yet: turn Trip Recorder NG OFF in 'Disable background Apps', then "
+                + "restart the head unit once");
+        Kit.Row autostart = action(L.t("BYD auto-start apps"), autoText, L.t("Open"), false,
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        host.openAutostart();
+                    }
+                });
+        section(into, L.t("Trip recording"), serviceRow, route, sourceRow, location, autostart);
     }
 
     private void linkSection(LinearLayout into) {
@@ -266,30 +277,6 @@ final class SettingsPage {
                     }
                 });
         section(into, L.t("Vehicle data link"), linkRow, reconnectRow, key);
-    }
-
-    private void keepRunningSection(LinearLayout into) {
-        int health = Prefs.autoStartHealth(c);
-        String autoText = health == Prefs.AUTOSTART_OK
-                ? L.t("Started automatically after the last restart")
-                : health == Prefs.AUTOSTART_BLOCKED
-                ? L.t("NOT started automatically after the last restart: turn Trip Recorder NG OFF in "
-                + "'Disable background Apps'")
-                : L.t("Not confirmed yet: turn Trip Recorder NG OFF in 'Disable background Apps', then "
-                + "restart the head unit once");
-        Kit.Row autostart = action(L.t("BYD auto-start apps"), autoText, L.t("Open"), false,
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        host.openAutostart();
-                    }
-                });
-        Kit.Row battery = action(L.t("Battery optimisation"), L.t("Keep the recorder running"), L.t("Open"), false,
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        host.openBattery();
-                    }
-                });
-        section(into, L.t("Keeping it running"), autostart, battery);
     }
 
     private void backupSection(LinearLayout into) {

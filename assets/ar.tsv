@@ -197,8 +197,6 @@ NOT started automatically after the last restart: turn Trip Recorder NG OFF in '
 Not confirmed yet: turn Trip Recorder NG OFF in 'Disable background Apps', then restart the head unit once	لم يتأكد بعد: أوقف مفتاح Trip Recorder NG ضمن «Disable background Apps» ثم أعد تشغيل وحدة الشاشة مرة واحدة
 BYD auto-start apps	تطبيقات التشغيل التلقائي في BYD
 Open	فتح
-Battery optimisation	تحسين البطارية
-Keep the recorder running	إبقاء المسجّل قيد التشغيل
 Energy prices	أسعار الطاقة
 Electricity %1$s %2$s/kWh%3$s, fuel %4$s %2$s/L%5$s	الكهرباء %1$s %2$s/kWh%3$s، الوقود %4$s %2$s/لتر%5$s
  (default)	 (افتراضي)
@@ -271,7 +269,6 @@ Saved %s	تم الحفظ: %s
 Export failed: %s	فشل التصدير: %s
 OK	موافق
 Could not open settings	تعذّر فتح الإعدادات
-Not available on this unit	غير متاح في هذه الوحدة
 This trip has no GPS track	لا يوجد مسار GPS لهذه الرحلة
 Could not open Google Maps	تعذّر فتح خرائط Google
 Wi-Fi	Wi-Fi
@@ -447,5 +444,4 @@ Ethernet	إيثرنت
 Other	أخرى
 Nothing	لا شيء
 General	عام
-Keeping it running	إبقاء التسجيل يعمل
 Backup and export	النسخ الاحتياطي والتصدير
