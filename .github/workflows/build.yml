@@ -88,6 +88,10 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
       - uses: actions/download-artifact@v8
         with:
           name: TripRecorderNG-${{ github.run_number }}
@@ -98,7 +102,25 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.build.outputs.version }}
         run: |
-          case "$VERSION" in stable-*) KIND=(--latest) ;; *) KIND=(--prerelease) ;; esac
+          case "$VERSION" in
+            stable-*) KIND=(--latest); SINCE=(--match 'stable-*') ;;
+            *) KIND=(--prerelease); SINCE=(--match 'dev-*' --match 'stable-*') ;;
+          esac
+          # the notes list the commits since the previous build (a stable release: since the previous stable one)
+          PREV=$(git describe --tags --abbrev=0 "${SINCE[@]}" HEAD 2>/dev/null || true)
+          {
+            echo "## What changed"
+            echo
+            for c in $(git rev-list --no-merges --reverse ${PREV:+$PREV..}HEAD); do
+              subject=$(git log -1 --format=%s "$c")
+              case "$subject" in CI:*) continue ;; esac
+              echo "### $subject"
+              git log -1 --format=%b "$c"
+            done
+            echo
+            echo "---"
+            echo "After installing, turn Trip Recorder NG OFF in the car's Disable background Apps list and restart the head unit once (BYD resets that switch on every install). Unofficial, use at your own risk: see the README."
+          } > notes.md
           gh release create "$VERSION" dist/*.apk --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "Trip Recorder NG ${VERSION%-*} build ${VERSION##*-}" "${KIND[@]}" --generate-notes \
-            --notes "After installing, turn Trip Recorder NG OFF in the car's Disable background Apps list and restart the head unit once (BYD resets that switch on every install). Unofficial, use at your own risk: see the README."
+            --notes-file notes.md
