@@ -248,6 +248,9 @@ resets its auto-start switch on every install, so afterwards do the same two ste
 update). The downloaded file stays in `Android/data/org.triprecorderng/files/update`. The file is streamed into the
 installer (`cat file | pm install -r -S size`, as `adb install` does): handing `pm install` the path failed on the
 tested unit with "Failed to load asset path from fd" because the system could not read the shared-storage file.
+Replacing the app ends the debugging connection the command runs in, and the shell goes with it, so the install and
+the restart run detached (`nohup`, writing to `/data/local/tmp/triprecng-update.out`) and the command only waits for
+that file to say it is done; a refused install is read back from it.
 - **Channels.** Releases are named `stable-N` and `dev-N` (dev builds are pre-releases); `N` counts up across
   both. The installed build's name is its version name (`dev-9`; a build made on a computer is just `0.1`). **Setting > Advanced > Update channel** chooses
   which channel the check follows; choosing the other one offers its newest build straight away, which is how you

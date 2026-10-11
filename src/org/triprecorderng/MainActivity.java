@@ -1729,6 +1729,8 @@ public class MainActivity extends Activity {
                 if (out.isEmpty()) return L.t("The update did not finish.");
                 int nl = out.indexOf('\n');
                 String first = nl > 0 ? out.substring(0, nl).trim() : out;
+                if (first.equals("Success")) return L.t("The update was installed. If the app does not open by "
+                        + "itself, open it again.");
                 if (first.length() > 160) first = first.substring(0, 160) + "...";
                 return L.f("The update failed: %s", first) + (nl > 0 ? "\n" + L.t("Details are in the log file.") : "");
         }

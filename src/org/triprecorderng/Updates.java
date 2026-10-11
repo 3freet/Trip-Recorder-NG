@@ -353,13 +353,26 @@ final class Updates {
         return new AdbLoopback(ctx).runShell(cmd, 20_000);
     }
 
+    /** Where the detached installer writes what it did (the shell user's own scratch folder). */
+    private static final String RESULT_FILE = "/data/local/tmp/triprecng-update.out";
+
     /**
-     * The shell command that installs the file, or null for a path with unexpected characters. The file is streamed
-     * into the installer (as "adb install" does) instead of handing it a path: given the path, the system's package
-     * manager could not read a file in the app's shared-storage folder ("Failed to load asset path from fd").
+     * The shell command that installs the file and starts the app again, or null for a path with unexpected
+     * characters. The file is streamed into the installer (as "adb install" does) instead of handing it a path:
+     * given the path, the system's package manager could not read a file in the app's shared-storage folder
+     * ("Failed to load asset path from fd").
+     *
+     * Replacing this app ends the debugging connection the command runs in, and the shell goes with it, so a
+     * plain "pm install && am start" sometimes never reached the restart. The install and the restart therefore
+     * run detached (nohup, output to a file); the command itself only waits, for at most 12 seconds, for the file
+     * to say it is done and prints it, which is how a refused install is reported.
      */
     static String installCommand(String pkg, String path, long size) {
         if (!path.matches("[A-Za-z0-9/._-]+") || size <= 0) return null;
-        return "cat " + path + " | pm install -r -S " + size + " && am start -n " + pkg + "/.MainActivity";
+        return "rm -f " + RESULT_FILE + "; (nohup sh -c 'cat " + path + " | pm install -r -S " + size + " > "
+                + RESULT_FILE + " 2>&1 && am start -n " + pkg + "/.MainActivity >> " + RESULT_FILE
+                + " 2>&1; echo done >> " + RESULT_FILE + "' > /dev/null 2>&1 < /dev/null &); "
+                + "i=0; while [ $i -lt 24 ] && ! grep -q '^done$' " + RESULT_FILE + " 2>/dev/null; "
+                + "do sleep 0.5; i=$((i+1)); done; cat " + RESULT_FILE;
     }
 }
