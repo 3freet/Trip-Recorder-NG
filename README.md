@@ -1,3 +1,5 @@
+**English** | [العربية](README.ar.md)
+
 # Trip Recorder NG
 
 An unofficial trip recorder for BYD cars with a DiLink head unit. It records every drive on the head unit
