@@ -436,29 +436,6 @@ public class MainActivity extends Activity {
         select(tab);
     }
 
-    // ---- small builders --------------------------------------------------------------------
-    private LinearLayout card() {
-        LinearLayout c = new LinearLayout(this);
-        c.setOrientation(LinearLayout.VERTICAL);
-        c.setBackground(Ui.round(Ui.CARD, 8, this));
-        return c;
-    }
-
-    private TextView pill(String text, View.OnClickListener l) {
-        TextView t = Ui.text(this, text, 18, Ui.TEXT_VALUE);
-        t.setGravity(Gravity.CENTER);
-        t.setPadding(Ui.dp(this, 20), Ui.dp(this, 8), Ui.dp(this, 20), Ui.dp(this, 8));
-        t.setBackground(Ui.stroke(0x4DFFFFFF, 0x00000000, 20, this));
-        t.setOnClickListener(l);
-        return t;
-    }
-
-    private TextView pageTitle(String s) {
-        TextView t = Ui.text(this, s, 24, Ui.TEXT_VALUE);
-        t.setPadding(Ui.dp(this, 4), 0, 0, Ui.dp(this, 12));
-        return t;
-    }
-
     /** The name of the vehicle data source as shown to the user (the code compares the English names). */
     private static String vehicleName(String name) {
         if ("BYD API via helper".equals(name)) return L.t("BYD API via helper");
@@ -492,467 +469,72 @@ public class MainActivity extends Activity {
 
     // ---- My Trips --------------------------------------------------------------------------
     private View myTripsPage() {
-        LinearLayout col = new LinearLayout(this);
-        col.setOrientation(LinearLayout.VERTICAL);
-
-        LinearLayout head = new LinearLayout(this);
-        head.setOrientation(LinearLayout.HORIZONTAL);
-        head.setGravity(Gravity.CENTER_VERTICAL);
-        double km = 0;
-        for (Trip t : trips) km += t.distanceKm;
-        TextView title = pageTitle(L.t("My Trips"));
-        title.setPaddingRelative(Ui.dp(this, 4), 0, 0, 0);
-        head.addView(title);
-        double totalCost = 0;
-        boolean anyCost = false;
-        for (Trip t : trips) {
-            double c = Cost.total(t, this);
-            if (!Double.isNaN(c)) {
-                totalCost += c;
-                anyCost = true;
+        return MyTripsPage.build(this, new MyTripsPage.Host() {
+            @Override public List<Trip> trips() {
+                return trips;
             }
-        }
-        TextView tip = Ui.text(this, "   " + L.f("%1$d trips, %2$s km", trips.size(), Ui.f(km, "%.0f"))
-                + (anyCost ? L.sep() + Cost.money(this, totalCost) : ""), 16, Ui.TEXT_LABEL);
-        head.addView(tip, new LinearLayout.LayoutParams(0, -2, 1f));
-        head.addView(pill(L.t("Export CSV"), new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                exportCsv();
-            }
-        }));
-        col.addView(head, new LinearLayout.LayoutParams(-1, -2));
-        ((LinearLayout.LayoutParams) head.getLayoutParams()).bottomMargin = Ui.dp(this, 12);
 
-        LinearLayout box = card();
-        col.addView(box, new LinearLayout.LayoutParams(-1, 0, 1f));
-        if (trips.isEmpty()) {
-            LinearLayout empty = new LinearLayout(this);
-            empty.setOrientation(LinearLayout.VERTICAL);
-            empty.setGravity(Gravity.CENTER);
-            ImageView img = new ImageView(this);
-            img.setImageResource(res("empty_trips"));
-            LinearLayout.LayoutParams imgLp = new LinearLayout.LayoutParams(
-                    Ui.dp(this, 312), Ui.dp(this, 208));
-            imgLp.gravity = Gravity.CENTER_HORIZONTAL;
-            empty.addView(img, imgLp);
-            TextView t = Ui.text(this, L.t("No trips yet"), 20, Ui.TEXT_LABEL);
-            t.setGravity(Gravity.CENTER);
-            t.setPadding(0, Ui.dp(this, 12), 0, 0);
-            empty.addView(t, new LinearLayout.LayoutParams(-1, -2));
-            final TextView restoreBtn = pill(L.t("Restore trips from backup"), new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    confirmRestore();
-                }
-            });
-            restoreBtn.setVisibility(View.GONE);
-            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(-2, -2);
-            rlp.gravity = Gravity.CENTER_HORIZONTAL;
-            rlp.topMargin = Ui.dp(this, 16);
-            empty.addView(restoreBtn, rlp);
-            new Thread(new Runnable() {
-                @Override public void run() {
-                    final int files = Backup.status(MainActivity.this).files;
-                    ui.post(new Runnable() {
-                        @Override public void run() {
-                            if (files > 0) {
-                                restoreBtn.setText(L.f("Restore %d trip(s) from backup", files));
-                                restoreBtn.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    });
-                }
-            }).start();
-            box.addView(empty, new LinearLayout.LayoutParams(-1, -1));
-            return col;
-        }
-
-        final List<Object> items = new ArrayList<>();
-        SimpleDateFormat day = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        String last = "";
-        for (Trip t : trips) {
-            String d = day.format(new Date(t.startMs));
-            if (!d.equals(last)) {
-                items.add(d);
-                last = d;
+            @Override public void openTrip(Trip t) {
+                showDetail(t);
             }
-            items.add(t);
-        }
-        ListView list = new ListView(this);
-        list.setDivider(null);
-        list.setSelector(android.R.color.transparent);
-        list.setVerticalScrollBarEnabled(false);
-        list.setPadding(Ui.dp(this, 14), Ui.dp(this, 4), Ui.dp(this, 14), Ui.dp(this, 8));
-        list.setClipToPadding(false);
-        list.setAdapter(new BaseAdapter() {
-            @Override public int getCount() { return items.size(); }
-            @Override public Object getItem(int i) { return items.get(i); }
-            @Override public long getItemId(int i) { return i; }
-            @Override public int getViewTypeCount() { return 2; }
-            @Override public int getItemViewType(int i) { return items.get(i) instanceof String ? 0 : 1; }
-            @Override public View getView(int i, View convert, ViewGroup parent) {
-                Object o = items.get(i);
-                if (o instanceof String) {
-                    TextView t = Ui.text(MainActivity.this, (String) o, 20, Ui.TEXT_DATE);
-                    t.setPadding(Ui.dp(MainActivity.this, 14), Ui.dp(MainActivity.this, 16),
-                            0, Ui.dp(MainActivity.this, 4));
-                    return t;
-                }
-                return tripRow((Trip) o);
+
+            @Override public void exportCsv() {
+                MainActivity.this.exportCsv();
+            }
+
+            @Override public void confirmRestore() {
+                MainActivity.this.confirmRestore();
+            }
+
+            @Override public int emptyImage() {
+                return res("empty_trips");
+            }
+
+            @Override public void listBuilt(ListView list) {
+                tripsList = list;
+            }
+
+            @Override public int scrollFirst() {
+                return tripsFirst;
+            }
+
+            @Override public int scrollTop() {
+                return tripsTop;
             }
         });
-        list.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
-            @Override public void onItemClick(android.widget.AdapterView<?> p, View v, int pos, long id) {
-                Object o = items.get(pos);
-                if (o instanceof Trip) showDetail((Trip) o);
-            }
-        });
-        box.addView(list, new LinearLayout.LayoutParams(-1, -1));
-        tripsList = list;
-        if (tripsFirst > 0 || tripsTop != 0) list.setSelectionFromTop(tripsFirst, tripsTop);
-        return col;
-    }
-
-    /** One trip row: time range, four value/label cells and the score ring. */
-    private View tripRow(Trip t) {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.VERTICAL);
-        row.setPadding(Ui.dp(this, 14), Ui.dp(this, 12), Ui.dp(this, 14), 0);
-
-        SimpleDateFormat tf = new SimpleDateFormat("HH:mm", L.dateLocale());
-        String range = tf.format(new Date(t.startMs)) + "-"
-                + (t.ended ? tf.format(new Date(t.endMs)) : "...");
-        LinearLayout timeRow = new LinearLayout(this);
-        timeRow.setGravity(Gravity.CENTER_VERTICAL);
-        timeRow.addView(Ui.text(this, range, 16, Ui.TEXT_LABEL));
-        if (!t.ended) {
-            TextView tag = Ui.text(this, L.t("Recording"), 11, Ui.GREEN);
-            tag.setPadding(Ui.dp(this, 10), Ui.dp(this, 2), Ui.dp(this, 10), Ui.dp(this, 2));
-            tag.setBackground(Ui.stroke(Ui.GREEN, 0, 9, this));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2);
-            lp.setMarginStart(Ui.dp(this, 12));
-            timeRow.addView(tag, lp);
-        }
-        row.addView(timeRow);
-
-        LinearLayout data = new LinearLayout(this);
-        data.setOrientation(LinearLayout.HORIZONTAL);
-        data.setGravity(Gravity.CENTER_VERTICAL);
-        data.setPadding(0, Ui.dp(this, 8), 0, Ui.dp(this, 14));
-        data.addView(Ui.stat(this, Ui.f(t.distanceKm, "%.1f"), L.t("Mileage (km)"), 20, 14),
-                new LinearLayout.LayoutParams(0, -2, 1f));
-        data.addView(Ui.stat(this, Ui.duration(t.durationSec()), L.t("Duration"), 20, 14),
-                new LinearLayout.LayoutParams(0, -2, 1f));
-        data.addView(Ui.stat(this, Ui.f(t.energyPer100Km(), "%.1f"), L.t("Consumption (kWh/100km)"), 20, 14),
-                new LinearLayout.LayoutParams(0, -2, 1.3f));
-        if (Cost.enabled(this)) {
-            data.addView(Ui.stat(this, Cost.amount(this, Cost.total(t, this)),
-                    L.f("Cost (%s)", Prefs.currency(this)), 20, 14), new LinearLayout.LayoutParams(0, -2, 1f));
-        }
-        data.addView(Ui.stat(this, Ui.f(t.socUsed(), "%.0f"), L.t("Battery used (%)"), 20, 14),
-                new LinearLayout.LayoutParams(0, -2, 1f));
-        double sc = Stats.score(t);
-        RingView ring = new RingView(this, 6, 20, 12);
-        ring.set(Double.isNaN(sc) ? 0 : sc, 100, Double.isNaN(sc) ? "--" : String.format(Locale.US, "%.0f", sc),
-                null, Ui.scoreColor(sc));
-        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(Ui.dp(this, 72), Ui.dp(this, 72));
-        rlp.setMarginStart(Ui.dp(this, 16));
-        data.addView(ring, rlp);
-        row.addView(data);
-        row.addView(Ui.divider(this));
-        return row;
     }
 
     // ---- Attainment ------------------------------------------------------------------------
     private View attainmentPage() {
-        LinearLayout col = new LinearLayout(this);
-        col.setOrientation(LinearLayout.VERTICAL);
-        col.addView(pageTitle(L.t("Highest achievements")));
-        Stats.Records r = Stats.records(trips);
-        SimpleDateFormat df = new SimpleDateFormat("d MMM yyyy", L.dateLocale());
-
-        String[][] tiles = new String[12][3];
-        tiles[0] = tile(L.t("Longest trip"), r.longest == null ? "--" : L.f("%s km", Ui.f(r.longest.distanceKm, "%.1f")), r.longest, df);
-        tiles[1] = tile(L.t("Longest drive"), r.longestTime == null ? "--" : Ui.duration(r.longestTime.durationSec()), r.longestTime, df);
-        tiles[2] = tile(L.t("Top speed"), r.fastest == null ? "--" : L.f("%s km/h", Ui.f(r.fastest.maxSpeedKmh, "%.0f")), r.fastest, df);
-        tiles[3] = tile(L.t("Most efficient (5 km+)"), r.mostEfficient == null ? "--" : L.f("%s /100km", Ui.f(r.mostEfficient.energyPer100Km(), "%.1f")), r.mostEfficient, df);
-        tiles[4] = tile(L.t("Best drive score"), r.bestScore == null ? "--" : Ui.f(Stats.score(r.bestScore), "%.0f"), r.bestScore, df);
-        double evSum = 0, hevSum = 0, fuelSum = 0, costSum = 0;
-        int fuelTrips = 0;
-        boolean anyCostTile = false;
-        for (Trip t : trips) {
-            if (!Double.isNaN(t.evKm()) && !Double.isNaN(t.hevKm())) {
-                evSum += t.evKm();
-                hevSum += t.hevKm();
-            }
-            if (!Double.isNaN(t.fuelUsed())) {
-                fuelSum += t.fuelUsed();
-                fuelTrips++;
-            }
-            double c = Cost.total(t, this);
-            if (!Double.isNaN(c)) {
-                costSum += c;
-                anyCostTile = true;
-            }
-        }
-        tiles[5] = new String[]{L.t("Total distance"), L.f("%s km", Ui.f(r.totalKm, "%.0f")),
-                evSum + hevSum >= 1 ? L.f("%s%% driven electric", Ui.f(evSum / (evSum + hevSum) * 100, "%.0f")) : ""};
-        tiles[6] = new String[]{L.t("Total trips"), String.valueOf(r.count), ""};
-        tiles[7] = new String[]{L.t("Total drive time"), Ui.duration(r.totalSec), ""};
-        tiles[8] = new String[]{L.t("Total cost"), anyCostTile ? Cost.money(this, costSum) : "--",
-                L.t("electricity + fuel")};
-        tiles[9] = new String[]{L.t("Fuel used"), fuelTrips > 0 ? L.f("%s L", Ui.f(fuelSum, "%.1f")) : "--",
-                fuelTrips > 0 ? L.f("over %d trip(s)", fuelTrips)
-                        : L.t("recorded for new trips")};
-        Stats.Co2 co2 = Stats.co2Avoided(trips);
-        tiles[10] = new String[]{L.t("CO2 avoided (estimate)"), co2.trips > 0 ? L.f("%s kg", Ui.f(co2.kg, "%.0f")) : "--",
-                co2.trips > 0 ? L.f("about %s trees a year", Ui.f(co2.trees, "%.1f")) : L.t("needs fuel data")};
-        int lv = Stats.level(r.totalKm);
-        String next = lv + 1 < Stats.LEVEL_KM.length
-                ? L.f("Level (next: %s km)", Ui.f(Stats.LEVEL_KM[lv + 1], "%.0f")) : L.t("Level (top)");
-        tiles[11] = new String[]{next, L.f("Lv %d", lv + 1), Stats.levelName(lv)};
-
-        for (int rr = 0; rr < 3; rr++) {
-            LinearLayout line = new LinearLayout(this);
-            line.setOrientation(LinearLayout.HORIZONTAL);
-            for (int c = 0; c < 4; c++) {
-                String[] tl = tiles[rr * 4 + c];
-                LinearLayout cell = card();
-                cell.setPaddingRelative(Ui.dp(this, 22), Ui.dp(this, 14), Ui.dp(this, 16), Ui.dp(this, 12));
-                cell.addView(Ui.text(this, tl[0], 16, Ui.TEXT_DATE));
-                TextView v = Ui.text(this, tl[1], 32, Ui.TEXT_SELECTED);
-                v.setPadding(0, Ui.dp(this, 8), 0, 0);
-                cell.addView(v);
-                TextView s = Ui.text(this, tl[2], 14, Ui.TEXT_LABEL);
-                s.setPadding(0, Ui.dp(this, 6), 0, 0);
-                cell.addView(s);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -1, 1f);
-                lp.setMarginStart(c == 0 ? 0 : Ui.dp(this, 16));
-                line.addView(cell, lp);
-            }
-            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(-1, 0, 1f);
-            llp.bottomMargin = Ui.dp(this, 12);
-            col.addView(line, llp);
-        }
-        return col;
-    }
-
-    private static String[] tile(String title, String value, Trip t, SimpleDateFormat df) {
-        return new String[]{title, value, t == null ? "" : df.format(new Date(t.startMs))};
+        return AttainmentPage.build(this, trips);
     }
 
     // ---- Statistics ------------------------------------------------------------------------
     private View statisticsPage() {
-        LinearLayout col = new LinearLayout(this);
-        col.setOrientation(LinearLayout.VERTICAL);
-
-        LinearLayout head = new LinearLayout(this);
-        head.setOrientation(LinearLayout.HORIZONTAL);
-        head.setGravity(Gravity.CENTER_VERTICAL);
-        head.addView(pageTitle(L.t("Statistics")));
-        View spacer = new View(this);
-        head.addView(spacer, new LinearLayout.LayoutParams(0, 1, 1f));
-        String[] metricNames = {L.t("Mileage"), L.t("Consumption"), L.t("Drive score"), L.t("Trips"), L.t("Cost"), L.t("Fuel")};
-        for (int i = 0; i < metricNames.length; i++) {
-            final int m = i;
-            head.addView(chip(metricNames[i], statsMetric == i, new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    statsMetric = m;
-                    renderCurrentTab();
-                }
-            }));
-        }
-        View gap = new View(this);
-        head.addView(gap, new LinearLayout.LayoutParams(Ui.dp(this, 24), 1));
-        head.addView(chip(L.t("Daily"), !statsMonthly, new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                statsMonthly = false;
+        return StatisticsPage.build(this, trips, new StatisticsPage.Host() {
+            @Override public void redraw() {
                 renderCurrentTab();
             }
-        }));
-        head.addView(chip(L.t("Monthly"), statsMonthly, new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                statsMonthly = true;
-                renderCurrentTab();
-            }
-        }));
-        col.addView(head, new LinearLayout.LayoutParams(-1, -2));
-
-        LinearLayout box = card();
-        box.setPadding(Ui.dp(this, 28), Ui.dp(this, 20), Ui.dp(this, 28), Ui.dp(this, 16));
-        String[] units = {L.t("Mileage (km)"), L.t("Consumption (kWh/100km)"), L.t("Average drive score"), L.t("Number of trips"),
-                L.f("Cost (%s)", Prefs.currency(this)),
-                L.t("Fuel used (L)")};
-        box.addView(Ui.text(this, units[statsMetric] + (statsMonthly ? L.t(" - last 12 months") : L.t(" - last 14 days")),
-                18, Ui.TEXT_DATE));
-        Stats.Series s = Stats.series(this, trips, statsMonthly, statsMetric);
-        BarChartView chart = new BarChartView(this);
-        int[] colors = {Ui.GREEN, Ui.BLUE, Ui.AMBER, 0xFFB48CFF, 0xFFFF8A65, 0xFF4DD0E1};
-        chart.setDecimals(statsMetric == Stats.COST ? Cost.decimalsFor(Prefs.currency(this)) : 1);
-        chart.set(s.values, s.labels, colors[statsMetric]);
-        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(-1, 0, 1f);
-        clp.topMargin = Ui.dp(this, 8);
-        box.addView(chart, clp);
-        col.addView(box, new LinearLayout.LayoutParams(-1, 0, 1f));
-        return col;
-    }
-
-    private TextView chip(String text, boolean selected, View.OnClickListener l) {
-        TextView t = Ui.text(this, text, 18, selected ? Ui.TEXT_SELECTED : Ui.TEXT_DATE);
-        t.setGravity(Gravity.CENTER);
-        t.setPadding(Ui.dp(this, 18), Ui.dp(this, 8), Ui.dp(this, 18), Ui.dp(this, 8));
-        t.setBackground(Ui.round(selected ? 0x33FFFFFF : 0x00000000, 18, this));
-        t.setOnClickListener(l);
-        return t;
+        });
     }
 
     // ---- trip detail -----------------------------------------------------------------------
     private void showDetail(final Trip t) {
         saveTripsScroll();
-        final TextView overView = Ui.text(this, "...", 17, Ui.TEXT_VALUE);
         overlay = "detail";
         pageRefresh = null;
         setChrome(true);
         titleView.setText(L.t("Trip details"));
         content.removeAllViews();
-
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-
-        LinearLayout leftCol = new LinearLayout(this);
-        leftCol.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout mapCard = card();
-        final RouteView route = new RouteView(this);
-        mapCard.addView(route, new LinearLayout.LayoutParams(-1, -1));
-        leftCol.addView(mapCard, new LinearLayout.LayoutParams(-1, 0, 8f));
-        final TripChartsPanel charts = new TripChartsPanel(this, route);
-        LinearLayout.LayoutParams chLp = new LinearLayout.LayoutParams(-1, 0, 5f);
-        chLp.topMargin = Ui.dp(this, 14);
-        leftCol.addView(charts, chLp);
-        row.addView(leftCol, new LinearLayout.LayoutParams(0, -1, 1f));
-        new Thread(new Runnable() {
-            @Override public void run() {
-                final List<double[]> pts = TripAnalysis.holdStill(TripDb.get(MainActivity.this).points(t.id));
-                final List<double[]> events = TripDb.get(MainActivity.this).events(t.id);
-                ui.post(new Runnable() {
-                    @Override public void run() {
-                        route.set(pts, events);
-                        charts.setData(t, pts);
-                        double over = TripAnalysis.secondsAbove(pts, 100);
-                        overView.setText(pts.size() < 2 ? "--" : Ui.duration((long) over));
-                    }
-                });
+        content.addView(TripDetailPage.build(this, t, new TripDetailPage.Host() {
+            @Override public void exportGpx(Trip trip) {
+                MainActivity.this.exportGpx(trip);
             }
-        }).start();
 
-        LinearLayout info = card();
-        info.setPadding(Ui.dp(this, 28), Ui.dp(this, 22), Ui.dp(this, 28), Ui.dp(this, 18));
-        SimpleDateFormat df = new SimpleDateFormat("EEEE" + L.sep() + "d MMMM yyyy", L.dateLocale());
-        SimpleDateFormat tf = new SimpleDateFormat("HH:mm", L.dateLocale());
-        info.addView(Ui.text(this, df.format(new Date(t.startMs)), 20, Ui.TEXT_VALUE));
-        TextView range = Ui.text(this, tf.format(new Date(t.startMs)) + " - "
-                + (t.endMs > 0 ? tf.format(new Date(t.endMs)) : "..."), 16, Ui.TEXT_LABEL);
-        range.setPadding(0, Ui.dp(this, 6), 0, Ui.dp(this, 14));
-        info.addView(range);
-
-        LinearLayout top = new LinearLayout(this);
-        top.setOrientation(LinearLayout.HORIZONTAL);
-        top.setGravity(Gravity.CENTER_VERTICAL);
-        double sc = Stats.score(t);
-        RingView ring = new RingView(this, 8, 30, 14);
-        ring.set(Double.isNaN(sc) ? 0 : sc, 100, Double.isNaN(sc) ? "--" : String.format(Locale.US, "%.0f", sc),
-                L.t("score"), Ui.scoreColor(sc));
-        top.addView(ring, new LinearLayout.LayoutParams(Ui.dp(this, 110), Ui.dp(this, 110)));
-        LinearLayout big = new LinearLayout(this);
-        big.setOrientation(LinearLayout.VERTICAL);
-        big.setPaddingRelative(Ui.dp(this, 22), 0, 0, 0);
-        big.addView(Ui.text(this, L.f("%s km", Ui.f(t.distanceKm, "%.1f")), 34, Ui.TEXT_SELECTED));
-        TextView dur = Ui.text(this, Ui.duration(t.durationSec()), 20, Ui.TEXT_DATE);
-        dur.setPadding(0, Ui.dp(this, 6), 0, 0);
-        big.addView(dur);
-        top.addView(big);
-        info.addView(top);
-
-        List<String[]> lines = new ArrayList<>();
-        lines.add(new String[]{L.t("Average speed"), L.f("%s km/h", Ui.f(t.avgSpeedKmh(), "%.0f"))});
-        lines.add(new String[]{L.t("Max speed"), L.f("%s km/h", Ui.f(t.maxSpeedKmh, "%.0f"))});
-        lines.add(new String[]{L.t("Battery"), Ui.f(t.socStart, "%.0f") + "% -> " + Ui.f(t.socEnd, "%.0f") + "%"});
-        lines.add(new String[]{L.t("Energy used"), L.f("%s kWh", Ui.f(t.energyUsed(), "%.2f"))});
-        lines.add(new String[]{L.t("Consumption"), L.f("%s kWh/100km", Ui.f(t.energyPer100Km(), "%.1f"))});
-        if (!Double.isNaN(t.fuelUsed())) {
-            lines.add(new String[]{L.t("Fuel used"), L.f("%s L", Ui.f(t.fuelUsed(), "%.1f"))
-                    + (Double.isNaN(t.fuelPer100Km()) ? "" : "  (" + L.f("%s L/100km", Ui.f(t.fuelPer100Km(), "%.1f")) + ")")});
-        }
-        if (!Double.isNaN(t.evKm()) && !Double.isNaN(t.hevKm())) {
-            lines.add(new String[]{L.t("Electric / hybrid distance"),
-                    L.f("%1$s km / %2$s km", Ui.f(t.evKm(), "%.0f"), Ui.f(t.hevKm(), "%.0f"))});
-        }
-        lines.add(new String[]{L.t("Odometer change"), L.f("%s km", Ui.f(t.odometerDeltaKm(), "%.1f"))});
-        lines.add(new String[]{L.t("Distance measured by"),
-                !Double.isNaN(t.journeyAcc) && t.journeyAcc >= JourneyTracker.TRUST_KM
-                        ? L.t("car trip counter") : L.t("speed")});
-        lines.add(new String[]{L.t("Hard accel / braking"), t.hardAccel + " / " + t.hardBrake});
-        lines.add(new String[]{L.t("Idle time"), Ui.duration((long) t.idleSec)});
-        lines.add(new String[]{L.t("Time above 100 km/h"), null});
-        if (Cost.enabled(this)) {
-            if (!Double.isNaN(Cost.elec(t, this))) {
-                lines.add(new String[]{L.t("Electricity cost"), Cost.money(this, Cost.elec(t, this))});
-            }
-            if (!Double.isNaN(Cost.fuel(t, this))) {
-                lines.add(new String[]{L.t("Fuel cost"), Cost.money(this, Cost.fuel(t, this))});
-            }
-            lines.add(new String[]{L.t("Trip cost"), Cost.money(this, Cost.total(t, this))
-                    + (Double.isNaN(t.fuelUsed()) ? L.t("  (fuel not recorded)") : "")});
-        }
-        LinearLayout list = new LinearLayout(this);
-        list.setOrientation(LinearLayout.VERTICAL);
-        list.setPadding(0, Ui.dp(this, 14), 0, 0);
-        for (String[] l : lines) {
-            LinearLayout line = new LinearLayout(this);
-            line.setOrientation(LinearLayout.HORIZONTAL);
-            line.setPadding(0, Ui.dp(this, 7), 0, Ui.dp(this, 7));
-            line.addView(Ui.text(this, l[0], 17, Ui.TEXT_LABEL), new LinearLayout.LayoutParams(0, -2, 1f));
-            line.addView(l[1] == null ? overView : Ui.text(this, l[1], 17, Ui.TEXT_VALUE));
-            list.addView(line);
-            list.addView(Ui.divider(this));
-        }
-        List<String> advice = Advice.forTrip(t);
-        if (!advice.isEmpty()) {
-            TextView head = Ui.text(this, L.t("Driving advice"), 17, Ui.TEXT_SELECTED);
-            head.setPadding(0, Ui.dp(this, 16), 0, Ui.dp(this, 4));
-            list.addView(head);
-            for (String a : advice) {
-                TextView at = Ui.text(this, a, 15, Ui.TEXT_DATE);
-                at.setLineSpacing(Ui.dp(this, 2), 1f);
-                at.setPadding(0, Ui.dp(this, 4), 0, Ui.dp(this, 6));
-                list.addView(at);
-            }
-        }
-        ScrollView listScroll = new ScrollView(this);
-        listScroll.setVerticalScrollBarEnabled(false);
-        listScroll.addView(list, new ViewGroup.LayoutParams(-1, -2));
-        info.addView(listScroll, new LinearLayout.LayoutParams(-1, 0, 1f));
-
-        LinearLayout buttons = new LinearLayout(this);
-        buttons.setOrientation(LinearLayout.HORIZONTAL);
-        buttons.setPadding(0, Ui.dp(this, 10), 0, 0);
-        buttons.addView(pill(L.t("Export GPX"), new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                exportGpx(t);
+            @Override public void confirmDelete(Trip trip) {
+                MainActivity.this.confirmDelete(trip);
             }
         }));
-        View g = new View(this);
-        buttons.addView(g, new LinearLayout.LayoutParams(Ui.dp(this, 14), 1));
-        buttons.addView(pill(L.t("Delete"), new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                confirmDelete(t);
-            }
-        }));
-        info.addView(buttons);
-
-        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(Ui.dp(this, 460), -1);
-        ilp.setMarginStart(Ui.dp(this, 24));
-        row.addView(info, ilp);
-        content.addView(row);
     }
 
     // ---- Tweaks ----------------------------------------------------------------------------
@@ -974,167 +556,23 @@ public class MainActivity extends Activity {
 
     // ---- Charging --------------------------------------------------------------------------
     private View chargingPage() {
-        final double kwhPerPct = Charge.kwhPerPercent(trips);
-        LinearLayout col = new LinearLayout(this);
-        col.setOrientation(LinearLayout.VERTICAL);
-
-        LinearLayout head = new LinearLayout(this);
-        head.setOrientation(LinearLayout.HORIZONTAL);
-        head.setGravity(Gravity.CENTER_VERTICAL);
-        double kwh = 0;
-        boolean anyKwh = false;
-        for (Charge c : charges) {
-            double e = c.energyKwh(kwhPerPct);
-            if (!Double.isNaN(e)) {
-                kwh += e;
-                anyKwh = true;
+        return ChargingPage.build(this, new ChargingPage.Host() {
+            @Override public List<Charge> charges() {
+                return charges;
             }
-        }
-        TextView title = pageTitle(L.t("Charging"));
-        title.setPaddingRelative(Ui.dp(this, 4), 0, 0, 0);
-        head.addView(title);
-        double chargeCost = 0;
-        boolean anyChargeCost = false;
-        for (Charge c : charges) {
-            double cc = Cost.charge(c, kwhPerPct, this);
-            if (!Double.isNaN(cc)) {
-                chargeCost += cc;
-                anyChargeCost = true;
-            }
-        }
-        head.addView(Ui.text(this, "   " + L.f("%d session(s)", charges.size())
-                + (anyKwh ? L.sep() + L.f("about %s kWh added", Ui.f(kwh, "%.0f")) : "")
-                + (anyChargeCost ? L.sep() + L.f("about %s", Cost.money(this, chargeCost)) : ""), 16, Ui.TEXT_LABEL),
-                new LinearLayout.LayoutParams(0, -2, 1f));
-        col.addView(head, new LinearLayout.LayoutParams(-1, -2));
-        ((LinearLayout.LayoutParams) head.getLayoutParams()).bottomMargin = Ui.dp(this, 12);
 
-        LinearLayout box = card();
-        col.addView(box, new LinearLayout.LayoutParams(-1, 0, 1f));
-        if (charges.isEmpty()) {
-            LinearLayout empty = new LinearLayout(this);
-            empty.setOrientation(LinearLayout.VERTICAL);
-            empty.setGravity(Gravity.CENTER);
-            ImageView img = new ImageView(this);
-            img.setImageResource(res("empty_trips"));
-            LinearLayout.LayoutParams imgLp = new LinearLayout.LayoutParams(
-                    Ui.dp(this, 312), Ui.dp(this, 208));
-            imgLp.gravity = Gravity.CENTER_HORIZONTAL;
-            empty.addView(img, imgLp);
-            TextView t = Ui.text(this, L.t("No charging sessions yet"), 20, Ui.TEXT_LABEL);
-            t.setGravity(Gravity.CENTER);
-            t.setPadding(0, Ui.dp(this, 12), 0, 0);
-            empty.addView(t, new LinearLayout.LayoutParams(-1, -2));
-            TextView hint = Ui.text(this, Prefs.linkEnabled(this)
-                    ? L.t("A session is recorded automatically while the car charges")
-                    : L.t("Turn on Vehicle data link in Setting: charging is read from the car through it"),
-                    16, Ui.TEXT_LABEL);
-            hint.setGravity(Gravity.CENTER);
-            hint.setPadding(Ui.dp(this, 24), Ui.dp(this, 8), Ui.dp(this, 24), 0);
-            empty.addView(hint, new LinearLayout.LayoutParams(-1, -2));
-            box.addView(empty, new LinearLayout.LayoutParams(-1, -1));
-            return col;
-        }
-
-        final List<Object> items = new ArrayList<>();
-        SimpleDateFormat day = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        String last = "";
-        for (Charge c : charges) {
-            String d = day.format(new Date(c.startMs));
-            if (!d.equals(last)) {
-                items.add(d);
-                last = d;
+            @Override public List<Trip> trips() {
+                return trips;
             }
-            items.add(c);
-        }
-        ListView list = new ListView(this);
-        list.setDivider(null);
-        list.setSelector(android.R.color.transparent);
-        list.setVerticalScrollBarEnabled(false);
-        list.setPadding(Ui.dp(this, 14), Ui.dp(this, 4), Ui.dp(this, 14), Ui.dp(this, 8));
-        list.setClipToPadding(false);
-        list.setAdapter(new BaseAdapter() {
-            @Override public int getCount() { return items.size(); }
-            @Override public Object getItem(int i) { return items.get(i); }
-            @Override public long getItemId(int i) { return i; }
-            @Override public int getViewTypeCount() { return 2; }
-            @Override public int getItemViewType(int i) { return items.get(i) instanceof String ? 0 : 1; }
-            @Override public View getView(int i, View convert, ViewGroup parent) {
-                Object o = items.get(i);
-                if (o instanceof String) {
-                    TextView t = Ui.text(MainActivity.this, (String) o, 20, Ui.TEXT_DATE);
-                    t.setPadding(Ui.dp(MainActivity.this, 14), Ui.dp(MainActivity.this, 16),
-                            0, Ui.dp(MainActivity.this, 4));
-                    return t;
-                }
-                return chargeRow((Charge) o, kwhPerPct);
+
+            @Override public void openCharge(Charge ch, double kwhPerPercent) {
+                showChargeDetail(ch, kwhPerPercent);
+            }
+
+            @Override public int emptyImage() {
+                return res("empty_trips");
             }
         });
-        list.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
-            @Override public void onItemClick(android.widget.AdapterView<?> p, View v, int pos, long id) {
-                Object o = items.get(pos);
-                if (o instanceof Charge) showChargeDetail((Charge) o, kwhPerPct);
-            }
-        });
-        box.addView(list, new LinearLayout.LayoutParams(-1, -1));
-        return col;
-    }
-
-    private static String kwhText(Charge c, double kwhPerPct) {
-        double e = c.energyKwh(kwhPerPct);
-        return Double.isNaN(e) ? "--" : L.ltr((c.energyIsEstimate() ? "~" : "") + Ui.f(e, "%.1f"));
-    }
-
-    private View chargeRow(Charge c, double kwhPerPct) {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.VERTICAL);
-        row.setPadding(Ui.dp(this, 14), Ui.dp(this, 12), Ui.dp(this, 14), 0);
-
-        SimpleDateFormat tf = new SimpleDateFormat("HH:mm", L.dateLocale());
-        LinearLayout timeRow = new LinearLayout(this);
-        timeRow.setGravity(Gravity.CENTER_VERTICAL);
-        timeRow.addView(Ui.text(this, tf.format(new Date(c.startMs)) + "-"
-                + (c.ended ? tf.format(new Date(c.endMs)) : "..."), 16, Ui.TEXT_LABEL));
-        if (!c.ended) {
-            TextView tag = Ui.text(this, L.t("Charging"), 11, Ui.GREEN);
-            tag.setPadding(Ui.dp(this, 10), Ui.dp(this, 2), Ui.dp(this, 10), Ui.dp(this, 2));
-            tag.setBackground(Ui.stroke(Ui.GREEN, 0, 9, this));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2);
-            lp.setMarginStart(Ui.dp(this, 12));
-            timeRow.addView(tag, lp);
-        }
-        if (c.partial) {
-            TextView tag = Ui.text(this, L.t("Partial"), 11, Ui.AMBER);
-            tag.setPadding(Ui.dp(this, 10), Ui.dp(this, 2), Ui.dp(this, 10), Ui.dp(this, 2));
-            tag.setBackground(Ui.stroke(Ui.AMBER, 0, 9, this));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2);
-            lp.setMarginStart(Ui.dp(this, 12));
-            timeRow.addView(tag, lp);
-        }
-        row.addView(timeRow);
-
-        LinearLayout data = new LinearLayout(this);
-        data.setOrientation(LinearLayout.HORIZONTAL);
-        data.setGravity(Gravity.CENTER_VERTICAL);
-        data.setPadding(0, Ui.dp(this, 8), 0, Ui.dp(this, 14));
-        double gained = c.socGained();
-        data.addView(Ui.stat(this, Double.isNaN(gained) ? "--" : L.ltr((gained >= 0 ? "+" : "") + Ui.f(gained, "%.0f")),
-                L.t("Battery gained (%)"), 20, 14), new LinearLayout.LayoutParams(0, -2, 1f));
-        data.addView(Ui.stat(this, Ui.f(c.socStart, "%.0f") + " > " + Ui.f(c.socEnd, "%.0f"),
-                L.t("Battery (%)"), 20, 14), new LinearLayout.LayoutParams(0, -2, 1f));
-        data.addView(Ui.stat(this, kwhText(c, kwhPerPct), L.t("Energy added (kWh)"), 20, 14),
-                new LinearLayout.LayoutParams(0, -2, 1f));
-        data.addView(Ui.stat(this, Ui.duration(c.durationSec()), L.t("Duration"), 20, 14),
-                new LinearLayout.LayoutParams(0, -2, 1f));
-        if (Cost.enabled(this)) {
-            data.addView(Ui.stat(this, Cost.amount(this, Cost.charge(c, kwhPerPct, this)),
-                    L.f("Cost (%s)", Prefs.currency(this)), 20, 14), new LinearLayout.LayoutParams(0, -2, 1f));
-        }
-        data.addView(Ui.stat(this, c.typeName().isEmpty() ? "--" : c.typeName(), L.t("Type"), 20, 14),
-                new LinearLayout.LayoutParams(0, -2, 0.7f));
-        row.addView(data);
-        row.addView(Ui.divider(this));
-        return row;
     }
 
     private void showChargeDetail(final Charge c, double kwhPerPct) {
@@ -1143,137 +581,24 @@ public class MainActivity extends Activity {
         setChrome(true);
         titleView.setText(L.t("Charging details"));
         content.removeAllViews();
-
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-
-        LinearLayout chartCard = card();
-        chartCard.setPadding(Ui.dp(this, 18), Ui.dp(this, 14), Ui.dp(this, 18), Ui.dp(this, 12));
-        final TextView readout = Ui.text(this, L.t("Battery (%) while charging - touch the chart to inspect"),
-                16, Ui.TEXT_LABEL);
-        chartCard.addView(readout);
-        final TripChartView chart = new TripChartView(this);
-        chart.setGapMs(Double.MAX_VALUE); // a long gap is the unit asleep: join the readings with a straight line
-        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(-1, 0, 1f);
-        clp.topMargin = Ui.dp(this, 10);
-        chartCard.addView(chart, clp);
-        row.addView(chartCard, new LinearLayout.LayoutParams(0, -1, 1f));
-        new Thread(new Runnable() {
-            @Override public void run() {
-                final List<double[]> pts = TripDb.get(MainActivity.this).chargePoints(c.id);
-                final double[] times = new double[pts.size()];
-                final double[] soc = new double[pts.size()];
-                for (int i = 0; i < times.length; i++) {
-                    times[i] = pts.get(i)[0];
-                    soc[i] = pts.get(i)[1];
-                }
-                ui.post(new Runnable() {
-                    @Override public void run() {
-                        chart.set(times, soc, "%", Ui.GREEN, L.t("Not enough samples to draw a chart"));
-                        chart.setListener(new TripChartView.Listener() {
-                            @Override public void onCursor(int index, double timeMs) {
-                                if (index < 0 || index >= pts.size() || Double.isNaN(timeMs)) {
-                                    readout.setText(L.t("Battery (%) while charging - touch the chart to inspect"));
-                                    return;
-                                }
-                                double[] p = pts.get(index);
-                                String t = new SimpleDateFormat("HH:mm", L.dateLocale()).format(new Date((long) timeMs));
-                                readout.setText(t + "   " + Ui.f(TripAnalysis.valueAt(times, soc, timeMs), "%.0f") + "%"
-                                        + (Double.isNaN(p[2]) || p[2] <= 0 ? "" : "   " + L.f("%s kW", Ui.f(p[2], "%.1f"))));
-                            }
-                        });
-                    }
-                });
-            }
-        }).start();
-
-        LinearLayout info = card();
-        info.setPadding(Ui.dp(this, 28), Ui.dp(this, 22), Ui.dp(this, 28), Ui.dp(this, 18));
-        SimpleDateFormat df = new SimpleDateFormat("EEEE" + L.sep() + "d MMMM yyyy", L.dateLocale());
-        SimpleDateFormat tf = new SimpleDateFormat("HH:mm", L.dateLocale());
-        info.addView(Ui.text(this, df.format(new Date(c.startMs)), 20, Ui.TEXT_VALUE));
-        TextView range = Ui.text(this, tf.format(new Date(c.startMs)) + " - "
-                + (c.ended ? tf.format(new Date(c.endMs)) : L.t("charging now")), 16, Ui.TEXT_LABEL);
-        range.setPadding(0, Ui.dp(this, 6), 0, Ui.dp(this, 14));
-        info.addView(range);
-        double gained = c.socGained();
-        info.addView(Ui.text(this, Double.isNaN(gained) ? "--" : L.ltr((gained >= 0 ? "+" : "") + Ui.f(gained, "%.0f") + "%"),
-                34, Ui.TEXT_SELECTED));
-        TextView dur = Ui.text(this, Ui.duration(c.durationSec()), 20, Ui.TEXT_DATE);
-        dur.setPadding(0, Ui.dp(this, 6), 0, Ui.dp(this, 10));
-        info.addView(dur);
-
-        double e = c.energyKwh(kwhPerPct);
-        double hours = c.durationSec() / 3600.0;
-        String[][] lines = {
-                {L.t("Battery"), Ui.f(c.socStart, "%.0f") + "% -> " + Ui.f(c.socEnd, "%.0f") + "%"},
-                {c.energyIsEstimate() ? L.t("Energy added (estimate)") : L.t("Energy added"),
-                        Double.isNaN(e) ? "--" : L.f("%s kWh", Ui.f(e, "%.1f"))},
-                {L.t("Average power"), Double.isNaN(e) || hours < 0.02 || c.partial ? "--"
-                        : L.f("%s kW", Ui.f(e / hours, "%.1f"))},
-                {L.t("Highest power reported"), Double.isNaN(c.maxPowerKw) ? L.t("not reported by the car")
-                        : L.f("%s kW", Ui.f(c.maxPowerKw, "%.1f"))},
-                {L.t("Charger"), c.typeName().isEmpty() ? "--" : c.typeName()},
-                {L.t("Cost"), Cost.money(this, Cost.charge(c, kwhPerPct, this))}};
-        LinearLayout list = new LinearLayout(this);
-        list.setOrientation(LinearLayout.VERTICAL);
-        for (String[] l : lines) {
-            LinearLayout line = new LinearLayout(this);
-            line.setOrientation(LinearLayout.HORIZONTAL);
-            line.setPadding(0, Ui.dp(this, 7), 0, Ui.dp(this, 7));
-            line.addView(Ui.text(this, l[0], 17, Ui.TEXT_LABEL), new LinearLayout.LayoutParams(0, -2, 1f));
-            line.addView(Ui.text(this, l[1], 17, Ui.TEXT_VALUE));
-            list.addView(line);
-            list.addView(Ui.divider(this));
-        }
-        if (c.partial) {
-            TextView note = Ui.text(this, c.windowOnly
-                    ? L.t("Partial: this charge happened while the head unit was asleep. Only the battery "
-                    + "level before and after is known, so the times shown are the window in which it "
-                    + "happened, not how long it charged.")
-                    : L.t("Partial: the app missed part of this session (the head unit "
-                    + "was asleep or the app was not running), so the battery gain and energy can be "
-                    + "lower than the real total."), 15, Ui.AMBER);
-            note.setLineSpacing(Ui.dp(this, 2), 1f);
-            note.setPadding(0, Ui.dp(this, 12), 0, Ui.dp(this, 4));
-            list.addView(note);
-        }
-        ScrollView listScroll = new ScrollView(this);
-        listScroll.setVerticalScrollBarEnabled(false);
-        listScroll.addView(list, new ViewGroup.LayoutParams(-1, -2));
-        info.addView(listScroll, new LinearLayout.LayoutParams(-1, 0, 1f));
-
-        LinearLayout buttons = new LinearLayout(this);
-        buttons.setOrientation(LinearLayout.HORIZONTAL);
-        buttons.setPadding(0, Ui.dp(this, 10), 0, 0);
-        if (!Double.isNaN(c.lat) && !Double.isNaN(c.lon)) {
-            buttons.addView(pill(L.t("Show place"), new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    MapLink.openPlace(MainActivity.this, c.lat, c.lon);
-                }
-            }));
-            buttons.addView(new View(this), new LinearLayout.LayoutParams(Ui.dp(this, 14), 1));
-        }
-        buttons.addView(pill(L.t("Delete"), new View.OnClickListener() {
-            @Override public void onClick(View v) {
+        content.addView(ChargeDetailPage.build(this, c, kwhPerPct, new ChargeDetailPage.Host() {
+            @Override public void confirmDelete(final Charge ch) {
                 Ui.show(new AlertDialog.Builder(MainActivity.this)
                         .setMessage(L.t("Delete this charging session permanently?"))
                         .setPositiveButton(L.t("Delete"), new android.content.DialogInterface.OnClickListener() {
                             @Override public void onClick(android.content.DialogInterface d, int w) {
-                                TripDb.get(MainActivity.this).deleteCharge(c.id);
+                                TripDb.get(MainActivity.this).deleteCharge(ch.id);
                                 closeOverlay();
                                 loadTrips(null);
                             }
                         })
                         .setNegativeButton(L.t("Cancel"), null));
             }
-        }));
-        info.addView(buttons);
 
-        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(Ui.dp(this, 460), -1);
-        ilp.setMarginStart(Ui.dp(this, 24));
-        row.addView(info, ilp);
-        content.addView(row);
+            @Override public void showPlace(Charge ch) {
+                MapLink.openPlace(MainActivity.this, ch.lat, ch.lon);
+            }
+        }));
     }
 
     // ---- settings and Q&A ------------------------------------------------------------------
@@ -1663,87 +988,7 @@ public class MainActivity extends Activity {
     }
 
     private View qaPage() {
-        ScrollView sv = new ScrollView(this);
-        sv.setVerticalScrollBarEnabled(false);
-        LinearLayout box = card();
-        box.setPadding(Ui.dp(this, 32), Ui.dp(this, 22), Ui.dp(this, 32), Ui.dp(this, 22));
-        sv.addView(box, new ViewGroup.LayoutParams(-1, -2));
-        String[][] qa = {
-                {L.t("How is a trip recorded?"),
-                        L.t("A trip is one ignition cycle: it starts when the car is switched on and ends "
-                                + "when it is switched off. If the ignition state cannot be read, a trip "
-                                + "starts when the car moves and ends after three minutes standing still.")},
-                {L.t("What is measured?"),
-                        L.t("Speed (several times a second), battery level and the car's energy counter, "
-                                + "plus the GPS position every few seconds. Distance comes from the car's own trip counter (from speed when that is not available).")},
-                {L.t("Does it need internet?"),
-                        L.t("No. Everything is stored on this head unit. Nothing is uploaded. The only exception is "
-                                + "Setting > Check for updates, which contacts GitHub, and only when you tap it.")},
-                {L.t("How is the drive score calculated?"),
-                        L.t("Simplified: 100 points, minus 5 for every hard acceleration or hard braking. "
-                                + "It differs from the stock app, which uses settings downloaded from BYD.")},
-                {L.t("What is the Vehicle data link?"),
-                        L.t("An optional setting (off by default). When on, the app starts a small helper "
-                                + "through the car's network debugging so it can read BYD's own vehicle "
-                                + "data: battery level, energy counter, odometer and ignition. Without it "
-                                + "trips are recorded from GPS only.")},
-                {L.t("Why does recording stop after a restart?"),
-                        L.t("BYD blocks apps from starting by themselves. Open Setting > BYD auto-start apps and turn "
-                                + "Trip Recorder NG OFF in 'Disable background Apps'. BYD switches it back on every time "
-                                + "the app is installed or updated, so do this again after an update.")},
-                {L.t("Where are my files?"),
-                        L.t("Export CSV and GPX from My Trips or Setting. Files go to Documents/TripRecorderNG.")},
-                {L.t("Are my trips backed up?"),
-                        L.t("Yes, by default. Each finished trip is also saved as a small file in "
-                                + "Documents/TripRecorderNG/backup, so the trips survive an uninstall or a "
-                                + "cleared app. Setting > Restore from backup adds any missing trips back.")},
-                {L.t("How is the cost calculated?"),
-                        L.t("Prices start at 0.010 OMR per kWh and 0.239 OMR per litre. Change them in Setting > "
-                                + "Energy prices (leave a price empty to go back to the default). A trip costs the energy it took from the battery times the electricity "
-                                + "price, plus the fuel it burned times the fuel price. This car is a plug-in "
-                                + "hybrid, so fuel is recorded with each trip made since the update (older trips "
-                                + "only get the electricity part). A charging session costs the energy it added "
-                                + "times the electricity price. Charging losses are not included.")},
-                {L.t("What are Driving advice, CO2 avoided and the driving level?"),
-                        L.t("Driving advice on a trip uses the stock app's advice texts, chosen by simple rules "
-                                + "(hard braking or acceleration, high average speed, high consumption, a long "
-                                + "drive). CO2 avoided compares your trips with a typical petrol car (8 L per "
-                                + "100 km) minus the fuel you burned and an assumed 0.4 kg CO2 per kWh of grid "
-                                + "electricity: it is an estimate. The driving level uses the stock app's level "
-                                + "names but steps by the distance recorded here.")},
-                {L.t("What are Tweaks?"),
-                        L.t("Small changes to the car that need the shell user's rights, made through the car's "
-                                + "network debugging, so they need the Vehicle data link. The first one turns "
-                                + "mobile data roaming on (settings put global data_roaming 1). \"Keep data "
-                                + "roaming on\" repeats it at start-up, whenever the helper starts, and within a "
-                                + "minute if something switches roaming off.")},
-                {L.t("How are charging sessions recorded?"),
-                        L.t("With the Vehicle data link on, the app reads the car's charging state. A session "
-                                + "starts when the car begins charging and ends a minute after it stops. It "
-                                + "stores the battery level along the way. This car does not report charging "
-                                + "power or energy, so the kWh added is an estimate: the battery percentage "
-                                + "gained times the kWh per percent measured on your own trips. The head "
-                                + "unit sleeps when the car is off and the app cannot record while it sleeps: "
-                                + "a session it only saw part of is marked Partial, and the final battery "
-                                + "level is read as soon as the unit wakes. If the whole charge happened "
-                                + "while it slept, the app compares the battery level with the last one it "
-                                + "saw and records the rise as a Partial session.")},
-                {L.t("What do the colours and charts on a trip show?"),
-                        L.t("The route is coloured by speed (green slow, red fast). Red and amber dots mark "
-                                + "hard braking and hard acceleration. Under the map, pick Speed, Battery, "
-                                + "Elevation or Efficiency and touch the chart to see that moment on the map. "
-                                + "Battery, Efficiency and event dots are recorded for trips made after the "
-                                + "update; older trips show speed and elevation only.")}};
-        for (String[] q : qa) {
-            TextView h = Ui.text(this, q[0], 20, Ui.TEXT_SELECTED);
-            h.setPadding(0, Ui.dp(this, 10), 0, Ui.dp(this, 6));
-            box.addView(h);
-            TextView a = Ui.text(this, q[1], 17, Ui.TEXT_DATE);
-            a.setLineSpacing(Ui.dp(this, 3), 1f);
-            a.setPadding(0, 0, 0, Ui.dp(this, 14));
-            box.addView(a);
-        }
-        return sv;
+        return QaPage.build(this);
     }
 
     // ---- actions ---------------------------------------------------------------------------

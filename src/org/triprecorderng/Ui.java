@@ -83,37 +83,6 @@ final class Ui {
         return d;
     }
 
-    static int scoreColor(double score) {
-        if (Double.isNaN(score)) return Color.GRAY;
-        if (score >= 80) return GREEN;
-        if (score >= 60) return AMBER;
-        return RED;
-    }
-
-    /** A value over a small label, as used in the stock app's trip rows. */
-    static LinearLayout stat(Context c, String value, String label, float valueSp, float labelSp) {
-        LinearLayout l = new LinearLayout(c);
-        l.setOrientation(LinearLayout.VERTICAL);
-        l.setGravity(Gravity.START);
-        TextView v = text(c, value, valueSp, TEXT_VALUE);
-        TextView t = text(c, label, labelSp, TEXT_LABEL);
-        t.setPadding(0, dp(c, 4), 0, 0);
-        l.addView(v);
-        l.addView(t);
-        return l;
-    }
-
-    static View divider(Context c) {
-        View v = new View(c);
-        v.setBackgroundColor(DIVIDER);
-        v.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
-        return v;
-    }
-
-    static LinearLayout.LayoutParams lp(int w, int h, float weight) {
-        return new LinearLayout.LayoutParams(w, h, weight);
-    }
-
     static String f(double v, String fmt) {
         return Double.isNaN(v) ? "--" : String.format(java.util.Locale.US, fmt, v);
     }

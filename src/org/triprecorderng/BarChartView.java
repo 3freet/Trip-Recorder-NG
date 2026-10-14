@@ -23,13 +23,14 @@ final class BarChartView extends View {
         super(c);
         d = c.getResources().getDisplayMetrics().density;
         float sd = c.getResources().getDisplayMetrics().scaledDensity;
-        axis.setColor(Ui.DIVIDER);
+        axis.setColor(Kit.LINE);
         axis.setStrokeWidth(1f * d);
-        label.setColor(Ui.TEXT_LABEL);
-        label.setTextSize(14 * sd);
+        label.setColor(Kit.MUTED);
+        label.setTextSize(15 * sd);
         label.setTextAlign(Paint.Align.CENTER);
-        value.setColor(Ui.TEXT_VALUE);
-        value.setTextSize(14 * sd);
+        value.setColor(Kit.SOFT);
+        value.setTextSize(15 * sd);
+        value.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         value.setTextAlign(Paint.Align.CENTER);
     }
 
@@ -61,15 +62,17 @@ final class BarChartView extends View {
         }
         c.drawLine(0, bottom, w, bottom, axis);
         float slot = w / n;
-        float bw = Math.min(slot * 0.55f, 46 * d);
+        float bw = Math.min(slot * 0.6f, 54 * d);
         bar.setColor(color);
         for (int i = 0; i < n; i++) {
+            bar.setShader(new android.graphics.LinearGradient(0, top, 0, bottom, color,
+                    (color & 0x00FFFFFF) | 0x55000000, android.graphics.Shader.TileMode.CLAMP));
             float cx = slot * i + slot / 2f;
             double v = Double.isNaN(data[i]) ? 0 : data[i];
             float bh = (float) ((bottom - top) * (v / max));
             if (v > 0) {
                 r.set(cx - bw / 2f, bottom - bh, cx + bw / 2f, bottom);
-                c.drawRoundRect(r, 4 * d, 4 * d, bar);
+                c.drawRoundRect(r, 7 * d, 7 * d, bar);
                 String t = v >= 100 ? String.format(java.util.Locale.US, "%.0f", v)
                         : String.format(java.util.Locale.US, "%." + decimals + "f", v);
                 c.drawText(t, cx, bottom - bh - 6 * d, value);

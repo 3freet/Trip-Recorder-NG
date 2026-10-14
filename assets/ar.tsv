@@ -44,7 +44,6 @@ autoservice binder	autoservice binder
 none	لا يوجد
 Mileage (km)	المسافة (كم)
 Duration	المدة
-Battery (%)	البطارية (%)
 Hard acceleration	تسارع حاد
 Hard braking	كبح حاد
 Drive score	تقييم القيادة
@@ -67,7 +66,6 @@ Restore trips from backup	استعادة الرحلات من النسخة الا
 Restore %d trip(s) from backup	استعادة %d رحلة من النسخة الاحتياطية
 Consumption (kWh/100km)	الاستهلاك (kWh/100 كم)
 Cost (%s)	التكلفة (%s)
-Battery used (%)	البطارية المستهلكة (%)
 Highest achievements	أعلى الإنجازات
 Longest trip	أطول رحلة
 %s km	%s كم
@@ -75,7 +73,6 @@ Longest drive	أطول مدة قيادة
 Top speed	أعلى سرعة
 %s km/h	%s كم/س
 Most efficient (5 km+)	الأكثر كفاءة (5 كم فأكثر)
-%s /100km	%s /100 كم
 Best drive score	أفضل تقييم قيادة
 Total distance	إجمالي المسافة
 %s%% driven electric	%s%% قيادة كهربائية
@@ -93,7 +90,6 @@ about %s trees a year	ما يعادل %s شجرة في السنة
 needs fuel data	يحتاج إلى بيانات الوقود
 Level (next: %s km)	المستوى (التالي عند %s كم)
 Level (top)	المستوى (الأعلى)
-Lv %d	المستوى %d
 Mileage	المسافة
 Consumption	الاستهلاك
 Trips	الرحلات
@@ -107,7 +103,6 @@ Fuel used (L)	الوقود المستهلك (لتر)
  - last 12 months	 - آخر 12 شهرًا
  - last 14 days	 - آخر 14 يومًا
 Trip details	تفاصيل الرحلة
-score	التقييم
 Average speed	متوسط السرعة
 Max speed	أقصى سرعة
 Battery	البطارية
@@ -141,8 +136,6 @@ No charging sessions yet	لا توجد جلسات شحن بعد
 A session is recorded automatically while the car charges	تُسجَّل الجلسة تلقائيًا أثناء شحن السيارة
 Turn on Vehicle data link in Setting: charging is read from the car through it	فعّل رابط بيانات المركبة من الإعدادات: تُقرأ حالة الشحن من السيارة عبره
 Partial	جزئية
-Battery gained (%)	البطارية المضافة (%)
-Energy added (kWh)	الطاقة المضافة (kWh)
 Type	النوع
 Charging details	تفاصيل الشحن
 Battery (%) while charging - touch the chart to inspect	البطارية (%) أثناء الشحن - المس الرسم البياني لاستعراضه
@@ -453,3 +446,9 @@ Behavior	السلوك
 kWh/100km	kWh/100 كم
 EV	كهرباء
 Battery and energy need the Vehicle data link	تحتاج البطارية والطاقة إلى رابط بيانات المركبة
+Total	الإجمالي
+Battery used	البطارية المستهلكة
+Lowest	الأدنى
+Highest	الأعلى
+Gained	المكتسب
+Level	المستوى

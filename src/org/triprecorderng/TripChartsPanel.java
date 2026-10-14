@@ -36,7 +36,7 @@ final class TripChartsPanel extends LinearLayout {
         super(ctx);
         route = routeView;
         setOrientation(VERTICAL);
-        setBackground(Ui.round(Ui.CARD, 8, ctx));
+        setBackground(Ui.round(Kit.CARD, 22, ctx));
         setPadding(Ui.dp(ctx, 16), Ui.dp(ctx, 10), Ui.dp(ctx, 16), Ui.dp(ctx, 8));
 
         LinearLayout top = new LinearLayout(ctx);
@@ -104,8 +104,8 @@ final class TripChartsPanel extends LinearLayout {
     private void style() {
         for (int i = 0; i < 4; i++) {
             boolean sel = i == mode;
-            chips[i].setTextColor(sel ? Ui.TEXT_SELECTED : Ui.TEXT_DATE);
-            chips[i].setBackground(Ui.round(sel ? 0x33FFFFFF : 0x00000000, 18, getContext()));
+            chips[i].setTextColor(sel ? Kit.ACCENT : Kit.MUTED);
+            chips[i].setBackground(Ui.round(sel ? Kit.ACCENT_SOFT : 0x00000000, 18, getContext()));
         }
     }
 
@@ -126,13 +126,13 @@ final class TripChartsPanel extends LinearLayout {
             case SPEED:
                 chart.setGapMs(90_000);
                 chart.setBridgeBelow(5);          // a stop with no samples (older trips) is a flat line at ~0, not a hole
-                chart.set(times, speeds, "km/h", Ui.BLUE, L.t("No speed data"));
+                chart.set(times, speeds, "km/h", Kit.BLUE, L.t("No speed data"));
                 readout.setText(L.t("Speed (km/h) - touch the chart to see it on the map"));
                 break;
             case BATTERY:
                 chart.setBridgeBelow(Double.NaN);
                 chart.setGapMs(Double.MAX_VALUE); // battery changes slowly: join the samples across any gap
-                chart.set(times, soc, "%", Ui.GREEN, trip != null && !Double.isNaN(trip.socStart)
+                chart.set(times, soc, "%", Kit.ACCENT, trip != null && !Double.isNaN(trip.socStart)
                         ? L.f("Battery along the route was not recorded for this trip (%1$s%% -> %2$s%%)",
                         Ui.f(trip.socStart, "%.0f"), Ui.f(trip.socEnd, "%.0f"))
                         : L.t("No battery data for this trip"));
@@ -141,7 +141,7 @@ final class TripChartsPanel extends LinearLayout {
             case ELEVATION:
                 chart.setBridgeBelow(Double.NaN);
                 chart.setGapMs(Double.MAX_VALUE);
-                chart.set(times, alt, "m", Ui.AMBER, L.t("No altitude data for this trip"));
+                chart.set(times, alt, "m", Kit.AMBER, L.t("No altitude data for this trip"));
                 readout.setText(elevationSummary());
                 break;
             default:
@@ -164,7 +164,7 @@ final class TripChartsPanel extends LinearLayout {
         }
         double[] vals = new double[b.length];
         for (int i = 0; i < b.length; i++) vals[i] = Double.isNaN(b[i]) ? 0 : b[i];
-        bars.set(vals, TripAnalysis.BAND_NAMES, Ui.GREEN);
+        bars.set(vals, TripAnalysis.BAND_NAMES, Kit.ACCENT);
         bars.setVisibility(VISIBLE);
         String overall = trip != null && !Double.isNaN(trip.energyPer100Km())
                 ? L.f("  -  whole trip %s", Ui.f(trip.energyPer100Km(), "%.1f")) : "";

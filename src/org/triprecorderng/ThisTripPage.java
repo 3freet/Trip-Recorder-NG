@@ -748,8 +748,7 @@ final class ThisTripPage {
         setText(distValue, Kit.numUnit(L.f("%s km", Ui.f(show.distanceKm, "%.1f")), 0.42f));
         setText(durValue, Kit.numUnit(Ui.duration(show.durationSec()), 0.42f));
         double sc = Stats.score(show);
-        score.set(Double.isNaN(sc) ? 0 : sc, 100, Ui.f(sc, "%.0f"), "",
-                Double.isNaN(sc) || sc >= 80 ? Kit.ACCENT : sc >= 60 ? Kit.AMBER : RED);
+        score.set(Double.isNaN(sc) ? 0 : sc, 100, Ui.f(sc, "%.0f"), "", Kit.scoreColor(sc));
 
         setText(avgValue, Kit.numUnit(L.f("%s km/h", Ui.f(show.avgSpeedKmh(), "%.0f")), 0.5f));
         setText(maxValue, Kit.numUnit(L.f("%s km/h", Ui.f(show.maxSpeedKmh, "%.0f")), 0.5f));

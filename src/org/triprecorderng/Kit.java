@@ -73,6 +73,20 @@ final class Kit {
         return sp;
     }
 
+    /** A value followed by its unit, the unit shrunk as a whole (so "kWh/100km" keeps no big digits). */
+    static CharSequence valueUnit(String value, String unit, float smallFraction) {
+        android.text.SpannableString sp = new android.text.SpannableString(value + " " + unit);
+        sp.setSpan(new android.text.style.RelativeSizeSpan(smallFraction), value.length(), sp.length(),
+                android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return sp;
+    }
+
+    /** The color of a drive score: teal when good, amber when so-so, red when poor. */
+    static int scoreColor(double score) {
+        if (Double.isNaN(score) || score >= 80) return ACCENT;
+        return score >= 60 ? AMBER : 0xFFEB5757;
+    }
+
     private static boolean isNumberChar(String s, int i) {
         char ch = s.charAt(i);
         if (Character.isDigit(ch)) return true;
@@ -201,6 +215,142 @@ final class Kit {
         return new Row(title, desc, pill(button, primary), false);
     }
 
+    /** One choice of a segmented control: the selected one carries the accent tint. */
+    TextView segment(String text, boolean selected, View.OnClickListener l) {
+        TextView t = label(text, 14, selected ? ACCENT : SOFT, BOLD);
+        t.setGravity(Gravity.CENTER);
+        t.setSingleLine(true);
+        t.setPadding(d(16), 0, d(16), 0);
+        t.setMinHeight(d(36));
+        t.setBackground(Ui.round(selected ? ACCENT_SOFT : 0x00000000, 18 * scale, c));
+        t.setOnClickListener(l);
+        return t;
+    }
+
+    /** The rounded track that holds segments. */
+    LinearLayout segmented() {
+        LinearLayout l = row();
+        l.setBackground(Ui.round(SHEET, 22 * scale, c));
+        l.setPadding(d(4), d(4), d(4), d(4));
+        return l;
+    }
+
+    /** An outlined chip: an icon, what it is and its value (the value view is kept for updating). */
+    final class Chip {
+        final LinearLayout view = row();
+        final TextView value;
+
+        Chip(int icon, int iconColor, String label, String text) {
+            view.setPadding(d(10), 0, d(12), 0);
+            view.setBackground(Ui.stroke(LINE, 0x00000000, 19 * scale, c));
+            view.addView(new IconView(c, icon, iconColor), new LinearLayout.LayoutParams(d(17), d(17)));
+            if (!label.isEmpty()) {
+                TextView l = label(label, 12.5f, MUTED, MEDIUM);
+                l.setPaddingRelative(d(8), 0, 0, 0);
+                l.setSingleLine(true);
+                view.addView(l);
+            }
+            value = label(text, 15, TEXT, BOLD);
+            value.setPaddingRelative(d(8), 0, 0, 0);
+            value.setSingleLine(true);
+            view.addView(value);
+        }
+    }
+
+    /** A thin bar with a lit stretch: a battery going from one level to another (or just what is left). */
+    static final class RangeBar extends View {
+        private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final RectF r = new RectF();
+        private float from;
+        private float to;
+        private int color = ACCENT;
+
+        RangeBar(Context c) {
+            super(c);
+        }
+
+        /** Levels in percent; {@code from} may be NaN to light the bar from its start up to {@code to}. */
+        void set(double fromPct, double toPct, int barColor) {
+            float t = (float) Math.max(0, Math.min(100, Double.isNaN(toPct) ? 0 : toPct)) / 100f;
+            float f = Double.isNaN(fromPct) ? 0 : (float) Math.max(0, Math.min(100, fromPct)) / 100f;
+            if (f > t) {
+                float x = f;
+                f = t;
+                t = x;
+            }
+            if (f == from && t == to && barColor == color) return;
+            from = f;
+            to = t;
+            color = barColor;
+            invalidate();
+        }
+
+        @Override protected void onDraw(Canvas cv) {
+            float w = getWidth();
+            float h = getHeight();
+            if (getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) cv.scale(-1f, 1f, w / 2f, h / 2f);
+            p.setColor(0x1AFFFFFF);
+            r.set(0, 0, w, h);
+            cv.drawRoundRect(r, h / 2f, h / 2f, p);
+            if (to > from) {
+                p.setColor(color);
+                r.set(w * from, 0, w * to, h);
+                cv.drawRoundRect(r, h / 2f, h / 2f, p);
+            }
+        }
+    }
+
+    /** Wraps a scroll view so its bottom fades into the card while there is more to scroll to. */
+    static android.widget.FrameLayout fadedScroll(Context c, final android.widget.ScrollView sv, int fadePx,
+                                                  int cardColor) {
+        android.widget.FrameLayout box = new android.widget.FrameLayout(c);
+        box.addView(sv, new android.widget.FrameLayout.LayoutParams(-1, -1));
+        final View fade = new View(c);
+        fade.setBackground(new android.graphics.drawable.GradientDrawable(
+                android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{cardColor & 0x00FFFFFF, cardColor}));
+        box.addView(fade, new android.widget.FrameLayout.LayoutParams(-1, fadePx, Gravity.BOTTOM));
+        sv.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override public void onScrollChange(View v, int x, int y, int ox, int oy) {
+                View child = sv.getChildAt(0);
+                boolean more = child != null && child.getBottom() - (sv.getHeight() + y) > 4;
+                fade.setVisibility(more ? View.VISIBLE : View.GONE);
+            }
+        });
+        sv.post(new Runnable() {
+            @Override public void run() {
+                View child = sv.getChildAt(0);
+                boolean more = child != null && child.getBottom() - (sv.getHeight() + sv.getScrollY()) > 4;
+                fade.setVisibility(more ? View.VISIBLE : View.GONE);
+            }
+        });
+        return box;
+    }
+
+    /** A list of items grouped under headers: a String item is a header, anything else a row. */
+    abstract static class GroupedAdapter extends android.widget.BaseAdapter {
+        final java.util.List<Object> items;
+
+        GroupedAdapter(java.util.List<Object> items) {
+            this.items = items;
+        }
+
+        abstract View header(String text);
+
+        abstract View row(Object item);
+
+        @Override public int getCount() { return items.size(); }
+        @Override public Object getItem(int i) { return items.get(i); }
+        @Override public long getItemId(int i) { return i; }
+        @Override public int getViewTypeCount() { return 2; }
+        @Override public int getItemViewType(int i) { return items.get(i) instanceof String ? 0 : 1; }
+        @Override public boolean isEnabled(int i) { return !(items.get(i) instanceof String); }
+        @Override public View getView(int i, View convert, android.view.ViewGroup parent) {
+            Object o = items.get(i);
+            return o instanceof String ? header((String) o) : row(o);
+        }
+    }
+
     /** Puts rows into a card, with a thin line between them. */
     void fill(LinearLayout card, Row... rows) {
         for (int i = 0; i < rows.length; i++) {
@@ -262,6 +412,12 @@ final class Kit {
         static final int LINK = 11;
         static final int ARROW_DOWN = 12;
         static final int ARROW_UP = 13;
+        static final int ROUTE = 14;
+        static final int LIST = 15;
+        static final int CLOCK = 16;
+        static final int LEAF = 17;
+        static final int STAR = 18;
+        static final int TROPHY = 19;
         private int kind;
         private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final android.graphics.Path path = new android.graphics.Path();
@@ -399,6 +555,64 @@ final class Kit {
                     p.setStrokeWidth(s * 0.14f);
                     line(12, 19, 12, 5, cv);
                     poly(cv, false, 6, 11, 12, 5, 18, 11);
+                    break;
+                case ROUTE:
+                    p.setStrokeWidth(s * 0.1f);
+                    cv.drawCircle(X(6), Y(18), 2.6f * u, p);
+                    cv.drawCircle(X(18), Y(6), 2.6f * u, p);
+                    path.reset();
+                    path.moveTo(X(8.8f), Y(18));
+                    path.cubicTo(X(15), Y(18), X(9), Y(6), X(15.2f), Y(6));
+                    cv.drawPath(path, p);
+                    break;
+                case LIST:
+                    p.setStrokeWidth(s * 0.1f);
+                    line(9.5f, 7, 20.5f, 7, cv);
+                    line(9.5f, 12, 20.5f, 12, cv);
+                    line(9.5f, 17, 20.5f, 17, cv);
+                    cv.drawPoint(X(4.5f), Y(7), p);
+                    cv.drawPoint(X(4.5f), Y(12), p);
+                    cv.drawPoint(X(4.5f), Y(17), p);
+                    break;
+                case CLOCK:
+                    p.setStrokeWidth(s * 0.1f);
+                    cv.drawCircle(X(12), Y(12), 9 * u, p);
+                    poly(cv, false, 12, 6.5f, 12, 12, 15.8f, 14.2f);
+                    break;
+                case LEAF:
+                    p.setStrokeWidth(s * 0.1f);
+                    path.reset();
+                    path.moveTo(X(5), Y(19));
+                    path.cubicTo(X(5), Y(10), X(11), Y(5), X(20), Y(5));
+                    path.cubicTo(X(20), Y(14), X(15), Y(20), X(6), Y(20));
+                    cv.drawPath(path, p);
+                    path.reset();
+                    path.moveTo(X(5), Y(19));
+                    path.cubicTo(X(8), Y(14), X(11), Y(11), X(15), Y(9));
+                    cv.drawPath(path, p);
+                    break;
+                case STAR: {
+                    p.setStrokeWidth(s * 0.09f);
+                    path.reset();
+                    for (int i = 0; i < 10; i++) {
+                        double a = -Math.PI / 2 + i * Math.PI / 5;
+                        float r = (i % 2 == 0 ? 9.5f : 4.3f);
+                        float px = X(12 + (float) (r * Math.cos(a)));
+                        float py = Y(12.8f + (float) (r * Math.sin(a)));
+                        if (i == 0) path.moveTo(px, py); else path.lineTo(px, py);
+                    }
+                    path.close();
+                    cv.drawPath(path, p);
+                    break;
+                }
+                case TROPHY:
+                    p.setStrokeWidth(s * 0.09f);
+                    poly(cv, false, 7, 4, 17, 4, 17, 9);
+                    line(7, 4, 7, 9, cv);
+                    box.set(X(7), Y(4.5f), X(17), Y(14.5f));
+                    cv.drawArc(box, 0, 180, false, p);
+                    line(12, 14.5f, 12, 18, cv);
+                    line(8, 20, 16, 20, cv);
                     break;
                 default:
                     cv.drawLine(x0 + s * 0.25f, y0 + s * 0.25f, x0 + s * 0.75f, y0 + s * 0.75f, p);
