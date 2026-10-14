@@ -664,8 +664,8 @@ final class ThisTripPage {
             pill.set(PILL_IDLE, L.t("Not recording"), "");
         }
 
-        // the gauge: the battery when parked, the speed while driving
-        boolean energyMode = !Double.isNaN(l.soc) && !gpsOnly && cur == null && !moving;
+        // the gauge: the battery when parked or charging (a trip can stay open while the car charges), the speed while driving
+        boolean energyMode = !Double.isNaN(l.soc) && !gpsOnly && !moving && (cur == null || charging);
         int glow = Kit.ACCENT;
         if (energyMode) {
             double soc = l.soc;
