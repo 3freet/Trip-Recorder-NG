@@ -471,104 +471,23 @@ public class MainActivity extends Activity {
 
     // ---- This Trip -------------------------------------------------------------------------
     private View thisTripPage() {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-
-        // left card: live speed ring + state
-        LinearLayout left = card();
-        left.setGravity(Gravity.CENTER_HORIZONTAL);
-        left.setPadding(Ui.dp(this, 16), Ui.dp(this, 28), Ui.dp(this, 16), Ui.dp(this, 16));
-        final RingView ring = new RingView(this, 10, 44, 16);
-        left.addView(ring, new LinearLayout.LayoutParams(Ui.dp(this, 220), Ui.dp(this, 220)));
-        final TextView state = Ui.text(this, "", 22, Ui.TEXT_SELECTED);
-        state.setGravity(Gravity.CENTER);
-        state.setPadding(0, Ui.dp(this, 22), 0, 0);
-        left.addView(state, new LinearLayout.LayoutParams(-1, -2));
-        final TextView sub = Ui.text(this, "", 16, Ui.TEXT_LABEL);
-        sub.setGravity(Gravity.CENTER);
-        sub.setPadding(0, Ui.dp(this, 10), 0, 0);
-        left.addView(sub, new LinearLayout.LayoutParams(-1, -2));
-        row.addView(left, new LinearLayout.LayoutParams(Ui.dp(this, 312), -1));
-
-        // right card: 3 x 3 grid of values
-        LinearLayout right = card();
-        right.setPadding(Ui.dp(this, 28), Ui.dp(this, 20), Ui.dp(this, 28), Ui.dp(this, 20));
-        final TextView head = Ui.text(this, "", 18, Ui.TEXT_DATE);
-        right.addView(head);
-        final TextView[][] cells = new TextView[3][3];
-        String[][] labels = {
-                {L.t("Mileage (km)"), L.t("Duration"), L.t("Average speed (km/h)")},
-                {L.t("Max speed (km/h)"), L.t("Battery (%)"), L.t("Energy (kWh/100km)")},
-                {L.t("Hard acceleration"), L.t("Hard braking"), L.t("Drive score")}};
-        for (int r = 0; r < 3; r++) {
-            LinearLayout line = new LinearLayout(this);
-            line.setOrientation(LinearLayout.HORIZONTAL);
-            for (int c = 0; c < 3; c++) {
-                LinearLayout cell = Ui.stat(this, "--", labels[r][c], 34, 16);
-                cells[r][c] = (TextView) cell.getChildAt(0);
-                line.addView(cell, new LinearLayout.LayoutParams(0, -1, 1f));
+        return ThisTripPage.build(this, new ThisTripPage.Host() {
+            @Override public List<Trip> trips() {
+                return trips;
             }
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, 0, 1f);
-            right.addView(line, lp);
-        }
-        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(0, -1, 1f);
-        rlp.setMarginStart(Ui.dp(this, 24));
-        row.addView(right, rlp);
 
-        pageRefresh = new Runnable() {
-            @Override public void run() {
-                RecorderService.Live l = RecorderService.live;
-                Trip t = RecorderService.current;
-                double speed = l.speed;
-                ring.set(Double.isNaN(speed) ? 0 : speed, 180,
-                        Double.isNaN(speed) ? "--" : String.format(Locale.US, "%.0f", speed),
-                        L.t("km/h"), Ui.BLUE);
-                if (!l.running) {
-                    state.setText(L.t("Service stopped"));
-                } else if (t != null) {
-                    state.setText(L.t("Recording"));
-                } else {
-                    state.setText(L.t("Not recording"));
-                }
-                sub.setText(L.f("Vehicle data: %s", vehicleName(l.vehicle)) + "\n"
-                        + L.f("GPS: %s", l.gps ? (l.gpsFix ? L.t("fix") : L.t("searching")) : L.t("off"))
-                        + (Double.isNaN(l.power) ? "" : "\n" + L.f("Power level %d", (int) l.power))
-                        + ("GPS only".equals(l.vehicle)
-                        ? (Prefs.linkEnabled(MainActivity.this)
-                        ? "\n" + L.f("Data link: %s", HelperLauncher.statusText(MainActivity.this))
-                        : "\n" + L.t("Turn on Vehicle data link in Setting for battery and energy")) : "")
-                        + (Double.isNaN(l.elecRange) && Double.isNaN(l.fuelRange) ? ""
-                        : "\n" + L.t("Range:") + (Double.isNaN(l.elecRange) ? "" : " " + L.f("EV %s km", Ui.f(l.elecRange, "%.0f")))
-                        + (Double.isNaN(l.fuelRange) ? "" : "  " + L.f("fuel %s km", Ui.f(l.fuelRange, "%.0f"))
-                        + (Double.isNaN(l.fuelPct) ? "" : " (" + Ui.f(l.fuelPct, "%.0f") + "%)")))
-                        + (ChargeRecorder.status.isEmpty() ? "" : "\n" + ChargeRecorder.status)
-                        + (Prefs.autoStartHealth(MainActivity.this) == Prefs.AUTOSTART_BLOCKED
-                        ? "\n" + L.t("Auto-start is blocked by BYD - see Setting") : ""));
-                Trip show = t;
-                if (show == null && !trips.isEmpty()) show = trips.get(0);
-                if (show == null) {
-                    head.setText(L.t("No trip recorded yet"));
-                    for (TextView[] rr : cells) for (TextView c : rr) c.setText("--");
-                    return;
-                }
-                head.setText(t != null ? L.t("Current trip")
-                        : L.f("Last trip - %s", new SimpleDateFormat("d MMM HH:mm", L.dateLocale())
-                        .format(new Date(show.startMs))));
-                double sc = Stats.score(show);
-                cells[0][0].setText(Ui.f(show.distanceKm, "%.1f"));
-                cells[0][1].setText(Ui.duration(show.durationSec()));
-                cells[0][2].setText(Ui.f(show.avgSpeedKmh(), "%.0f"));
-                cells[1][0].setText(Ui.f(show.maxSpeedKmh, "%.0f"));
-                double socNow = t != null && !Double.isNaN(l.soc) ? l.soc : show.socEnd;
-                cells[1][1].setText(Ui.f(socNow, "%.0f"));
-                cells[1][2].setText(Ui.f(show.energyPer100Km(), "%.1f"));
-                cells[2][0].setText(String.valueOf(show.hardAccel));
-                cells[2][1].setText(String.valueOf(show.hardBrake));
-                cells[2][2].setText(Ui.f(sc, "%.0f"));
+            @Override public void openTrip(Trip t) {
+                showDetail(t);
             }
-        };
-        pageRefresh.run();
-        return row;
+
+            @Override public void openSetting() {
+                showOverlay("settings");
+            }
+
+            @Override public void refresher(Runnable r) {
+                pageRefresh = r;
+            }
+        });
     }
 
     // ---- My Trips --------------------------------------------------------------------------

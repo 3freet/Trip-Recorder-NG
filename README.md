@@ -95,6 +95,15 @@ sees the car's IP address and the app's build name. Opening a trip in a map app 
   The list is built from what is installed; the GPX file is a temporary copy in the app's cache and is only readable
   by the app you pick.
 
+## This Trip
+The left card is what the car is doing now: the recording state, a gauge that shows the battery while the car is
+parked or charging and the speed while it drives, and the state of GPS and of the vehicle data. A note under it
+says what to fix when BYD blocks auto-start or the Vehicle data link is off (tap it to open Setting). The right
+card is the current trip, or the last one: distance, duration and drive score, then speed, energy (battery left and
+used, kWh/100 km, and how far that is from the average of your earlier all-electric trips) and behavior, and at the
+bottom what the trip has used so far (electricity in kWh, fuel in litres) and what it cost. Tap the card to open
+the trip's details. Source: `ThisTripPage`, `GaugeView`.
+
 ## Backup and restore
 Each finished trip and charging session is also written as a small JSON file (summary, track, events,
 battery and energy samples) to `Documents/TripRecorderNG/backup`, so it survives an uninstall or a cleared
@@ -169,7 +178,8 @@ smaller jump with no charge sign is treated as a battery recalibration and ignor
 This car is a plug-in hybrid: besides the battery, the car reports a fuel counter (litres), EV and
 hybrid-mode distance counters, the fuel level and the remaining EV / fuel range. Each trip now records
 the fuel and EV/HEV counters like it does the energy counter (helper protocol v3, DB v5), and This Trip
-shows the live range. Trips from before this update have no fuel data.
+shows what the trip has used so far (electricity in kWh, fuel in litres) and what it cost. Trips from before
+this update have no fuel data.
 - **Cost calculator** (Setting > Energy prices: electricity per kWh, fuel per litre, currency; the
   defaults are 0.010 OMR/kWh and 0.239 OMR/L, the author's local prices, used for any price you leave
   empty so a cost is always calculated: set your own currency and prices there). Trip

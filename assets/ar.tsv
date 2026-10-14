@@ -44,10 +44,7 @@ autoservice binder	autoservice binder
 none	لا يوجد
 Mileage (km)	المسافة (كم)
 Duration	المدة
-Average speed (km/h)	متوسط السرعة (كم/س)
-Max speed (km/h)	أقصى سرعة (كم/س)
 Battery (%)	البطارية (%)
-Energy (kWh/100km)	الطاقة (kWh/100 كم)
 Hard acceleration	تسارع حاد
 Hard braking	كبح حاد
 Drive score	تقييم القيادة
@@ -55,21 +52,14 @@ km/h	كم/س
 Service stopped	الخدمة متوقفة
 Recording	جارٍ التسجيل
 Not recording	لا يوجد تسجيل
-Vehicle data: %s	بيانات المركبة: %s
-GPS: %s	GPS: %s
 fix	متصل
 searching	جارٍ البحث
 off	متوقف
-Power level %d	مستوى الطاقة %d
 Data link: %s	رابط البيانات: %s
 Turn on Vehicle data link in Setting for battery and energy	فعّل رابط بيانات المركبة من الإعدادات للحصول على بيانات البطارية والطاقة
-Range:	المدى:
-EV %s km	كهرباء %s كم
-fuel %s km	وقود %s كم
 Auto-start is blocked by BYD - see Setting	BYD تمنع التشغيل التلقائي - راجع الإعدادات
 No trip recorded yet	لم تُسجَّل أي رحلة بعد
 Current trip	الرحلة الحالية
-Last trip - %s	آخر رحلة - %s
 %1$d trips, %2$s km	عدد الرحلات: %1$d، المسافة: %2$s كم
 Export CSV	تصدير CSV
 No trips yet	لا توجد رحلات بعد
@@ -451,3 +441,15 @@ No signal	لا توجد إشارة
 SIM not ready	الشريحة غير جاهزة
 Disconnected	منقطع
 Needs the Vehicle data link	يتطلب رابط بيانات المركبة
+GPS	GPS
+Vehicle data	بيانات المركبة
+LIVE	مباشر
+Last trip	آخر رحلة
+Your first drive will appear here	ستظهر أول رحلة لك هنا
+Average	المتوسط
+Max	الأقصى
+Energy	الطاقة
+Behavior	السلوك
+kWh/100km	kWh/100 كم
+EV	كهرباء
+Battery and energy need the Vehicle data link	تحتاج البطارية والطاقة إلى رابط بيانات المركبة

@@ -39,10 +39,47 @@ final class Kit {
     static final int BOLD = 2;
 
     final Context c;
-    final float scale = 1.2f; // dp (and sp) per design pixel
+    final float scale; // dp (and sp) per design pixel
 
     Kit(Context c) {
+        this(c, 1.2f);
+    }
+
+    Kit(Context c, float scale) {
         this.c = c;
+        this.scale = scale;
+    }
+
+    /**
+     * A number with its unit: digits (with their point and sign) keep their size, every other character shrinks
+     * to {@code smallFraction} of it ("34 min" gets a big 34, "1h 12m" a big 1 and 12).
+     */
+    static CharSequence numUnit(String s, float smallFraction) {
+        boolean anyDigit = false;
+        for (int i = 0; i < s.length(); i++) if (Character.isDigit(s.charAt(i))) anyDigit = true;
+        if (!anyDigit) return s;
+        android.text.SpannableString sp = new android.text.SpannableString(s);
+        int i = 0;
+        while (i < s.length()) {
+            if (isNumberChar(s, i)) {
+                i++;
+                continue;
+            }
+            int from = i;
+            while (i < s.length() && !isNumberChar(s, i)) i++;
+            sp.setSpan(new android.text.style.RelativeSizeSpan(smallFraction), from, i,
+                    android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return sp;
+    }
+
+    private static boolean isNumberChar(String s, int i) {
+        char ch = s.charAt(i);
+        if (Character.isDigit(ch)) return true;
+        boolean prevDigit = i > 0 && Character.isDigit(s.charAt(i - 1));
+        boolean nextDigit = i + 1 < s.length() && Character.isDigit(s.charAt(i + 1));
+        if ((ch == '.' || ch == ',') && prevDigit && nextDigit) return true;
+        return (ch == '-' || ch == '−' || ch == '+') && nextDigit;
     }
 
     int d(float designPx) {
@@ -215,8 +252,21 @@ final class Kit {
         static final int INFO = 1;
         static final int CHECK = 2;
         static final int CLOSE = 3;
-        private final int kind;
+        static final int BOLT = 4;
+        static final int SPEED = 5;
+        static final int BATTERY = 6;
+        static final int PULSE = 7;
+        static final int PUMP = 8;
+        static final int COIN = 9;
+        static final int CHEVRON = 10;
+        static final int LINK = 11;
+        static final int ARROW_DOWN = 12;
+        static final int ARROW_UP = 13;
+        private int kind;
         private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final android.graphics.Path path = new android.graphics.Path();
+        private final RectF box = new RectF();
+        private float x0, y0, u;
 
         IconView(Context c, int kind, int color) {
             super(c);
@@ -227,13 +277,54 @@ final class Kit {
             p.setColor(color);
         }
 
+        void setColor(int color) {
+            if (p.getColor() != color) {
+                p.setColor(color);
+                invalidate();
+            }
+        }
+
+        void setKind(int k) {
+            if (kind != k) {
+                kind = k;
+                invalidate();
+            }
+        }
+
+        private float X(float v) {
+            return x0 + v * u;
+        }
+
+        private float Y(float v) {
+            return y0 + v * u;
+        }
+
+        private void line(float ax, float ay, float bx, float by, Canvas cv) {
+            cv.drawLine(X(ax), Y(ay), X(bx), Y(by), p);
+        }
+
+        /** A line through the given points (pairs of x, y in the 24 unit box). */
+        private void poly(Canvas cv, boolean close, float... pts) {
+            path.reset();
+            path.moveTo(X(pts[0]), Y(pts[1]));
+            for (int i = 2; i < pts.length; i += 2) path.lineTo(X(pts[i]), Y(pts[i + 1]));
+            if (close) path.close();
+            cv.drawPath(path, p);
+        }
+
+        private void rrect(Canvas cv, float l, float t, float r, float b, float rad) {
+            box.set(X(l), Y(t), X(r), Y(b));
+            cv.drawRoundRect(box, rad * u, rad * u, p);
+        }
+
         @Override protected void onDraw(Canvas cv) {
             float w = getWidth();
             float h = getHeight();
             float s = Math.min(w, h);
             p.setStrokeWidth(s * 0.11f);
-            float x0 = (w - s) / 2f;
-            float y0 = (h - s) / 2f;
+            x0 = (w - s) / 2f;
+            y0 = (h - s) / 2f;
+            u = s / 24f;
             switch (kind) {
                 case CODE_ICON:
                     cv.drawLine(x0 + s * 0.33f, y0 + s * 0.33f, x0 + s * 0.12f, y0 + s * 0.5f, p);
@@ -251,6 +342,63 @@ final class Kit {
                     p.setStrokeWidth(s * 0.14f);
                     cv.drawLine(x0 + s * 0.2f, y0 + s * 0.52f, x0 + s * 0.42f, y0 + s * 0.72f, p);
                     cv.drawLine(x0 + s * 0.42f, y0 + s * 0.72f, x0 + s * 0.8f, y0 + s * 0.3f, p);
+                    break;
+                case BOLT:
+                    p.setStrokeWidth(s * 0.1f);
+                    poly(cv, true, 13, 2, 4.5f, 13.5f, 11, 13.5f, 10, 22, 19.5f, 10.5f, 12.5f, 10.5f);
+                    break;
+                case SPEED:
+                    p.setStrokeWidth(s * 0.1f);
+                    box.set(X(3.5f), Y(4.5f), X(20.5f), Y(21.5f));
+                    cv.drawArc(box, 152f, 236f, false, p);
+                    line(12, 14, 15.5f, 8, cv);
+                    break;
+                case BATTERY:
+                    p.setStrokeWidth(s * 0.1f);
+                    rrect(cv, 2.5f, 7, 18.5f, 17, 2.5f);
+                    line(21.5f, 10.5f, 21.5f, 13.5f, cv);
+                    break;
+                case PULSE:
+                    p.setStrokeWidth(s * 0.1f);
+                    poly(cv, false, 3, 12, 7, 12, 9.2f, 6, 13.3f, 18, 15.5f, 12, 21, 12);
+                    break;
+                case PUMP:
+                    p.setStrokeWidth(s * 0.095f);
+                    rrect(cv, 5, 3, 14, 21, 2);
+                    line(4, 21, 15, 21, cv);
+                    line(8, 8, 11, 8, cv);
+                    poly(cv, false, 14, 10, 16.8f, 10, 18.8f, 12, 18.8f, 16.4f, 21, 16.4f, 21, 8.5f, 18.5f, 6);
+                    break;
+                case COIN:
+                    p.setStrokeWidth(s * 0.095f);
+                    cv.drawCircle(X(12), Y(12), 9 * u, p);
+                    cv.drawCircle(X(12), Y(12), 4.6f * u, p);
+                    break;
+                case CHEVRON:
+                    p.setStrokeWidth(s * 0.12f);
+                    if (getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+                        poly(cv, false, 15, 6, 9, 12, 15, 18);
+                    } else {
+                        poly(cv, false, 9, 6, 15, 12, 9, 18);
+                    }
+                    break;
+                case LINK:
+                    p.setStrokeWidth(s * 0.1f);
+                    cv.save();
+                    cv.rotate(-45f, X(12), Y(12));
+                    rrect(cv, 1.5f, 8.8f, 13.5f, 15.2f, 3.2f);
+                    rrect(cv, 10.5f, 8.8f, 22.5f, 15.2f, 3.2f);
+                    cv.restore();
+                    break;
+                case ARROW_DOWN:
+                    p.setStrokeWidth(s * 0.14f);
+                    line(12, 5, 12, 19, cv);
+                    poly(cv, false, 6, 13, 12, 19, 18, 13);
+                    break;
+                case ARROW_UP:
+                    p.setStrokeWidth(s * 0.14f);
+                    line(12, 19, 12, 5, cv);
+                    poly(cv, false, 6, 11, 12, 5, 18, 11);
                     break;
                 default:
                     cv.drawLine(x0 + s * 0.25f, y0 + s * 0.25f, x0 + s * 0.75f, y0 + s * 0.75f, p);

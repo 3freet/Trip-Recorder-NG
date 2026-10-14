@@ -39,6 +39,11 @@ final class RingView extends View {
         sub.setTextSize(subSp * sd);
     }
 
+    void setTrackColor(int color) {
+        track.setColor(color);
+        invalidate();
+    }
+
     void set(double v, double maxValue, String center, String subtitle, int ringColor) {
         value = v;
         max = maxValue <= 0 ? 1 : maxValue;
