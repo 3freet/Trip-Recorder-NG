@@ -114,6 +114,24 @@ final class TripDetailPage {
         big.addView(dist);
         big.addView(k.t(Ui.duration(t.durationSec()), Kit.CAPTION, Kit.MUTED, Kit.REGULAR));
         hero.addView(big);
+        // what the trip cost, in view from the start
+        double total = Cost.total(t, c);
+        if (Cost.enabled(c) && !Double.isNaN(total)) {
+            hero.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));
+            LinearLayout costBox = k.column();
+            costBox.setGravity(Gravity.END);
+            TextView amount = k.t("", Kit.TITLE, Kit.TEXT, Kit.BOLD);
+            amount.setText(Kit.numUnit(Cost.money(c, total), 18f / 26f));
+            amount.setSingleLine(true);
+            amount.setGravity(Gravity.END);
+            costBox.addView(amount);
+            TextView what = k.t(Double.isNaN(t.fuelUsed()) ? L.t("Electricity only") : L.t("Trip cost"), Kit.CAPTION,
+                    Kit.MUTED, Kit.REGULAR);
+            what.setSingleLine(true);
+            what.setGravity(Gravity.END);
+            costBox.addView(what);
+            hero.addView(costBox);
+        }
         LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(-1, -2);
         hlp.topMargin = dp(8);
         info.addView(hero, hlp);
@@ -164,8 +182,6 @@ final class TripDetailPage {
         if (Cost.enabled(c)) {
             if (!Double.isNaN(Cost.elec(t, c))) addFact(more, L.t("Electricity cost"), Cost.money(c, Cost.elec(t, c)));
             if (!Double.isNaN(Cost.fuel(t, c))) addFact(more, L.t("Fuel cost"), Cost.money(c, Cost.fuel(t, c)));
-            addFact(more, L.t("Trip cost"), Cost.money(c, Cost.total(t, c))
-                    + (Double.isNaN(t.fuelUsed()) ? L.t("  (fuel not recorded)") : ""));
         }
         list.addView(more);
 
@@ -268,6 +284,12 @@ final class TripDetailPage {
                         + L.f("%s kWh", Ui.f(e.chargedKwh, "%.1f")), Kit.BODY, AMBER_TEXT, Kit.MEDIUM);
                 addFact(consumption, L.t("Engine charging"), v);
             }
+            // what the whole trip used per 100 km, the two ways of driving taken together
+            double kwh100 = t.energyPer100Km();
+            double l100 = t.fuelPer100Km();
+            addFact(consumption, L.t("Whole trip per 100 km"),
+                    L.rtl(Double.isNaN(kwh100) ? "--" : L.f("%s kWh", Ui.f(kwh100, "%.1f"))) + " · "
+                    + L.rtl(Double.isNaN(l100) ? "--" : L.f("%s L", Ui.f(l100, "%.1f"))));
             addFact(consumption, L.t("Cost"), costPer100);
             if (!e.traced && polls++ < 20) {
                 root.postDelayed(new Runnable() {

@@ -10,11 +10,17 @@ final class Stats {
     private Stats() {}
 
     static final int MILEAGE = 0;
+    /** Net kWh per 100 km of every trip, as the car's counter gives it. */
     static final int CONSUMPTION = 1;
     static final int SCORE = 2;
     static final int TRIPS = 3;
     static final int COST = 4;
+    /** Litres burned. */
     static final int FUEL = 5;
+    /** kWh per 100 km of the trips that burned no fuel. */
+    static final int ELECTRIC = 6;
+    /** Litres per 100 km of hybrid driving. */
+    static final int ECONOMY = 7;
 
     /**
      * Simplified driving score: 100 minus 5 points per hard acceleration or hard braking event.
@@ -95,16 +101,21 @@ final class Stats {
             Calendar from = (Calendar) cur.clone();
             Calendar to = (Calendar) cur.clone();
             if (monthly) to.add(Calendar.MONTH, 1); else to.add(Calendar.DAY_OF_MONTH, 1);
-            double km = 0, energy = 0, energyKm = 0, scoreSum = 0, cost = 0, fuel = 0, hybridKm = 0;
+            double km = 0, energy = 0, energyKm = 0, scoreSum = 0, cost = 0, fuel = 0, hybridKm = 0, hybridFuel = 0;
+            double elecEnergy = 0, elecKm = 0;
             int scored = 0, count = 0;
             for (Trip t : trips) {
                 if (t.startMs < from.getTimeInMillis() || t.startMs >= to.getTimeInMillis()) continue;
                 count++;
                 km += t.distanceKm;
                 double e = t.energyUsed();
-                if (!Double.isNaN(e) && t.distanceKm >= 0.5 && electricOnly(t)) {
+                if (!Double.isNaN(e) && t.distanceKm >= 0.5) {
                     energy += e;
                     energyKm += t.distanceKm;
+                    if (electricOnly(t)) {
+                        elecEnergy += e;
+                        elecKm += t.distanceKm;
+                    }
                 }
                 double sc = score(t);
                 if (!Double.isNaN(sc)) {
@@ -115,8 +126,9 @@ final class Stats {
                 if (!Double.isNaN(c)) cost += c;
                 double f = t.fuelUsed();
                 double h = t.hevKm();
+                if (!Double.isNaN(f)) fuel += f;
                 if (!Double.isNaN(f) && !Double.isNaN(h) && h >= 1) {
-                    fuel += f;
+                    hybridFuel += f;
                     hybridKm += h;
                 }
             }
@@ -124,9 +136,11 @@ final class Stats {
             switch (metric) {
                 case MILEAGE: v = km; break;
                 case CONSUMPTION: v = energyKm > 0 ? energy / energyKm * 100.0 : 0; break;
+                case ELECTRIC: v = elecKm > 0 ? elecEnergy / elecKm * 100.0 : 0; break;
                 case SCORE: v = scored > 0 ? scoreSum / scored : 0; break;
                 case COST: v = cost; break;
-                case FUEL: v = hybridKm >= TripEnergy.MIN_MODE_KM ? fuel / hybridKm * 100.0 : 0; break;
+                case FUEL: v = fuel; break;
+                case ECONOMY: v = hybridKm >= TripEnergy.MIN_MODE_KM ? hybridFuel / hybridKm * 100.0 : 0; break;
                 default: v = count; break;
             }
             s.values[i] = v;
@@ -140,7 +154,10 @@ final class Stats {
         Trip longest;
         Trip longestTime;
         Trip fastest;
+        /** Lowest kWh per 100 km of any trip, hybrid ones included (the counter is net of what the engine charged). */
         Trip mostEfficient;
+        /** Lowest kWh per 100 km of the trips that burned no fuel. */
+        Trip mostEfficientElectric;
         Trip bestFuel;
         Trip bestScore;
         double totalKm;
@@ -158,9 +175,13 @@ final class Stats {
             if (r.longestTime == null || t.durationSec() > r.longestTime.durationSec()) r.longestTime = t;
             if (r.fastest == null || t.maxSpeedKmh > r.fastest.maxSpeedKmh) r.fastest = t;
             double eff = t.energyPer100Km();
-            if (electricOnly(t) && !Double.isNaN(eff) && eff > 0 && t.distanceKm >= 5
+            if (!Double.isNaN(eff) && eff > 0 && t.distanceKm >= 5
                     && (r.mostEfficient == null || eff < r.mostEfficient.energyPer100Km())) {
                 r.mostEfficient = t;
+            }
+            if (electricOnly(t) && !Double.isNaN(eff) && eff > 0 && t.distanceKm >= 5
+                    && (r.mostEfficientElectric == null || eff < r.mostEfficientElectric.energyPer100Km())) {
+                r.mostEfficientElectric = t;
             }
             double fe = burnedFuel(t) ? fuelPer100Hybrid(t, 10) : Double.NaN;
             if (!Double.isNaN(fe) && (r.bestFuel == null || fe < fuelPer100Hybrid(r.bestFuel, 10))) {

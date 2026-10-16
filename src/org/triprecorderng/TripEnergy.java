@@ -49,16 +49,22 @@ final class TripEnergy {
 
     /** The figures that need only the trip's own counters (no battery trace). */
     static TripEnergy basic(Trip t) {
-        return of(t.distanceKm, t.energyUsed(), t.fuelUsed(), t.evKm(), t.hevKm(), t.socStart, t.socEnd, null, false);
+        return of(t.distanceKm, t.energyUsed(), t.fuelUsed(), t.evKm(), t.hevKm(), t.socStart, t.socEnd, null, false,
+                Double.NaN, Double.NaN, Double.NaN);
     }
 
     /**
      * @param socMoving battery percentage samples taken while the car was moving, in time order; null when the
      *                  trace was not read
-     * @param pluggedIn the car was charging from a cable during the trip (the battery rose for another reason)
+     * @param pluggedIn the car was charging from a cable during the trip (the battery rose for another reason), so
+     *                  the trip's own start and end battery readings cannot be used
+     * @param spanNetKwh energy counter change, and {@code spanSocStart}/{@code spanSocEnd} battery percentage, between
+     *                  the first and the last moment the car moved: used instead of the trip's own when it was plugged
+     *                  in before or after the drive (NaN when they are not known or the car charged while moving)
      */
     static TripEnergy of(double km, double netKwh, double fuelL, double evKm, double hevKm, double socStart,
-                         double socEnd, double[] socMoving, boolean pluggedIn) {
+                         double socEnd, double[] socMoving, boolean pluggedIn,
+                         double spanNetKwh, double spanSocStart, double spanSocEnd) {
         boolean hybrid = !Double.isNaN(fuelL) && fuelL >= FUEL_EPS;
         double kwh100 = !Double.isNaN(netKwh) && km >= 0.5 ? netKwh / km * 100.0 : Double.NaN;
         double l100 = hybrid && km >= 0.5 ? fuelL / km * 100.0 : Double.NaN;
@@ -66,14 +72,23 @@ final class TripEnergy {
         double electric = Double.NaN;
         double chargedPct = Double.NaN;
         double chargedKwh = Double.NaN;
-        if (hybrid && socMoving != null && socMoving.length >= 10 && !pluggedIn && evKm >= MIN_MODE_KM
-                && netKwh > 0) {
-            double drop = socStart - socEnd;
+        double net = netKwh;
+        double s0 = socStart;
+        double s1 = socEnd;
+        boolean usable = !pluggedIn;
+        if (pluggedIn && spanNetKwh > 0 && !Double.isNaN(spanSocStart) && !Double.isNaN(spanSocEnd)) {
+            net = spanNetKwh;
+            s0 = spanSocStart;
+            s1 = spanSocEnd;
+            usable = true;
+        }
+        if (hybrid && socMoving != null && socMoving.length >= 10 && usable && evKm >= MIN_MODE_KM && net > 0) {
+            double drop = s0 - s1;
             if (!Double.isNaN(drop) && drop >= MIN_DROP_PCT) {
-                double kwhPerPoint = netKwh / drop;
+                double kwhPerPoint = net / drop;
                 chargedPct = swings(socMoving, SWING_PCT)[0];
                 chargedKwh = chargedPct * kwhPerPoint;
-                electric = (netKwh + chargedKwh) / evKm * 100.0;
+                electric = (net + chargedKwh) / evKm * 100.0;
             }
         }
         return new TripEnergy(hybrid, kwh100, l100, electric, hybridL, chargedPct, chargedKwh, socMoving != null);

@@ -10,8 +10,9 @@ import java.util.List;
 
 /**
  * The Statistics screen: pick what to chart and over which period, see it as bars and, beside them, the total (or
- * lowest), the average and the highest of what is charted. Consumption counts the trips that burned no fuel (the
- * kWh of a hybrid trip mixes two ways of driving); Fuel is litres per 100 km of hybrid driving.
+ * lowest), the average and the highest of what is charted. Consumption is the car's net kWh per 100 km of every trip;
+ * Electric leaves out the trips that burned fuel (the kWh of a hybrid trip mixes two ways of driving); Fuel is the
+ * litres burned and Fuel economy is litres per 100 km of hybrid driving.
  */
 final class StatisticsPage {
     interface Host {
@@ -23,7 +24,35 @@ final class StatisticsPage {
     private static int metric = Stats.MILEAGE;
     private static boolean monthly;
 
-    private static final int[] COLORS = {Kit.ACCENT, Kit.BLUE, 0xFF8FD36A, 0xFFB48CFF, Kit.AMBER, 0xFFFF8A65};
+    /** The charts in the order of the buttons. */
+    private static final int[] ORDER = {Stats.MILEAGE, Stats.CONSUMPTION, Stats.ELECTRIC, Stats.SCORE, Stats.TRIPS,
+            Stats.COST, Stats.FUEL, Stats.ECONOMY};
+
+    private static int color(int metric) {
+        switch (metric) {
+            case Stats.MILEAGE: return Kit.ACCENT;
+            case Stats.CONSUMPTION: return Kit.BLUE;
+            case Stats.ELECTRIC: return 0xFF64B5F6;
+            case Stats.SCORE: return 0xFF8FD36A;
+            case Stats.TRIPS: return 0xFFB48CFF;
+            case Stats.COST: return Kit.AMBER;
+            case Stats.FUEL: return 0xFFFF8A65;
+            default: return 0xFFFFB05C;
+        }
+    }
+
+    private static String name(int metric) {
+        switch (metric) {
+            case Stats.MILEAGE: return L.t("Mileage");
+            case Stats.CONSUMPTION: return L.t("Consumption");
+            case Stats.ELECTRIC: return L.t("Electric");
+            case Stats.SCORE: return L.t("Drive score");
+            case Stats.TRIPS: return L.t("Trips");
+            case Stats.COST: return L.t("Cost");
+            case Stats.FUEL: return L.t("Fuel");
+            default: return L.t("Fuel economy");
+        }
+    }
 
     private final Context c;
     private final List<Trip> trips;
@@ -57,8 +86,7 @@ final class StatisticsPage {
         col.addView(head, new LinearLayout.LayoutParams(-1, dp(60)));
 
         LinearLayout kinds = k.segmented();
-        String[] names = {L.t("Mileage"), L.t("Consumption"), L.t("Drive score"), L.t("Trips"), L.t("Cost"), L.t("Fuel")};
-        for (int i = 0; i < names.length; i++) kinds.addView(k.segment(names[i], metric == i, choose(i, monthly)));
+        for (int m : ORDER) kinds.addView(k.segment(name(m), metric == m, choose(m, monthly)));
         LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(-2, -2);
         klp.topMargin = dp(4);
         col.addView(kinds, klp);
@@ -88,9 +116,16 @@ final class StatisticsPage {
     }
 
     private String unit() {
-        String[] units = {L.t("Mileage (km)"), L.t("Electric consumption (kWh/100km)"), L.t("Average drive score"),
-                L.t("Number of trips"), L.f("Cost (%s)", Prefs.currency(c)), L.t("Fuel economy (L/100km, hybrid driving)")};
-        return units[metric];
+        switch (metric) {
+            case Stats.MILEAGE: return L.t("Mileage (km)");
+            case Stats.CONSUMPTION: return L.t("Consumption (kWh/100km)");
+            case Stats.ELECTRIC: return L.t("Electric consumption (kWh/100km, trips without fuel)");
+            case Stats.SCORE: return L.t("Average drive score");
+            case Stats.TRIPS: return L.t("Number of trips");
+            case Stats.COST: return L.f("Cost (%s)", Prefs.currency(c));
+            case Stats.FUEL: return L.t("Fuel used (L)");
+            default: return L.t("Fuel economy (L/100km, hybrid driving)");
+        }
     }
 
     private View chartCard(Stats.Series s) {
@@ -99,8 +134,9 @@ final class StatisticsPage {
         card.addView(k.t(unit() + (monthly ? L.t(" - last 12 months") : L.t(" - last 14 days")), Kit.CAPTION,
                 Kit.MUTED, Kit.REGULAR), new LinearLayout.LayoutParams(-1, -2));
         BarChartView chart = new BarChartView(c);
-        chart.setDecimals(metric == Stats.COST ? Cost.decimalsFor(Prefs.currency(c)) : 1);
-        chart.set(s.values, s.labels, COLORS[metric]);
+        // a number of trips is a whole number
+        chart.setDecimals(metric == Stats.COST ? Cost.decimalsFor(Prefs.currency(c)) : metric == Stats.TRIPS ? 0 : 1);
+        chart.set(s.values, s.labels, color(metric));
         LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(-1, 0, 1f);
         clp.topMargin = dp(6);
         card.addView(chart, clp);
@@ -120,7 +156,8 @@ final class StatisticsPage {
             if (Double.isNaN(max) || v > max) max = v;
             if (Double.isNaN(min) || v < min) min = v;
         }
-        boolean additive = metric == Stats.MILEAGE || metric == Stats.TRIPS || metric == Stats.COST;
+        boolean additive = metric == Stats.MILEAGE || metric == Stats.TRIPS || metric == Stats.COST
+                || metric == Stats.FUEL;
 
         LinearLayout col = k.column();
         col.addView(stat(additive ? L.t("Total") : L.t("Lowest"), n == 0 ? "--" : format(additive ? sum : min),
@@ -141,10 +178,13 @@ final class StatisticsPage {
             case Stats.MILEAGE:
                 return Kit.numUnit(L.f("%s km", Ui.f(v, "%.1f")), u);
             case Stats.CONSUMPTION:
+            case Stats.ELECTRIC:
                 return Kit.valueUnit(Ui.f(v, "%.1f"), L.t("kWh/100km"), u);
             case Stats.COST:
                 return Kit.numUnit(Cost.amount(c, v) + " " + Prefs.currency(c), u);
             case Stats.FUEL:
+                return Kit.numUnit(L.f("%s L", Ui.f(v, "%.1f")), u);
+            case Stats.ECONOMY:
                 return Kit.valueUnit(Ui.f(v, "%.1f"), L.t("L/100km"), u);
             default:
                 return Ui.f(v, "%.0f");

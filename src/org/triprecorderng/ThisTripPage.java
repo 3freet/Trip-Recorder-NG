@@ -104,6 +104,9 @@ final class ThisTripPage {
     private TextView evValue;
     private TextView fuelValue;
     private TextView costValue;
+    /** What the whole trip used per 100 km, under the footer figures of a trip that burned fuel. */
+    private TextView evPer100;
+    private TextView fuelPer100;
 
     static View build(Context c, Host host) {
         return new ThisTripPage(c, host).create();
@@ -634,26 +637,51 @@ final class ThisTripPage {
 
     private View footer() {
         LinearLayout row = k.row();
-        row.setPadding(0, dp(8), 0, 0);
+        row.setPadding(0, dp(4), 0, 0);
         TextView used = k.t(L.t("Used"), Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
         used.setMaxLines(2);
         row.addView(used, new LinearLayout.LayoutParams(dp(92), -2));
-        evValue = item(row, Kit.IconView.BOLT, Kit.ACCENT);
-        fuelValue = item(row, Kit.IconView.PUMP, Kit.AMBER);
-        costValue = item(row, Kit.IconView.COIN, Kit.MUTED);
+        TextView[] ev = item(row, Kit.IconView.BOLT, Kit.ACCENT);
+        evValue = ev[0];
+        evPer100 = ev[1];
+        TextView[] fuel = item(row, Kit.IconView.PUMP, Kit.AMBER);
+        fuelValue = fuel[0];
+        fuelPer100 = fuel[1];
+        costValue = item(row, Kit.IconView.COIN, Kit.MUTED)[0];
         return row;
     }
 
-    /** An icon and a value in the footer, one third of its width. */
-    private TextView item(LinearLayout row, int icon, int color) {
-        LinearLayout cell = k.row();
-        cell.addView(new Kit.IconView(c, icon, color), new LinearLayout.LayoutParams(dp(22), dp(22)));
+    /**
+     * An icon and a value in the footer, one third of its width, with a line under the value that is only there
+     * when it has something to say. Returns the value and that line.
+     */
+    private TextView[] item(LinearLayout row, int icon, int color) {
+        LinearLayout cell = k.column();
+        cell.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout top = k.row();
+        top.addView(new Kit.IconView(c, icon, color), new LinearLayout.LayoutParams(dp(22), dp(22)));
         TextView v = k.t("--", Kit.LABEL, Kit.TEXT, Kit.MEDIUM);
         v.setSingleLine(true);
         v.setPaddingRelative(dp(8), 0, 0, 0);
-        cell.addView(v);
+        top.addView(v);
+        cell.addView(top);
+        TextView per100 = k.t("", Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
+        per100.setSingleLine(true);
+        per100.setPaddingRelative(dp(30), 0, 0, 0);
+        per100.setVisibility(View.GONE);
+        cell.addView(per100);
         row.addView(cell, new LinearLayout.LayoutParams(0, -2, 1f));
-        return v;
+        return new TextView[]{v, per100};
+    }
+
+    /** Shows the line under a footer figure, or takes it away. */
+    private static void setLine(TextView line, String text) {
+        if (text == null) {
+            if (line.getVisibility() != View.GONE) line.setVisibility(View.GONE);
+            return;
+        }
+        setText(line, text);
+        if (line.getVisibility() != View.VISIBLE) line.setVisibility(View.VISIBLE);
     }
 
     // ---- keeping the page current --------------------------------------------------------------------
@@ -823,6 +851,12 @@ final class ThisTripPage {
         setText(evValue, Double.isNaN(e) ? "--" : Kit.numUnit(L.f("%s kWh", Ui.f(e, "%.1f")), fu));
         setText(fuelValue, Double.isNaN(f) ? "--" : Kit.numUnit(L.f("%s L", Ui.f(f, "%.1f")), fu));
         setText(costValue, Double.isNaN(cost) ? "--" : Kit.numUnit(Cost.money(c, cost), fu));
+        // a trip that burned fuel: what the whole trip used per 100 km (the Energy tile has the electric and the
+        // hybrid figures)
+        double kwh100 = show.energyPer100Km();
+        double l100 = show.fuelPer100Km();
+        setLine(evPer100, burned && !Double.isNaN(kwh100) ? Ui.f(kwh100, "%.1f") + " " + L.t("kWh/100km") : null);
+        setLine(fuelPer100, burned && !Double.isNaN(l100) ? Ui.f(l100, "%.1f") + " " + L.t("L/100km") : null);
     }
 
     /** Electric and hybrid driving apart: the electric one with what the engine charged added back (about). */

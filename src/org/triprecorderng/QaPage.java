@@ -69,8 +69,10 @@ final class QaPage {
                                 + "per 100 km driven on electricity, with the energy the engine put into the battery "
                                 + "added back. Hybrid: litres per 100 km driven with the engine running; it includes "
                                 + "the fuel that charged the battery. Both are estimates; the totals (kWh, litres, "
-                                + "cost) are exact. Statistics and Attainment follow the same rule: Consumption "
-                                + "counts trips that used no fuel, and Fuel is litres per 100 km of hybrid driving.")},
+                                + "cost) are exact, and Whole trip per 100 km is the plain total divided by the "
+                                + "distance. In Statistics, Consumption is the car's net figure for every trip, "
+                                + "Electric leaves out the trips that burned fuel, Fuel is the litres burned and Fuel "
+                                + "economy is litres per 100 km of hybrid driving.")},
                 {L.t("What are Driving advice, CO2 avoided and the driving level?"),
                         L.t("Driving advice on a trip uses the stock app's advice texts, chosen by simple rules "
                                 + "(hard braking or acceleration, high average speed, high consumption, a long "

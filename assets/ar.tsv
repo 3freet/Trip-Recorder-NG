@@ -113,7 +113,6 @@ Time above 100 km/h	الوقت فوق 100 كم/س
 Electricity cost	تكلفة الكهرباء
 Fuel cost	تكلفة الوقود
 Trip cost	تكلفة الرحلة
-  (fuel not recorded)	  (الوقود غير مسجَّل)
 Driving advice	نصائح القيادة
 Export GPX	تصدير GPX
 Delete	حذف
@@ -214,7 +213,7 @@ Yes, by default. Each finished trip is also saved as a small file in Documents/T
 How is the cost calculated?	كيف تُحسب التكلفة؟
 Prices start at 0.010 OMR per kWh and 0.239 OMR per litre. Change them in Setting > Energy prices (leave a price empty to go back to the default). A trip costs the energy it took from the battery times the electricity price, plus the fuel it burned times the fuel price. This car is a plug-in hybrid, so fuel is recorded with each trip made since the update (older trips only get the electricity part). A charging session costs the energy it added times the electricity price. Charging losses are not included.	الأسعار الافتراضية 0.010 OMR لكل kWh و0.239 OMR لكل لتر. يمكنك تغييرها من «الإعدادات > أسعار الطاقة» (اترك السعر فارغًا للعودة إلى الافتراضي). تكلفة الرحلة = الطاقة التي سُحبت من البطارية × سعر الكهرباء + الوقود الذي استُهلك × سعر الوقود. هذه السيارة هجينة قابلة للشحن، لذلك يُسجَّل الوقود مع كل رحلة منذ التحديث (أما الرحلات الأقدم فتحصل على جزء الكهرباء فقط). وتكلفة جلسة الشحن = الطاقة التي أضافتها × سعر الكهرباء. ولا تُحتسب خسائر الشحن.
 Why does a hybrid trip show two consumption numbers?	لماذا تُظهر الرحلة الهجينة رقمين للاستهلاك؟
-The car's energy counter is net: it also goes down when the engine charges the battery, so one kWh/100km figure for a mixed trip is misleading. On a hybrid trip the app splits it by the car's own electric and hybrid kilometres. Electric: kWh per 100 km driven on electricity, with the energy the engine put into the battery added back. Hybrid: litres per 100 km driven with the engine running; it includes the fuel that charged the battery. Both are estimates; the totals (kWh, litres, cost) are exact. Statistics and Attainment follow the same rule: Consumption counts trips that used no fuel, and Fuel is litres per 100 km of hybrid driving.	عدّاد الطاقة في السيارة صافٍ: فهو ينقص أيضًا عندما يشحن المحرك البطارية، لذا يكون رقم kWh/100 كم واحد لرحلة مختلطة مضلِّلًا. ولهذا يقسم التطبيق الرحلة الهجينة بحسب الكيلومترات الكهربائية والهجينة التي تسجّلها السيارة نفسها. كهربائي: kWh لكل 100 كم قُطعت بالكهرباء، مع إضافة الطاقة التي دفعها المحرك إلى البطارية. هجين: لترات لكل 100 كم قُطعت والمحرك يعمل، وهي تشمل الوقود الذي شحن البطارية. الرقمان تقديريان، أما الإجماليات (kWh واللترات والتكلفة) فدقيقة. وتتبع الإحصائيات والإنجازات القاعدة نفسها: يحتسب «الاستهلاك» الرحلات التي لم تستهلك وقودًا، و«الوقود» هو لترات لكل 100 كم من القيادة الهجينة.
+The car's energy counter is net: it also goes down when the engine charges the battery, so one kWh/100km figure for a mixed trip is misleading. On a hybrid trip the app splits it by the car's own electric and hybrid kilometres. Electric: kWh per 100 km driven on electricity, with the energy the engine put into the battery added back. Hybrid: litres per 100 km driven with the engine running; it includes the fuel that charged the battery. Both are estimates; the totals (kWh, litres, cost) are exact, and Whole trip per 100 km is the plain total divided by the distance. In Statistics, Consumption is the car's net figure for every trip, Electric leaves out the trips that burned fuel, Fuel is the litres burned and Fuel economy is litres per 100 km of hybrid driving.	عدّاد الطاقة في السيارة صافٍ: فهو ينقص أيضًا عندما يشحن المحرك البطارية، لذا يكون رقم kWh/100 كم واحد لرحلة مختلطة مضلِّلًا. ولهذا يقسم التطبيق الرحلة الهجينة بحسب الكيلومترات الكهربائية والهجينة التي تسجّلها السيارة نفسها. كهربائي: kWh لكل 100 كم قُطعت بالكهرباء، مع إضافة الطاقة التي دفعها المحرك إلى البطارية. هجين: لترات لكل 100 كم قُطعت والمحرك يعمل، وهي تشمل الوقود الذي شحن البطارية. الرقمان تقديريان، أما الإجماليات (kWh واللترات والتكلفة) فدقيقة، و«الرحلة كاملة لكل 100 كم» هي الإجمالي مقسومًا على المسافة. وفي «الإحصائيات»: «الاستهلاك» هو الرقم الصافي من السيارة لكل الرحلات، و«كهربائي» يستثني الرحلات التي استهلكت وقودًا، و«الوقود» هو اللترات المحروقة، و«اقتصاد الوقود» لترات لكل 100 كم من القيادة الهجينة.
 What are Driving advice, CO2 avoided and the driving level?	ما هي نصائح القيادة وثاني أكسيد الكربون المتجنَّب ومستوى القيادة؟
 Driving advice on a trip uses the stock app's advice texts, chosen by simple rules (hard braking or acceleration, high average speed, high consumption, a long drive). CO2 avoided compares your trips with a typical petrol car (8 L per 100 km) minus the fuel you burned and an assumed 0.4 kg CO2 per kWh of grid electricity: it is an estimate. The driving level uses the stock app's level names but steps by the distance recorded here.	تستخدم نصائح القيادة نصوص النصائح من تطبيق BYD الأصلي، وتُختار بقواعد بسيطة (كبح أو تسارع حاد، متوسط سرعة مرتفع، استهلاك مرتفع، قيادة طويلة). ويقارن ثاني أكسيد الكربون المتجنَّب رحلاتك بسيارة بنزين نموذجية (8 لتر لكل 100 كم) مطروحًا منه الوقود الذي استهلكته وافتراض 0.4 كجم لكل kWh من كهرباء الشبكة: وهو تقدير. أما مستوى القيادة فيستخدم أسماء مستويات التطبيق الأصلي لكن بحسب المسافة المسجَّلة هنا.
 What are Tweaks?	ما هي «تعديلات»؟
@@ -459,7 +458,6 @@ Top level	أعلى مستوى
 Time	الوقت
 about %s kWh	تقريبًا %s kWh
 Per 100 km	لكل 100 كم
-Electric consumption (kWh/100km)	الاستهلاك الكهربائي (kWh/100 كم)
 Fuel economy (L/100km, hybrid driving)	اقتصاد الوقود (لتر/100 كم، القيادة الهجينة)
 kWh per 100 km	kWh لكل 100 كم
 Used	المستهلك
@@ -470,3 +468,8 @@ Engine charging	شحن المحرك للبطارية
 km	كم
 L	لتر
 kg	كجم
+Consumption (kWh/100km)	الاستهلاك (kWh/100 كم)
+Electric consumption (kWh/100km, trips without fuel)	الاستهلاك الكهربائي (kWh/100 كم، الرحلات دون وقود)
+Fuel used (L)	الوقود المستهلك (لتر)
+Electricity only	الكهرباء فقط
+Whole trip per 100 km	الرحلة كاملة لكل 100 كم

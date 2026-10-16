@@ -66,10 +66,21 @@ final class EnergyLoader {
                 try {
                     List<double[]> pts = TripDb.get(app).points(tripId);
                     double[] moving = movingSoc(pts);
-                    e = TripEnergy.of(km, net, fuel, ev, hev, s0, s1, moving, pluggedIn(sessions, from, to));
+                    boolean plugged = pluggedIn(sessions, from, to);
+                    double spanNet = Double.NaN;
+                    double spanS0 = Double.NaN;
+                    double spanS1 = Double.NaN;
+                    double[] span = plugged ? movingSpan(pts) : null;
+                    if (span != null && !pluggedIn(sessions, (long) span[0], (long) span[1])) {
+                        spanNet = span[5] - span[4];
+                        spanS0 = span[2];
+                        spanS1 = span[3];
+                    }
+                    e = TripEnergy.of(km, net, fuel, ev, hev, s0, s1, moving, plugged, spanNet, spanS0, spanS1);
                 } catch (Throwable x) {
                     Diag.log("energy figures failed", x);
-                    e = TripEnergy.of(km, net, fuel, ev, hev, s0, s1, new double[0], false);
+                    e = TripEnergy.of(km, net, fuel, ev, hev, s0, s1, new double[0], false,
+                            Double.NaN, Double.NaN, Double.NaN);
                 }
                 synchronized (EnergyLoader.class) {
                     done.put(tripId, new Entry(forStamp, e));
@@ -94,6 +105,23 @@ final class EnergyLoader {
         double[] r = new double[n];
         System.arraycopy(out, 0, r, 0, n);
         return r;
+    }
+
+    /**
+     * The first and the last moment the car moved, with the battery percentage and the energy counter at each:
+     * {time0, time1, soc0, soc1, elec0, elec1}, or null when there is none with both readings.
+     */
+    static double[] movingSpan(List<double[]> pts) {
+        double[] first = null;
+        double[] last = null;
+        for (double[] p : pts) {
+            double speed = Double.isNaN(p[5]) ? p[4] : p[5];
+            if (Double.isNaN(speed) || speed <= 3 || Double.isNaN(p[7]) || Double.isNaN(p[8])) continue;
+            if (first == null) first = p;
+            last = p;
+        }
+        if (first == null || last == first) return null;
+        return new double[]{first[0], last[0], first[7], last[7], first[8], last[8]};
     }
 
     /**

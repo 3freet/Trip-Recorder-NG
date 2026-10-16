@@ -58,8 +58,12 @@ final class AttainmentPage {
         add(records, Kit.IconView.SPEED, Kit.ACCENT, L.t("Top speed"), date(r.fastest, df),
                 r.fastest == null ? "--" : Ui.f(r.fastest.maxSpeedKmh, "%.0f"), L.t("km/h"));
         add(records, Kit.IconView.LEAF, Kit.ACCENT, L.t("Most efficient"),
-                r.mostEfficient == null ? "" : L.t("Electric") + " · " + date(r.mostEfficient, shortDay),
+                r.mostEfficient == null ? "" : modeOf(r.mostEfficient) + date(r.mostEfficient, shortDay),
                 r.mostEfficient == null ? "--" : Ui.f(r.mostEfficient.energyPer100Km(), "%.1f"), L.t("kWh/100km"));
+        add(records, Kit.IconView.LEAF, Kit.ACCENT, L.t("Most efficient"),
+                r.mostEfficientElectric == null ? "" : L.t("Electric") + " · " + date(r.mostEfficientElectric, shortDay),
+                r.mostEfficientElectric == null ? "--" : Ui.f(r.mostEfficientElectric.energyPer100Km(), "%.1f"),
+                L.t("kWh/100km"));
         add(records, Kit.IconView.PUMP, Kit.AMBER, L.t("Best fuel economy"),
                 r.bestFuel == null ? "" : L.t("Hybrid") + " · " + date(r.bestFuel, shortDay),
                 r.bestFuel == null ? "--" : Ui.f(Stats.fuelPer100Hybrid(r.bestFuel, 10), "%.1f"), L.t("L/100km"));
@@ -117,6 +121,11 @@ final class AttainmentPage {
 
     private static String date(Trip t, SimpleDateFormat df) {
         return t == null ? "" : df.format(new Date(t.startMs));
+    }
+
+    /** "Hybrid · " or "Electric · " in front of a date, nothing when the trip has no fuel record. */
+    private static String modeOf(Trip t) {
+        return Stats.burnedFuel(t) ? L.t("Hybrid") + " · " : Stats.electricOnly(t) ? L.t("Electric") + " · " : "";
     }
 
     /** A list card with its heading; the rows added to it share its height. */

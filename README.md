@@ -100,9 +100,10 @@ The left card is what the car is doing now: the recording state, a gauge that sh
 parked or charging and the speed while it drives, and the state of GPS and of the vehicle data. A note under it
 says what to fix when BYD blocks auto-start or the Vehicle data link is off (tap it to open Setting). The right
 card is the current trip, or the last one: distance, duration and drive score, then speed, energy and behavior, and
-at the bottom what the trip has used so far (electricity in kWh, fuel in litres) and what it cost. The energy tile
-shows the battery left and used and the consumption: kWh/100 km with how far that is from the median of your
-earlier all-electric trips, or, when the engine ran, the two figures explained under
+at the bottom what the trip has used so far (electricity in kWh, fuel in litres) and what it cost; on a trip that
+burned fuel, what the whole trip used per 100 km is under the kWh and the litres. The energy tile shows the battery
+left and used and the consumption: kWh/100 km with how far that is from the median of your earlier all-electric
+trips, or, when the engine ran, the two figures explained under
 [Consumption on a hybrid trip](#consumption-on-a-hybrid-trip). Tap the card to open the trip's details.
 Source: `ThisTripPage`, `GaugeView`.
 
@@ -117,10 +118,14 @@ kilometre counters:
 - **Hybrid**: litres per 100 km driven with the engine running. It includes the fuel that charged the battery.
 
 Both are estimates. Electric shows "--" when the trip has under 5 km on electricity, the battery fell by under 8
-points, or a cable charged the car during the trip; Hybrid shows "--" under 5 km of hybrid driving. The totals
-(kWh, litres, cost) stay exact. Statistics' Consumption chart and Attainment's Most efficient only use trips that
-burned no fuel; the Fuel chart and Best fuel economy use litres per 100 km of hybrid driving.
-Source: `TripEnergy`, `EnergyLoader`, `Stats`.
+points, or a charging session overlaps the driving; Hybrid shows "--" under 5 km of hybrid driving. A trip stays open
+while the car is plugged in, so when the cable was in before or after the drive only the part from the first to the
+last moment the car moved is used. The totals (kWh, litres, cost) stay exact, and the plain figures are still there:
+what the whole trip used per 100 km (under the totals on This Trip, in the Consumption block of the details and in My
+Trips). In Statistics, Consumption is the car's net kWh per 100 km of every trip and Electric leaves out the trips that
+burned fuel; Fuel is the litres burned and Fuel economy is litres per 100 km of hybrid driving. In Attainment, Most
+efficient is the lowest net figure of any trip and, in a second row, of the trips that burned no fuel, and Best fuel
+economy is litres per 100 km of hybrid driving. Source: `TripEnergy`, `EnergyLoader`, `Stats`.
 
 ## My Trips and Charging
 Both lists group the rows by day: a card per day with its date and the day's totals (trips, distance and cost; or
@@ -210,12 +215,12 @@ this update have no fuel data.
   cost = energy used x electricity price + fuel used x fuel price; shown on each trip, in the My Trips
   total, as a Cost chart in Statistics (daily/monthly) and in the CSV. Charging sessions get a cost from
   the energy added. Charging losses are not included. `Cost`, `Prefs`.
-- **Trip details**: a Consumption block (electric and hybrid figures, engine charging, cost per 100 km), fuel
-  used, electric/hybrid distance, idle time, time above 100 km/h and Driving advice (the stock app's advice
-  texts, picked by simple rules). `Advice`.
+- **Trip details**: the trip's cost at the top, a Consumption block (electric and hybrid figures, engine charging,
+  the whole trip per 100 km, cost per 100 km), fuel used, electric/hybrid distance, idle time, time above 100 km/h
+  and Driving advice (the stock app's advice texts, picked by simple rules). `Advice`.
 - **Attainment**: the driving level and the way to the next one (stock level names, stepped by recorded km),
-  records (longest trip and drive, top speed, most efficient electric trip, best fuel economy of hybrid driving,
-  best drive score) and totals (trips, drive time, cost, fuel used, fuel economy, CO2 avoided: an estimate against
+  records (longest trip and drive, top speed, most efficient trip and most efficient electric-only trip, best fuel
+  economy of hybrid driving, best drive score) and totals (trips, drive time, cost, fuel used, fuel economy, CO2 avoided: an estimate against
   a petrol car at 8 L/100 km, minus fuel burned and 0.4 kg CO2 per kWh).
 - **Record route** switch (stock "Historical track"): off = new trips keep no route or event positions.
 - Not possible offline: the stock app's national/city rankings and place names (they come from BYD's

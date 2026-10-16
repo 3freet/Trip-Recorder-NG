@@ -76,6 +76,14 @@ final class L {
         return arabic ? "\u2066" + s + "\u2069" : s;
     }
 
+    /**
+     * A number with its unit kept as one right-to-left phrase inside Arabic text, so what stands next to it (another
+     * figure with a Latin unit) cannot pull its number or its unit to the other side.
+     */
+    static String rtl(String s) {
+        return arabic ? "\u2067" + s + "\u2069" : s;
+    }
+
     /** Locale for dates: the head unit's own, or Arabic month and day names with Latin digits. */
     static Locale dateLocale() {
         if (!arabic) return Locale.getDefault();
