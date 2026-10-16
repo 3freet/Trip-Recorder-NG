@@ -1097,9 +1097,9 @@ public class MainActivity extends Activity {
                 if (code.isEmpty()) code = "OMR";
                 String el = cleanPrice(elec.getText().toString()), fu = cleanPrice(fuel.getText().toString());
                 summary.setText(L.f("Electricity %1$s     Fuel %2$s",
-                        (el.isEmpty() ? trimNumber(Cost.DEFAULT_ELEC_PRICE) : el) + " " + code + "/" + L.t("kWh")
+                        L.per((el.isEmpty() ? trimNumber(Cost.DEFAULT_ELEC_PRICE) : el) + " " + code, L.t("kWh"))
                                 + (el.isEmpty() ? L.t(" (default)") : ""),
-                        (fu.isEmpty() ? trimNumber(Cost.DEFAULT_FUEL_PRICE) : fu) + " " + code + "/L"
+                        L.per((fu.isEmpty() ? trimNumber(Cost.DEFAULT_FUEL_PRICE) : fu) + " " + code, L.t("L"))
                                 + (fu.isEmpty() ? L.t(" (default)") : "")));
             }
         };

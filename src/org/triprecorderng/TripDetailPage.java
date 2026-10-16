@@ -264,7 +264,7 @@ final class TripDetailPage {
         consumption.removeAllViews();
         double cost = Cost.driving(t, c);
         String costPer100 = Double.isNaN(cost) || t.distanceKm < 0.5 ? "--"
-                : Cost.amount(c, cost / t.distanceKm * 100.0) + " " + Prefs.currency(c) + L.t("/100km");
+                : L.per(Cost.amount(c, cost / t.distanceKm * 100.0) + " " + Prefs.currency(c), L.t("100km"));
         if (Stats.hybridDriving(t)) {
             TripEnergy e = EnergyLoader.get(c, t);
             double ev = t.evKm();

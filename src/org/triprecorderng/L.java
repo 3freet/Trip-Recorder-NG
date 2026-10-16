@@ -85,6 +85,11 @@ final class L {
         return arabic ? "\u2067" + s + "\u2069" : s;
     }
 
+    /** "a per u": "1.272 OMR/100km", and in Arabic "1.272 OMR لكل 100 كم" (a slash between a Latin and an Arabic word reads badly). */
+    static String per(String amount, String unit) {
+        return arabic ? amount + " \u0644\u0643\u0644 " + unit : amount + "/" + unit;
+    }
+
     /** The arrow of a change "from -> to": it points the way the eye reads, to the left in Arabic. */
     static String arrow() {
         return arabic ? "\u2190" : "\u2192";
