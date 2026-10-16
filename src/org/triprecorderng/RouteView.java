@@ -47,14 +47,14 @@ final class RouteView extends View {
         ring.setStyle(Paint.Style.STROKE);
         ring.setStrokeWidth(2 * d);
         ring.setColor(0xFFFFFFFF);
-        msg.setColor(Ui.TEXT_LABEL);
+        msg.setColor(Kit.MUTED);
         msg.setTextAlign(Paint.Align.CENTER);
         msg.setTextSize(18 * sd);
-        hint.setColor(Ui.TEXT_LABEL);
+        hint.setColor(Kit.MUTED);
         hint.setTextAlign(Paint.Align.CENTER);
-        hint.setTextSize(14 * sd);
-        legend.setColor(Ui.TEXT_LABEL);
-        legend.setTextSize(13 * sd);
+        hint.setTextSize(18 * sd);
+        legend.setColor(Kit.MUTED);
+        legend.setTextSize(18 * sd);
         bar.setShader(new LinearGradient(16 * d, 0, 136 * d, 0,
                 new int[]{speedColor(0), speedColor(RED_KMH * 0.5), speedColor(RED_KMH)}, null,
                 Shader.TileMode.CLAMP));
@@ -101,7 +101,7 @@ final class RouteView extends View {
             c.drawText(L.t("No GPS track for this trip"), w / 2f, h / 2f, msg);
             return;
         }
-        c.drawText(L.t("Tap the map to open this trip in a map app"), w / 2f, h - 10 * d, hint);
+        c.drawText(L.t("Tap the map to open this trip in a map app"), w / 2f, h - 12 * d, hint);
 
         double minLat = 90, maxLon = -180;
         maxLat = -90;
@@ -131,7 +131,7 @@ final class RouteView extends View {
         double spanX = Math.max(1e-6, (maxLon - minLon) * kx);
         double spanY = Math.max(1e-6, maxLat - minLat);
         float pad = 28 * d;
-        float usableH = h - 14 * d;
+        float usableH = h - 30 * d;
         scale = Math.min((w - 2 * pad) / spanX, (usableH - 2 * pad) / spanY);
         offX = (w - spanX * scale) / 2.0;
         offY = (usableH - spanY * scale) / 2.0;
@@ -180,20 +180,20 @@ final class RouteView extends View {
         float lx = 16 * d, ly = 16 * d, lw = 120 * d, lh = 8 * d;
         c.drawRoundRect(lx, ly, lx + lw, ly + lh, 4 * d, 4 * d, bar);
         legend.setTextAlign(Paint.Align.LEFT);
-        c.drawText("0", lx, ly + lh + 16 * d, legend);
+        c.drawText("0", lx, ly + lh + 22 * d, legend);
         legend.setTextAlign(Paint.Align.RIGHT);
-        c.drawText(L.t("130+ km/h"), lx + lw, ly + lh + 16 * d, legend);
+        c.drawText(L.t("130+ km/h"), lx + lw, ly + lh + 22 * d, legend);
         if (accel + brake > 0) {
             legend.setTextAlign(Paint.Align.RIGHT);
             float rx = w - 16 * d;
             String t1 = L.f("hard braking %d", brake);
-            c.drawText(t1, rx, ly + 11 * d, legend);
+            c.drawText(t1, rx, ly + 14 * d, legend);
             dot.setColor(Ui.RED);
-            c.drawCircle(rx - legend.measureText(t1) - 10 * d, ly + 6 * d, 5 * d, dot);
+            c.drawCircle(rx - legend.measureText(t1) - 12 * d, ly + 8 * d, 5.5f * d, dot);
             String t2 = L.f("hard accel %d", accel);
-            c.drawText(t2, rx, ly + 32 * d, legend);
+            c.drawText(t2, rx, ly + 42 * d, legend);
             dot.setColor(Ui.AMBER);
-            c.drawCircle(rx - legend.measureText(t2) - 10 * d, ly + 27 * d, 5 * d, dot);
+            c.drawCircle(rx - legend.measureText(t2) - 12 * d, ly + 36 * d, 5.5f * d, dot);
         }
     }
 }

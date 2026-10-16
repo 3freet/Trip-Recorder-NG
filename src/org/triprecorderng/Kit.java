@@ -38,6 +38,15 @@ final class Kit {
     static final int MEDIUM = 1;
     static final int BOLD = 2;
 
+    // The text sizes (sp) of the screens read while driving. Nothing there is smaller than CAPTION.
+    static final float CAPTION = 18;  // captions, units, hints
+    static final float BODY = 20;     // rows, buttons, statuses
+    static final float LABEL = 22;    // row titles, times
+    static final float TITLE = 26;    // page and card titles, list figures
+    static final float VALUE = 32;    // figures
+    static final float VALUE_L = 38;  // key figures
+    static final float DISPLAY = 48;  // the big numbers of This Trip
+
     final Context c;
     final float scale; // dp (and sp) per design pixel
 
@@ -98,6 +107,32 @@ final class Kit {
 
     int d(float designPx) {
         return Ui.dp(c, designPx * scale);
+    }
+
+    /** A text of the given size in sp (see the ramp above). Weight: REGULAR, MEDIUM or BOLD. */
+    TextView t(String s, float sp, int color, int weight) {
+        TextView t = Ui.text(c, s, sp, color);
+        t.setTypeface(weight == BOLD ? Typeface.DEFAULT_BOLD
+                : weight == MEDIUM ? Typeface.create("sans-serif-medium", Typeface.NORMAL) : Typeface.DEFAULT);
+        return t;
+    }
+
+    /** A rounded button for the screens read while driving: 48 dp tall, 20 sp. */
+    TextView action(String text, boolean primary) {
+        TextView t = t(text, BODY, primary ? ON_ACCENT : SOFT, MEDIUM);
+        t.setGravity(Gravity.CENTER);
+        t.setSingleLine(true);
+        t.setMinHeight(Ui.dp(c, 48));
+        t.setPadding(Ui.dp(c, 22), 0, Ui.dp(c, 22), 0);
+        t.setBackground(Ui.round(primary ? ACCENT : NEUTRAL_BG, 24, c));
+        return t;
+    }
+
+    /** A card with the radius of the driving screens. */
+    LinearLayout bigCard() {
+        LinearLayout l = column();
+        l.setBackground(Ui.round(CARD, 24, c));
+        return l;
     }
 
     TextView label(String s, float designPx, int color, int weight) {
@@ -217,12 +252,12 @@ final class Kit {
 
     /** One choice of a segmented control: the selected one carries the accent tint. */
     TextView segment(String text, boolean selected, View.OnClickListener l) {
-        TextView t = label(text, 14, selected ? ACCENT : SOFT, BOLD);
+        TextView t = t(text, BODY, selected ? ACCENT : SOFT, MEDIUM);
         t.setGravity(Gravity.CENTER);
         t.setSingleLine(true);
-        t.setPadding(d(16), 0, d(16), 0);
-        t.setMinHeight(d(36));
-        t.setBackground(Ui.round(selected ? ACCENT_SOFT : 0x00000000, 18 * scale, c));
+        t.setPadding(Ui.dp(c, 20), 0, Ui.dp(c, 20), 0);
+        t.setMinHeight(Ui.dp(c, 48));
+        t.setBackground(Ui.round(selected ? ACCENT_SOFT : 0x00000000, 24, c));
         t.setOnClickListener(l);
         return t;
     }
@@ -230,31 +265,9 @@ final class Kit {
     /** The rounded track that holds segments. */
     LinearLayout segmented() {
         LinearLayout l = row();
-        l.setBackground(Ui.round(SHEET, 22 * scale, c));
-        l.setPadding(d(4), d(4), d(4), d(4));
+        l.setBackground(Ui.round(SHEET, 28, c));
+        l.setPadding(Ui.dp(c, 4), Ui.dp(c, 4), Ui.dp(c, 4), Ui.dp(c, 4));
         return l;
-    }
-
-    /** An outlined chip: an icon, what it is and its value (the value view is kept for updating). */
-    final class Chip {
-        final LinearLayout view = row();
-        final TextView value;
-
-        Chip(int icon, int iconColor, String label, String text) {
-            view.setPadding(d(10), 0, d(12), 0);
-            view.setBackground(Ui.stroke(LINE, 0x00000000, 19 * scale, c));
-            view.addView(new IconView(c, icon, iconColor), new LinearLayout.LayoutParams(d(17), d(17)));
-            if (!label.isEmpty()) {
-                TextView l = label(label, 12.5f, MUTED, MEDIUM);
-                l.setPaddingRelative(d(8), 0, 0, 0);
-                l.setSingleLine(true);
-                view.addView(l);
-            }
-            value = label(text, 15, TEXT, BOLD);
-            value.setPaddingRelative(d(8), 0, 0, 0);
-            value.setSingleLine(true);
-            view.addView(value);
-        }
     }
 
     /** A thin bar with a lit stretch: a battery going from one level to another (or just what is left). */
@@ -327,30 +340,6 @@ final class Kit {
         return box;
     }
 
-    /** A list of items grouped under headers: a String item is a header, anything else a row. */
-    abstract static class GroupedAdapter extends android.widget.BaseAdapter {
-        final java.util.List<Object> items;
-
-        GroupedAdapter(java.util.List<Object> items) {
-            this.items = items;
-        }
-
-        abstract View header(String text);
-
-        abstract View row(Object item);
-
-        @Override public int getCount() { return items.size(); }
-        @Override public Object getItem(int i) { return items.get(i); }
-        @Override public long getItemId(int i) { return i; }
-        @Override public int getViewTypeCount() { return 2; }
-        @Override public int getItemViewType(int i) { return items.get(i) instanceof String ? 0 : 1; }
-        @Override public boolean isEnabled(int i) { return !(items.get(i) instanceof String); }
-        @Override public View getView(int i, View convert, android.view.ViewGroup parent) {
-            Object o = items.get(i);
-            return o instanceof String ? header((String) o) : row(o);
-        }
-    }
-
     /** Puts rows into a card, with a thin line between them. */
     void fill(LinearLayout card, Row... rows) {
         for (int i = 0; i < rows.length; i++) {
@@ -418,6 +407,8 @@ final class Kit {
         static final int LEAF = 17;
         static final int STAR = 18;
         static final int TROPHY = 19;
+        static final int SHARE = 20;
+        static final int TRASH = 21;
         private int kind;
         private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final android.graphics.Path path = new android.graphics.Path();
@@ -605,6 +596,18 @@ final class Kit {
                     cv.drawPath(path, p);
                     break;
                 }
+                case SHARE:
+                    p.setStrokeWidth(s * 0.1f);
+                    line(12, 15, 12, 4, cv);
+                    poly(cv, false, 7.5f, 8.5f, 12, 4, 16.5f, 8.5f);
+                    poly(cv, false, 5, 14, 5, 19, 7, 20, 17, 20, 19, 19, 19, 14);
+                    break;
+                case TRASH:
+                    p.setStrokeWidth(s * 0.1f);
+                    line(4, 7, 20, 7, cv);
+                    poly(cv, false, 9, 7, 9, 4.5f, 15, 4.5f, 15, 7);
+                    poly(cv, false, 6.5f, 7, 7.3f, 19.5f, 16.7f, 19.5f, 17.5f, 7);
+                    break;
                 case TROPHY:
                     p.setStrokeWidth(s * 0.09f);
                     poly(cv, false, 7, 4, 17, 4, 17, 9);

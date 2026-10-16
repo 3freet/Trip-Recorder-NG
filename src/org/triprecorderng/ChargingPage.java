@@ -1,8 +1,12 @@
 package org.triprecorderng;
 
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -16,9 +20,9 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * The Charging screen: what has been added and spent on top, then the sessions grouped by day, each a tile with
- * its time, the battery before and after and the energy. MainActivity reaches the data and the detail screen
- * through Host.
+ * The Charging screen: what has been added and spent on top, then one card per day with that day's sessions as rows
+ * inside it (time, what was gained, the battery before and after, energy, cost, charger). The column captions are
+ * given once above the list. MainActivity reaches the data and the detail screen through Host.
  */
 final class ChargingPage {
     interface Host {
@@ -33,10 +37,18 @@ final class ChargingPage {
         int emptyImage();
     }
 
-    private static final float SCALE = 1.35f;
     private static final int BLUE_TEXT = 0xFF8FB2FF;
-    private static final int BLUE_SOFT = 0x2B5B8DEF;
-    private static final int AMBER_SOFT = 0x21F2B24C;
+    private static final int BLUE_SOFT = 0x2E5B8DEF;
+    private static final int AMBER_SOFT = 0x29F2B24C;
+
+    // column widths (dp) of a session row, shared with the caption row above the list
+    private static final int W_BADGE = 48;
+    private static final int W_TIME = 228;
+    private static final int W_GAIN = 110;
+    private static final int W_BATTERY = 190;
+    private static final int W_ENERGY = 150;
+    private static final int W_COST = 150;
+    private static final int W_CHEVRON = 22;
 
     private final Context c;
     private final Host host;
@@ -50,23 +62,31 @@ final class ChargingPage {
     private ChargingPage(Context c, Host host) {
         this.c = c;
         this.host = host;
-        this.k = new Kit(c, SCALE);
+        this.k = new Kit(c, 1f);
         this.kwhPerPct = Charge.kwhPerPercent(host.trips());
+    }
+
+    private int dp(float v) {
+        return Ui.dp(c, v);
     }
 
     private View create() {
         LinearLayout col = k.column();
         List<Charge> charges = host.charges();
-        col.addView(header(charges), new LinearLayout.LayoutParams(-1, k.d(46)));
+        col.addView(header(charges), new LinearLayout.LayoutParams(-1, dp(56)));
+        if (charges.isEmpty()) {
+            col.addView(empty(), new LinearLayout.LayoutParams(-1, 0, 1f));
+            return col;
+        }
+        col.addView(captions(), new LinearLayout.LayoutParams(-1, dp(30)));
         LinearLayout.LayoutParams body = new LinearLayout.LayoutParams(-1, 0, 1f);
-        body.topMargin = k.d(6);
-        col.addView(charges.isEmpty() ? empty() : list(charges), body);
+        body.topMargin = dp(4);
+        col.addView(list(charges), body);
         return col;
     }
 
     private View header(List<Charge> charges) {
         LinearLayout head = k.row();
-        head.addView(k.label(L.t("Charging"), 19, Kit.TEXT, Kit.BOLD));
         if (!charges.isEmpty()) {
             double kwh = 0;
             double cost = 0;
@@ -84,82 +104,156 @@ final class ChargingPage {
                     anyCost = true;
                 }
             }
-            addChip(head, Kit.IconView.LIST, Kit.BLUE, L.f("%d session(s)", charges.size()), 16);
-            if (anyKwh) addChip(head, Kit.IconView.BOLT, Kit.BLUE, L.f("about %s kWh added", Ui.f(kwh, "%.0f")), 8);
-            if (anyCost) addChip(head, Kit.IconView.COIN, Kit.MUTED, L.f("about %s", Cost.money(c, cost)), 8);
+            head.addView(stat(Kit.IconView.LIST, BLUE_TEXT, L.f("%d session(s)", charges.size())));
+            if (anyKwh) {
+                head.addView(stat(Kit.IconView.BOLT, BLUE_TEXT, L.f("about %s kWh added", Ui.f(kwh, "%.0f"))), gapped());
+            }
+            if (anyCost) {
+                head.addView(stat(Kit.IconView.COIN, Kit.MUTED, L.f("about %s", Cost.money(c, cost))), gapped());
+            }
         }
         return head;
     }
 
-    private void addChip(LinearLayout head, int icon, int color, String text, int marginStart) {
-        Kit.Chip chip = k.new Chip(icon, color, "", text);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, k.d(34));
-        lp.setMarginStart(k.d(marginStart));
-        head.addView(chip.view, lp);
+    private LinearLayout.LayoutParams gapped() {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2);
+        lp.setMarginStart(dp(22));
+        return lp;
+    }
+
+    private View stat(int icon, int color, String text) {
+        LinearLayout s = k.row();
+        s.addView(new Kit.IconView(c, icon, color), new LinearLayout.LayoutParams(dp(24), dp(24)));
+        TextView t = k.t(text, Kit.BODY, Kit.SOFT, Kit.MEDIUM);
+        t.setSingleLine(true);
+        t.setPaddingRelative(dp(8), 0, 0, 0);
+        s.addView(t);
+        return s;
+    }
+
+    private View captions() {
+        LinearLayout r = k.row();
+        r.setPaddingRelative(dp(16), 0, dp(16), 0);
+        r.addView(cap("", W_BADGE));
+        TextView time = cap(L.t("Time"), W_TIME);
+        time.setPaddingRelative(dp(14), 0, 0, 0);
+        r.addView(time);
+        r.addView(cap(L.t("Gained"), W_GAIN));
+        r.addView(cap(L.t("Battery"), W_BATTERY));
+        r.addView(cap(L.t("Energy added"), W_ENERGY));
+        r.addView(cap(L.t("Cost"), W_COST));
+        r.addView(cap(L.t("Type"), 0), new LinearLayout.LayoutParams(0, -2, 1f));
+        return r;
+    }
+
+    private TextView cap(String text, int widthDp) {
+        TextView t = k.t(text, Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
+        t.setSingleLine(true);
+        if (widthDp > 0) t.setLayoutParams(new LinearLayout.LayoutParams(dp(widthDp), -2));
+        return t;
     }
 
     private View empty() {
-        LinearLayout card = k.card();
+        LinearLayout card = k.bigCard();
         card.setGravity(Gravity.CENTER);
-        card.setOrientation(LinearLayout.VERTICAL);
         ImageView img = new ImageView(c);
         img.setImageResource(host.emptyImage());
-        card.addView(img, new LinearLayout.LayoutParams(k.d(220), k.d(147)));
-        TextView t = k.label(L.t("No charging sessions yet"), 17, Kit.SOFT, Kit.BOLD);
+        card.addView(img, new LinearLayout.LayoutParams(dp(260), dp(173)));
+        TextView t = k.t(L.t("No charging sessions yet"), Kit.LABEL, Kit.SOFT, Kit.MEDIUM);
         t.setGravity(Gravity.CENTER);
-        t.setPadding(0, k.d(10), 0, 0);
+        t.setPadding(0, dp(12), 0, 0);
         card.addView(t, new LinearLayout.LayoutParams(-2, -2));
-        TextView hint = k.label(Prefs.linkEnabled(c)
+        TextView hint = k.t(Prefs.linkEnabled(c)
                 ? L.t("A session is recorded automatically while the car charges")
                 : L.t("Turn on Vehicle data link in Setting: charging is read from the car through it"),
-                13.5f, Kit.MUTED, Kit.MEDIUM);
+                Kit.BODY, Kit.MUTED, Kit.REGULAR);
         hint.setGravity(Gravity.CENTER);
-        hint.setPadding(k.d(24), k.d(6), k.d(24), 0);
+        hint.setPadding(dp(24), dp(8), dp(24), 0);
         card.addView(hint, new LinearLayout.LayoutParams(-2, -2));
         return card;
     }
 
-    private View list(List<Charge> charges) {
-        final List<Object> items = new ArrayList<>();
-        SimpleDateFormat key = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        SimpleDateFormat name = new SimpleDateFormat("EEEE'" + L.sep() + "'d MMM", L.dateLocale());
-        int i = 0;
-        while (i < charges.size()) {
-            String d = key.format(new Date(charges.get(i).startMs));
-            int j = i;
-            while (j < charges.size() && key.format(new Date(charges.get(j).startMs)).equals(d)) j++;
-            items.add(name.format(new Date(charges.get(i).startMs)) + "\n" + L.f("%d session(s)", j - i));
-            for (int n = i; n < j; n++) items.add(charges.get(n));
-            i = j;
+    // ---- the list: one card per day -----------------------------------------------------------------
+    private static final class Day {
+        final long startMs;
+        final List<Charge> sessions = new ArrayList<>();
+
+        Day(long startMs) {
+            this.startMs = startMs;
         }
+    }
+
+    private View list(List<Charge> charges) {
+        final List<Day> days = new ArrayList<>();
+        SimpleDateFormat key = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        String last = "";
+        for (Charge ch : charges) {
+            String d = key.format(new Date(ch.startMs));
+            if (!d.equals(last)) {
+                days.add(new Day(ch.startMs));
+                last = d;
+            }
+            days.get(days.size() - 1).sessions.add(ch);
+        }
+        final SimpleDateFormat name = new SimpleDateFormat("EEEE'" + L.sep() + "'d MMM", L.dateLocale());
         ListView list = new ListView(c);
         list.setDivider(null);
         list.setSelector(android.R.color.transparent);
         list.setVerticalScrollBarEnabled(false);
         list.setClipToPadding(false);
-        list.setPadding(0, 0, 0, k.d(8));
-        list.setAdapter(new Kit.GroupedAdapter(items) {
-            @Override View header(String text) {
-                int nl = text.indexOf('\n');
-                LinearLayout h = k.row();
-                h.setPaddingRelative(k.d(6), k.d(12), k.d(6), k.d(8));
-                h.addView(k.label(text.substring(0, nl), 14, Kit.SOFT, Kit.BOLD),
-                        new LinearLayout.LayoutParams(0, -2, 1f));
-                h.addView(k.label(text.substring(nl + 1), 12.5f, Kit.MUTED, Kit.MEDIUM));
-                return h;
-            }
-
-            @Override View row(Object item) {
-                return chargeRow((Charge) item);
-            }
-        });
-        list.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
-            @Override public void onItemClick(android.widget.AdapterView<?> p, View v, int pos, long id) {
-                Object o = items.get(pos);
-                if (o instanceof Charge) host.openCharge((Charge) o, kwhPerPct);
+        list.setPadding(0, 0, 0, dp(8));
+        list.setAdapter(new BaseAdapter() {
+            @Override public int getCount() { return days.size(); }
+            @Override public Object getItem(int i) { return days.get(i); }
+            @Override public long getItemId(int i) { return i; }
+            @Override public boolean isEnabled(int i) { return false; }
+            @Override public View getView(int i, View convert, ViewGroup parent) {
+                return dayCard(days.get(i), name);
             }
         });
         return list;
+    }
+
+    private View dayCard(Day day, SimpleDateFormat name) {
+        double gain = 0;
+        double kwh = 0;
+        boolean anyKwh = false;
+        for (Charge ch : day.sessions) {
+            double g = ch.socGained();
+            if (!Double.isNaN(g)) gain += g;
+            double e = ch.energyKwh(kwhPerPct);
+            if (!Double.isNaN(e)) {
+                kwh += e;
+                anyKwh = true;
+            }
+        }
+        String sum = (day.sessions.size() == 1 ? "" : L.f("%d session(s)", day.sessions.size()) + L.sep())
+                + L.ltr("+" + Ui.f(gain, "%.0f") + "%")
+                + (anyKwh ? L.sep() + L.f("about %s kWh", Ui.f(kwh, "%.1f")) : "");
+
+        LinearLayout outer = new LinearLayout(c);
+        outer.setPadding(0, 0, 0, dp(12));
+        LinearLayout card = k.bigCard();
+        card.setPaddingRelative(dp(14), dp(4), dp(14), dp(6));
+        LinearLayout head = k.row();
+        head.setPaddingRelative(dp(2), 0, dp(2), 0);
+        TextView date = k.t(name.format(new Date(day.startMs)), Kit.LABEL, Kit.TEXT, Kit.MEDIUM);
+        date.setSingleLine(true);
+        head.addView(date, new LinearLayout.LayoutParams(0, -2, 1f));
+        TextView total = k.t(sum, Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
+        total.setSingleLine(true);
+        head.addView(total);
+        card.addView(head, new LinearLayout.LayoutParams(-1, dp(44)));
+        for (Charge ch : day.sessions) card.addView(sessionRow(ch), new LinearLayout.LayoutParams(-1, dp(64)));
+        outer.addView(card, new LinearLayout.LayoutParams(-1, -2));
+        return outer;
+    }
+
+    private static StateListDrawable pressable() {
+        StateListDrawable d = new StateListDrawable();
+        d.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(0x14FFFFFF));
+        d.addState(new int[]{}, new ColorDrawable(0x00000000));
+        return d;
     }
 
     private static String kwhText(Charge ch, double kwhPerPct) {
@@ -168,92 +262,93 @@ final class ChargingPage {
     }
 
     /** One session: a bolt badge, time and duration, the battery before and after, energy, cost and charger type. */
-    private View chargeRow(Charge ch) {
-        FrameLayout outer = new FrameLayout(c);
-        outer.setPadding(0, 0, 0, k.d(8));
-        LinearLayout tile = k.row();
-        tile.setBackground(Ui.round(Kit.CARD, 16 * k.scale, c));
-        tile.setPaddingRelative(k.d(14), k.d(10), k.d(14), k.d(10));
+    private View sessionRow(final Charge ch) {
+        LinearLayout row = k.row();
+        row.setPaddingRelative(dp(2), 0, dp(2), 0);
+        row.setBackground(pressable());
+        row.setClickable(true);
+        row.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                host.openCharge(ch, kwhPerPct);
+            }
+        });
+        float unit = Kit.CAPTION / Kit.TITLE;
 
         FrameLayout badge = new FrameLayout(c);
-        badge.setBackground(Ui.round(ch.partial ? AMBER_SOFT : BLUE_SOFT, 23 * k.scale, c));
+        badge.setBackground(Ui.round(ch.partial ? AMBER_SOFT : BLUE_SOFT, 24, c));
         Kit.IconView bolt = new Kit.IconView(c, Kit.IconView.BOLT, ch.partial ? Kit.AMBER : BLUE_TEXT);
-        FrameLayout.LayoutParams blp = new FrameLayout.LayoutParams(k.d(22), k.d(22));
+        FrameLayout.LayoutParams blp = new FrameLayout.LayoutParams(dp(26), dp(26));
         blp.gravity = Gravity.CENTER;
         badge.addView(bolt, blp);
-        tile.addView(badge, new LinearLayout.LayoutParams(k.d(46), k.d(46)));
+        row.addView(badge, new LinearLayout.LayoutParams(dp(W_BADGE), dp(W_BADGE)));
 
         SimpleDateFormat tf = new SimpleDateFormat("HH:mm", L.dateLocale());
         LinearLayout when = k.column();
-        TextView range = k.label(tf.format(new Date(ch.startMs)) + " – "
-                + (ch.ended ? tf.format(new Date(ch.endMs)) : "..."), 16, Kit.TEXT, Kit.BOLD);
+        when.setPaddingRelative(dp(14), 0, 0, 0);
+        TextView range = k.t(tf.format(new Date(ch.startMs)) + " – "
+                + (ch.ended ? tf.format(new Date(ch.endMs)) : "..."), Kit.LABEL, Kit.TEXT, Kit.MEDIUM);
         range.setSingleLine(true);
         when.addView(range);
         LinearLayout second = k.row();
-        TextView dur = k.label(Ui.duration(ch.durationSec()), 13, Kit.MUTED, Kit.MEDIUM);
+        TextView dur = k.t(Ui.duration(ch.durationSec()), Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
         dur.setSingleLine(true);
         second.addView(dur);
         if (!ch.ended) second.addView(tag(L.t("Charging"), BLUE_TEXT, BLUE_SOFT));
         if (ch.partial) second.addView(tag(L.t("Partial"), Kit.AMBER, AMBER_SOFT));
-        second.setPadding(0, k.d(2), 0, 0);
         when.addView(second);
-        LinearLayout.LayoutParams wlp = new LinearLayout.LayoutParams(0, -2, 1.6f);
-        wlp.setMarginStart(k.d(14));
-        tile.addView(when, wlp);
+        row.addView(when, new LinearLayout.LayoutParams(dp(W_TIME), -2));
 
         double gained = ch.socGained();
-        tile.addView(metric(Double.isNaN(gained) ? "--"
-                        : Kit.numUnit(L.ltr((gained >= 0 ? "+" : "") + Ui.f(gained, "%.0f") + "%"), 0.55f),
-                L.t("Gained")), new LinearLayout.LayoutParams(0, -2, 1f));
+        TextView gain = k.t("", Kit.TITLE, Kit.TEXT, Kit.BOLD);
+        gain.setText(Double.isNaN(gained) ? "--"
+                : Kit.numUnit(L.ltr((gained >= 0 ? "+" : "") + Ui.f(gained, "%.0f") + "%"), unit));
+        gain.setSingleLine(true);
+        row.addView(gain, new LinearLayout.LayoutParams(dp(W_GAIN), -2));
 
-        LinearLayout bat = metric(L.ltr(Ui.f(ch.socStart, "%.0f") + " → " + Ui.f(ch.socEnd, "%.0f")),
-                L.t("Battery"));
+        LinearLayout bat = k.column();
+        TextView range2 = k.t(L.ltr(Ui.f(ch.socStart, "%.0f") + " → " + Ui.f(ch.socEnd, "%.0f")), Kit.LABEL, Kit.TEXT, Kit.BOLD);
+        range2.setSingleLine(true);
+        bat.addView(range2);
         Kit.RangeBar bar = new Kit.RangeBar(c);
         bar.set(ch.socStart, ch.socEnd, Kit.BLUE);
-        LinearLayout.LayoutParams barLp = new LinearLayout.LayoutParams(-1, k.d(5));
-        barLp.topMargin = k.d(5);
-        bat.addView(bar, 1, barLp);
-        tile.addView(bat, new LinearLayout.LayoutParams(0, -2, 1.3f));
+        LinearLayout.LayoutParams barLp = new LinearLayout.LayoutParams(dp(140), dp(6));
+        barLp.topMargin = dp(5);
+        bat.addView(bar, barLp);
+        row.addView(bat, new LinearLayout.LayoutParams(dp(W_BATTERY), -2));
 
         double e = ch.energyKwh(kwhPerPct);
-        tile.addView(metric(Double.isNaN(e) ? "--" : Kit.valueUnit(kwhText(ch, kwhPerPct), "kWh", 0.5f),
-                L.t("Energy added")), new LinearLayout.LayoutParams(0, -2, 1.2f));
-        double cost = Cost.charge(ch, kwhPerPct, c);
-        tile.addView(metric(Double.isNaN(cost) ? "--" : Kit.numUnit(Cost.money(c, cost), 0.5f), L.t("Cost")),
-                new LinearLayout.LayoutParams(0, -2, 1.2f));
-        tile.addView(metric(ch.typeName().isEmpty() ? "--" : ch.typeName(), L.t("Type")),
-                new LinearLayout.LayoutParams(0, -2, 0.8f));
+        TextView energy = k.t("", Kit.TITLE, Kit.TEXT, Kit.BOLD);
+        energy.setText(Double.isNaN(e) ? "--" : Kit.valueUnit(kwhText(ch, kwhPerPct), "kWh", unit));
+        energy.setSingleLine(true);
+        row.addView(energy, new LinearLayout.LayoutParams(dp(W_ENERGY), -2));
 
-        Kit.IconView chev = new Kit.IconView(c, Kit.IconView.CHEVRON, Kit.MUTED);
-        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(k.d(16), k.d(16));
-        clp.setMarginStart(k.d(6));
-        tile.addView(chev, clp);
-        outer.addView(tile, new FrameLayout.LayoutParams(-1, -2));
-        return outer;
+        double cost = Cost.charge(ch, kwhPerPct, c);
+        TextView costView = k.t("", Kit.TITLE, Kit.TEXT, Kit.BOLD);
+        costView.setText(Double.isNaN(cost) ? "--" : Kit.numUnit(Cost.money(c, cost), unit));
+        costView.setSingleLine(true);
+        row.addView(costView, new LinearLayout.LayoutParams(dp(W_COST), -2));
+
+        TextView type = k.t(ch.typeName().isEmpty() ? "--" : ch.typeName(), Kit.LABEL, Kit.TEXT, Kit.MEDIUM);
+        type.setSingleLine(true);
+        row.addView(type, new LinearLayout.LayoutParams(0, -2, 1f));
+        row.addView(new Kit.IconView(c, Kit.IconView.CHEVRON, Kit.MUTED), new LinearLayout.LayoutParams(dp(W_CHEVRON), dp(W_CHEVRON)));
+
+        View hairline = new View(c);
+        hairline.setBackgroundColor(Kit.LINE);
+        LinearLayout wrapper = k.column();
+        wrapper.addView(hairline, new LinearLayout.LayoutParams(-1, 1));
+        wrapper.addView(row, new LinearLayout.LayoutParams(-1, 0, 1f));
+        return wrapper;
     }
 
     private TextView tag(String text, int fg, int bg) {
-        TextView t = k.label(text, 11, fg, Kit.BOLD);
-        t.setPadding(k.d(8), k.d(2), k.d(8), k.d(2));
-        t.setBackground(Ui.round(bg, 9 * k.scale, c));
+        TextView t = k.t(text, Kit.CAPTION, fg, Kit.MEDIUM);
+        t.setBackground(Ui.round(bg, 13, c));
+        t.setPadding(dp(10), dp(1), dp(10), dp(1));
         t.setSingleLine(true);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2);
-        lp.setMarginStart(k.d(8));
+        lp.setMarginStart(dp(10));
         t.setLayoutParams(lp);
         return t;
-    }
-
-    private LinearLayout metric(CharSequence value, String caption) {
-        LinearLayout m = k.column();
-        m.setPaddingRelative(0, 0, k.d(8), 0);
-        TextView v = k.label("", 20, Kit.TEXT, Kit.BOLD);
-        v.setText(value);
-        v.setSingleLine(true);
-        m.addView(v);
-        TextView cap = k.label(caption, 12, Kit.MUTED, Kit.MEDIUM);
-        cap.setSingleLine(true);
-        cap.setPadding(0, k.d(1), 0, 0);
-        m.addView(cap);
-        return m;
     }
 }

@@ -26,6 +26,48 @@ final class Stats {
         return Math.max(0, Math.min(100, s));
     }
 
+    /**
+     * The trip burned no fuel (its fuel counter was recorded and stayed at zero): its kWh per 100 km is a real electric
+     * consumption. Trips from before the fuel counter was recorded are neither electric-only nor hybrid.
+     */
+    static boolean electricOnly(Trip t) {
+        double f = t.fuelUsed();
+        return !Double.isNaN(f) && f < TripEnergy.FUEL_EPS;
+    }
+
+    /** The trip burned fuel. */
+    static boolean burnedFuel(Trip t) {
+        double f = t.fuelUsed();
+        return !Double.isNaN(f) && f >= TripEnergy.FUEL_EPS;
+    }
+
+    /** Litres per 100 km of hybrid driving, or NaN when the trip has not been driven {@code minKm} in hybrid mode. */
+    static double fuelPer100Hybrid(Trip t, double minKm) {
+        double f = t.fuelUsed();
+        double h = t.hevKm();
+        if (Double.isNaN(f) || Double.isNaN(h) || h < minKm) return Double.NaN;
+        return f / h * 100.0;
+    }
+
+    /**
+     * The middle value of the consumption of the most recent earlier electric-only trips (a median: a trip with hours
+     * of standing, or a mild day, would pull an average far off). NaN with fewer than {@code minCount} of them.
+     */
+    static double typicalElectric(List<Trip> trips, Trip exclude, int maxCount, int minCount) {
+        List<Double> v = new java.util.ArrayList<>();
+        for (Trip t : trips) {
+            if (t == exclude || !t.ended || t.distanceKm < 3 || !electricOnly(t)) continue;
+            double p = t.energyPer100Km();
+            if (Double.isNaN(p) || p <= 0) continue;
+            v.add(p);
+            if (v.size() >= maxCount) break;
+        }
+        if (v.size() < minCount) return Double.NaN;
+        java.util.Collections.sort(v);
+        int n = v.size();
+        return n % 2 == 1 ? v.get(n / 2) : (v.get(n / 2 - 1) + v.get(n / 2)) / 2.0;
+    }
+
     static final class Series {
         double[] values;
         String[] labels;
@@ -53,14 +95,14 @@ final class Stats {
             Calendar from = (Calendar) cur.clone();
             Calendar to = (Calendar) cur.clone();
             if (monthly) to.add(Calendar.MONTH, 1); else to.add(Calendar.DAY_OF_MONTH, 1);
-            double km = 0, energy = 0, energyKm = 0, scoreSum = 0, cost = 0, fuel = 0;
+            double km = 0, energy = 0, energyKm = 0, scoreSum = 0, cost = 0, fuel = 0, hybridKm = 0;
             int scored = 0, count = 0;
             for (Trip t : trips) {
                 if (t.startMs < from.getTimeInMillis() || t.startMs >= to.getTimeInMillis()) continue;
                 count++;
                 km += t.distanceKm;
                 double e = t.energyUsed();
-                if (!Double.isNaN(e) && t.distanceKm >= 0.5) {
+                if (!Double.isNaN(e) && t.distanceKm >= 0.5 && electricOnly(t)) {
                     energy += e;
                     energyKm += t.distanceKm;
                 }
@@ -72,7 +114,11 @@ final class Stats {
                 double c = Cost.total(t, ctx);
                 if (!Double.isNaN(c)) cost += c;
                 double f = t.fuelUsed();
-                if (!Double.isNaN(f)) fuel += f;
+                double h = t.hevKm();
+                if (!Double.isNaN(f) && !Double.isNaN(h) && h >= 1) {
+                    fuel += f;
+                    hybridKm += h;
+                }
             }
             double v;
             switch (metric) {
@@ -80,7 +126,7 @@ final class Stats {
                 case CONSUMPTION: v = energyKm > 0 ? energy / energyKm * 100.0 : 0; break;
                 case SCORE: v = scored > 0 ? scoreSum / scored : 0; break;
                 case COST: v = cost; break;
-                case FUEL: v = fuel; break;
+                case FUEL: v = hybridKm >= TripEnergy.MIN_MODE_KM ? fuel / hybridKm * 100.0 : 0; break;
                 default: v = count; break;
             }
             s.values[i] = v;
@@ -95,6 +141,7 @@ final class Stats {
         Trip longestTime;
         Trip fastest;
         Trip mostEfficient;
+        Trip bestFuel;
         Trip bestScore;
         double totalKm;
         long totalSec;
@@ -111,9 +158,13 @@ final class Stats {
             if (r.longestTime == null || t.durationSec() > r.longestTime.durationSec()) r.longestTime = t;
             if (r.fastest == null || t.maxSpeedKmh > r.fastest.maxSpeedKmh) r.fastest = t;
             double eff = t.energyPer100Km();
-            if (!Double.isNaN(eff) && eff > 0 && t.distanceKm >= 5
+            if (electricOnly(t) && !Double.isNaN(eff) && eff > 0 && t.distanceKm >= 5
                     && (r.mostEfficient == null || eff < r.mostEfficient.energyPer100Km())) {
                 r.mostEfficient = t;
+            }
+            double fe = burnedFuel(t) ? fuelPer100Hybrid(t, 10) : Double.NaN;
+            if (!Double.isNaN(fe) && (r.bestFuel == null || fe < fuelPer100Hybrid(r.bestFuel, 10))) {
+                r.bestFuel = t;
             }
             double sc = score(t);
             if (!Double.isNaN(sc) && t.distanceKm >= 2

@@ -99,10 +99,34 @@ sees the car's IP address and the app's build name. Opening a trip in a map app 
 The left card is what the car is doing now: the recording state, a gauge that shows the battery while the car is
 parked or charging and the speed while it drives, and the state of GPS and of the vehicle data. A note under it
 says what to fix when BYD blocks auto-start or the Vehicle data link is off (tap it to open Setting). The right
-card is the current trip, or the last one: distance, duration and drive score, then speed, energy (battery left and
-used, kWh/100 km, and how far that is from the average of your earlier all-electric trips) and behavior, and at the
-bottom what the trip has used so far (electricity in kWh, fuel in litres) and what it cost. Tap the card to open
-the trip's details. Source: `ThisTripPage`, `GaugeView`.
+card is the current trip, or the last one: distance, duration and drive score, then speed, energy and behavior, and
+at the bottom what the trip has used so far (electricity in kWh, fuel in litres) and what it cost. The energy tile
+shows the battery left and used and the consumption: kWh/100 km with how far that is from the median of your
+earlier all-electric trips, or, when the engine ran, the two figures explained under
+[Consumption on a hybrid trip](#consumption-on-a-hybrid-trip). Tap the card to open the trip's details.
+Source: `ThisTripPage`, `GaugeView`.
+
+## Consumption on a hybrid trip
+The car's energy counter is net: it also goes down when the engine charges the battery and when the car
+recovers energy, so one kWh/100 km figure for a trip that burned fuel is misleading (the petrol kilometres count
+as free). A trip that burned fuel is therefore shown as two figures, split by the car's own electric and hybrid
+kilometre counters:
+- **Electric**: kWh per 100 km driven on electricity. The energy the engine put into the battery is added back to
+  the kWh used (it is estimated from the rises of the battery level while moving, at the kWh per battery point
+  measured on the same trip), so charging by the engine does not make the electric driving look better.
+- **Hybrid**: litres per 100 km driven with the engine running. It includes the fuel that charged the battery.
+
+Both are estimates. Electric shows "--" when the trip has under 5 km on electricity, the battery fell by under 8
+points, or a cable charged the car during the trip; Hybrid shows "--" under 5 km of hybrid driving. The totals
+(kWh, litres, cost) stay exact. Statistics' Consumption chart and Attainment's Most efficient only use trips that
+burned no fuel; the Fuel chart and Best fuel economy use litres per 100 km of hybrid driving.
+Source: `TripEnergy`, `EnergyLoader`, `Stats`.
+
+## My Trips and Charging
+Both lists group the rows by day: a card per day with its date and the day's totals (trips, distance and cost; or
+sessions, battery gained and energy added), and the day's rows inside it, under column captions shown once above
+the list. My Trips has Export CSV in its header. On a trip's details Export GPX and Delete are in the title bar; on a charging session's details Show
+place and Delete are. Source: `MyTripsPage`, `ChargingPage`, `TripDetailPage`, `ChargeDetailPage`.
 
 ## Backup and restore
 Each finished trip and charging session is also written as a small JSON file (summary, track, events,
@@ -186,10 +210,13 @@ this update have no fuel data.
   cost = energy used x electricity price + fuel used x fuel price; shown on each trip, in the My Trips
   total, as a Cost chart in Statistics (daily/monthly) and in the CSV. Charging sessions get a cost from
   the energy added. Charging losses are not included. `Cost`, `Prefs`.
-- **Trip details**: fuel used and L/100 km, electric/hybrid distance, idle time, time above 100 km/h
-  and Driving advice (the stock app's advice texts, picked by simple rules). `Advice`.
-- **Attainment**: total cost, fuel used, CO2 avoided (estimate against a petrol car at 8 L/100 km, minus
-  fuel burned and 0.4 kg CO2 per kWh) and a driving level (stock level names, stepped by recorded km).
+- **Trip details**: a Consumption block (electric and hybrid figures, engine charging, cost per 100 km), fuel
+  used, electric/hybrid distance, idle time, time above 100 km/h and Driving advice (the stock app's advice
+  texts, picked by simple rules). `Advice`.
+- **Attainment**: the driving level and the way to the next one (stock level names, stepped by recorded km),
+  records (longest trip and drive, top speed, most efficient electric trip, best fuel economy of hybrid driving,
+  best drive score) and totals (trips, drive time, cost, fuel used, fuel economy, CO2 avoided: an estimate against
+  a petrol car at 8 L/100 km, minus fuel burned and 0.4 kg CO2 per kWh).
 - **Record route** switch (stock "Historical track"): off = new trips keep no route or event positions.
 - Not possible offline: the stock app's national/city rankings and place names (they come from BYD's
   server). Not done: scoring from seat belt, A/C, turn-signal and lane-change signals.
@@ -327,8 +354,8 @@ restart the head unit once. The app's own Setting screen shows whether the last 
 automatically, and warns on This Trip when it did not.
 
 ## Test hook
-`adb shell am start -n org.triprecorderng/.MainActivity --ez demo_trips true` adds 3 sample trips;
-`--ez clear_demo true` removes them.
+`adb shell am start -n org.triprecorderng/.MainActivity --ez demo_trips true` adds 7 sample trips (one of them a
+hybrid trip) and 2 charging sessions; `--ez clear_demo true` removes them.
 
 ## Vehicle data link (optional, OFF by default)
 The Setting > Vehicle data link switch turns it on. When on, the app asks the car's own network debugging (ADB, on

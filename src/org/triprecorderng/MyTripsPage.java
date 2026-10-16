@@ -1,9 +1,12 @@
 package org.triprecorderng;
 
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.FrameLayout;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -16,9 +19,9 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * The My Trips screen: a summary of all trips and the export button on top, then the trips grouped by day, each
- * a tile with its score ring, time and the figures that matter. MainActivity reaches the data and the other
- * screens through Host.
+ * The My Trips screen: a summary of all trips and the export button on top, then one card per day (its date, how many
+ * trips, how far and what they cost) with that day's trips as rows inside it. The column captions are given once, above
+ * the list. MainActivity reaches the data and the other screens through Host.
  */
 final class MyTripsPage {
     interface Host {
@@ -42,7 +45,13 @@ final class MyTripsPage {
         int scrollTop();
     }
 
-    private static final float SCALE = 1.35f;
+    // column widths (dp) of a trip row, shared with the caption row above the list
+    private static final int W_RING = 48;
+    private static final int W_TIME = 228;
+    private static final int W_KM = 128;
+    private static final int W_PER100 = 190;
+    private static final int W_BATTERY = 122;
+    private static final int W_CHEVRON = 22;
 
     private final Context c;
     private final Host host;
@@ -55,23 +64,31 @@ final class MyTripsPage {
     private MyTripsPage(Context c, Host host) {
         this.c = c;
         this.host = host;
-        this.k = new Kit(c, SCALE);
+        this.k = new Kit(c, 1f);
+    }
+
+    private int dp(float v) {
+        return Ui.dp(c, v);
     }
 
     private View create() {
         LinearLayout col = k.column();
         List<Trip> trips = host.trips();
-        col.addView(header(trips), new LinearLayout.LayoutParams(-1, k.d(46)));
+        col.addView(header(trips), new LinearLayout.LayoutParams(-1, dp(56)));
+        if (trips.isEmpty()) {
+            col.addView(empty(), new LinearLayout.LayoutParams(-1, 0, 1f));
+            return col;
+        }
+        col.addView(captions(), new LinearLayout.LayoutParams(-1, dp(30)));
         LinearLayout.LayoutParams body = new LinearLayout.LayoutParams(-1, 0, 1f);
-        body.topMargin = k.d(6);
-        col.addView(trips.isEmpty() ? empty() : list(trips), body);
+        body.topMargin = dp(4);
+        col.addView(list(trips), body);
         return col;
     }
 
     // ---- header ----------------------------------------------------------------------------------
     private View header(List<Trip> trips) {
         LinearLayout head = k.row();
-        head.addView(k.label(L.t("My Trips"), 19, Kit.TEXT, Kit.BOLD));
         if (!trips.isEmpty()) {
             double km = 0;
             double cost = 0;
@@ -84,50 +101,78 @@ final class MyTripsPage {
                     anyCost = true;
                 }
             }
-            Kit.Chip a = k.new Chip(Kit.IconView.ROUTE, Kit.ACCENT, "",
-                    L.f("%1$d trips, %2$s km", trips.size(), Ui.f(km, "%.0f")));
-            LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(-2, k.d(34));
-            alp.setMarginStart(k.d(16));
-            head.addView(a.view, alp);
+            head.addView(stat(Kit.IconView.ROUTE, Kit.ACCENT,
+                    L.f("%1$d trips, %2$s km", trips.size(), String.format(Locale.US, "%,.0f", km))));
             if (anyCost) {
-                Kit.Chip b = k.new Chip(Kit.IconView.COIN, Kit.MUTED, "", Cost.money(c, cost));
-                LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(-2, k.d(34));
-                blp.setMarginStart(k.d(8));
-                head.addView(b.view, blp);
+                View s = stat(Kit.IconView.COIN, Kit.MUTED, Cost.money(c, cost));
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2);
+                lp.setMarginStart(dp(22));
+                head.addView(s, lp);
             }
         }
         head.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));
-        TextView export = k.pill(L.t("Export CSV"), false);
+        TextView export = k.action(L.t("Export CSV"), false);
         export.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 host.exportCsv();
             }
         });
-        head.addView(export, new LinearLayout.LayoutParams(-2, k.d(40)));
+        head.addView(export, new LinearLayout.LayoutParams(-2, dp(48)));
         return head;
+    }
+
+    private View stat(int icon, int color, String text) {
+        LinearLayout s = k.row();
+        s.addView(new Kit.IconView(c, icon, color), new LinearLayout.LayoutParams(dp(24), dp(24)));
+        TextView t = k.t(text, Kit.BODY, Kit.SOFT, Kit.MEDIUM);
+        t.setSingleLine(true);
+        t.setPaddingRelative(dp(8), 0, 0, 0);
+        s.addView(t);
+        return s;
+    }
+
+    private View captions() {
+        LinearLayout r = k.row();
+        r.setPaddingRelative(dp(16), 0, dp(16), 0);
+        r.addView(cap("", W_RING));
+        TextView time = cap(L.t("Time"), W_TIME);
+        time.setPaddingRelative(dp(14), 0, 0, 0);
+        r.addView(time);
+        r.addView(cap(L.t("Mileage"), W_KM));
+        r.addView(cap(L.t("Per 100 km"), W_PER100));
+        r.addView(cap(L.t("Battery used"), W_BATTERY));
+        TextView cost = cap(L.t("Cost"), 0);
+        r.addView(cost, new LinearLayout.LayoutParams(0, -2, 1f));
+        return r;
+    }
+
+    private TextView cap(String text, int widthDp) {
+        TextView t = k.t(text, Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
+        t.setSingleLine(true);
+        if (widthDp > 0) t.setLayoutParams(new LinearLayout.LayoutParams(dp(widthDp), -2));
+        return t;
     }
 
     // ---- nothing recorded yet ---------------------------------------------------------------------
     private View empty() {
-        LinearLayout card = k.card();
+        LinearLayout card = k.bigCard();
         card.setGravity(Gravity.CENTER);
-        card.setOrientation(LinearLayout.VERTICAL);
         ImageView img = new ImageView(c);
         img.setImageResource(host.emptyImage());
-        card.addView(img, new LinearLayout.LayoutParams(k.d(220), k.d(147)));
-        TextView t = k.label(L.t("No trips yet"), 17, Kit.SOFT, Kit.BOLD);
+        card.addView(img, new LinearLayout.LayoutParams(dp(260), dp(173)));
+        TextView t = k.t(L.t("No trips yet"), Kit.LABEL, Kit.SOFT, Kit.MEDIUM);
         t.setGravity(Gravity.CENTER);
-        t.setPadding(0, k.d(10), 0, 0);
+        t.setPadding(0, dp(12), 0, 0);
         card.addView(t, new LinearLayout.LayoutParams(-2, -2));
-        final TextView restore = k.pill(L.t("Restore trips from backup"), true);
+        final TextView restore = k.action(L.t("Restore trips from backup"), true);
         restore.setVisibility(View.GONE);
         restore.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 host.confirmRestore();
             }
         });
-        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(-2, k.d(40));
-        rlp.topMargin = k.d(14);
+        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(-2, dp(48));
+        rlp.topMargin = dp(16);
         card.addView(restore, rlp);
         new Thread(new Runnable() {
             @Override public void run() {
@@ -145,50 +190,42 @@ final class MyTripsPage {
         return card;
     }
 
-    // ---- the list ---------------------------------------------------------------------------------
-    private View list(List<Trip> trips) {
-        final List<Object> items = new ArrayList<>();
-        SimpleDateFormat key = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        SimpleDateFormat name = new SimpleDateFormat("EEEE'" + L.sep() + "'d MMM", L.dateLocale());
-        int i = 0;
-        while (i < trips.size()) {
-            String d = key.format(new Date(trips.get(i).startMs));
-            int j = i;
-            double km = 0;
-            while (j < trips.size() && key.format(new Date(trips.get(j).startMs)).equals(d)) {
-                km += trips.get(j).distanceKm;
-                j++;
-            }
-            items.add(name.format(new Date(trips.get(i).startMs)) + "\n"
-                    + (j - i == 1 ? L.f("%s km", Ui.f(km, "%.1f")) : L.f("%1$d trips, %2$s km", j - i, Ui.f(km, "%.0f"))));
-            for (int n = i; n < j; n++) items.add(trips.get(n));
-            i = j;
+    // ---- the list: one card per day -----------------------------------------------------------------
+    private static final class Day {
+        final long startMs;
+        final List<Trip> trips = new ArrayList<>();
+
+        Day(long startMs) {
+            this.startMs = startMs;
         }
-        final ListView list = new ListView(c);
+    }
+
+    private View list(List<Trip> trips) {
+        final List<Day> days = new ArrayList<>();
+        SimpleDateFormat key = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        String last = "";
+        for (Trip t : trips) {
+            String d = key.format(new Date(t.startMs));
+            if (!d.equals(last)) {
+                days.add(new Day(t.startMs));
+                last = d;
+            }
+            days.get(days.size() - 1).trips.add(t);
+        }
+        final SimpleDateFormat name = new SimpleDateFormat("EEEE'" + L.sep() + "'d MMM", L.dateLocale());
+        ListView list = new ListView(c);
         list.setDivider(null);
         list.setSelector(android.R.color.transparent);
         list.setVerticalScrollBarEnabled(false);
         list.setClipToPadding(false);
-        list.setPadding(0, 0, 0, k.d(8));
-        list.setAdapter(new Kit.GroupedAdapter(items) {
-            @Override View header(String text) {
-                int nl = text.indexOf('\n');
-                LinearLayout h = k.row();
-                h.setPaddingRelative(k.d(6), k.d(12), k.d(6), k.d(8));
-                h.addView(k.label(text.substring(0, nl), 14, Kit.SOFT, Kit.BOLD),
-                        new LinearLayout.LayoutParams(0, -2, 1f));
-                h.addView(k.label(text.substring(nl + 1), 12.5f, Kit.MUTED, Kit.MEDIUM));
-                return h;
-            }
-
-            @Override View row(Object item) {
-                return tripRow((Trip) item);
-            }
-        });
-        list.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
-            @Override public void onItemClick(android.widget.AdapterView<?> p, View v, int pos, long id) {
-                Object o = items.get(pos);
-                if (o instanceof Trip) host.openTrip((Trip) o);
+        list.setPadding(0, 0, 0, dp(8));
+        list.setAdapter(new BaseAdapter() {
+            @Override public int getCount() { return days.size(); }
+            @Override public Object getItem(int i) { return days.get(i); }
+            @Override public long getItemId(int i) { return i; }
+            @Override public boolean isEnabled(int i) { return false; }
+            @Override public View getView(int i, View convert, ViewGroup parent) {
+                return dayCard(days.get(i), name);
             }
         });
         host.listBuilt(list);
@@ -198,73 +235,132 @@ final class MyTripsPage {
         return list;
     }
 
-    /** One trip: score ring, time and duration, then mileage, consumption, battery used and cost. */
-    private View tripRow(Trip t) {
-        FrameLayout outer = new FrameLayout(c);
-        outer.setPadding(0, 0, 0, k.d(8));
-        LinearLayout tile = k.row();
-        tile.setBackground(Ui.round(Kit.CARD, 16 * k.scale, c));
-        tile.setPaddingRelative(k.d(14), k.d(10), k.d(14), k.d(10));
-
-        double sc = Stats.score(t);
-        RingView ring = new RingView(c, 5 * k.scale, 14 * k.scale, 10 * k.scale);
-        ring.setTrackColor(0x17FFFFFF);
-        ring.set(Double.isNaN(sc) ? 0 : sc, 100, Ui.f(sc, "%.0f"), "", Kit.scoreColor(sc));
-        tile.addView(ring, new LinearLayout.LayoutParams(k.d(46), k.d(46)));
-
-        SimpleDateFormat tf = new SimpleDateFormat("HH:mm", L.dateLocale());
-        LinearLayout when = k.column();
-        LinearLayout top = k.row();
-        top.addView(k.label(tf.format(new Date(t.startMs)) + " – " + (t.ended ? tf.format(new Date(t.endMs)) : "..."),
-                16, Kit.TEXT, Kit.BOLD));
-        if (!t.ended) {
-            TextView tag = k.label(L.t("Recording"), 11, Kit.ACCENT, Kit.BOLD);
-            tag.setPadding(k.d(8), k.d(2), k.d(8), k.d(2));
-            tag.setBackground(Ui.round(Kit.ACCENT_SOFT, 9 * k.scale, c));
-            LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(-2, -2);
-            tlp.setMarginStart(k.d(10));
-            top.addView(tag, tlp);
+    private View dayCard(Day day, SimpleDateFormat name) {
+        double km = 0;
+        double cost = 0;
+        boolean anyCost = false;
+        for (Trip t : day.trips) {
+            km += t.distanceKm;
+            double v = Cost.total(t, c);
+            if (!Double.isNaN(v)) {
+                cost += v;
+                anyCost = true;
+            }
         }
-        when.addView(top);
-        TextView dur = k.label(Ui.duration(t.durationSec()), 13, Kit.MUTED, Kit.MEDIUM);
-        dur.setPadding(0, k.d(2), 0, 0);
-        when.addView(dur);
-        LinearLayout.LayoutParams wlp = new LinearLayout.LayoutParams(0, -2, 1.5f);
-        wlp.setMarginStart(k.d(14));
-        tile.addView(when, wlp);
+        String sum = (day.trips.size() == 1 ? L.f("%s km", Ui.f(km, "%.1f"))
+                : L.f("%1$d trips, %2$s km", day.trips.size(), Ui.f(km, "%.0f")))
+                + (anyCost ? L.sep() + Cost.money(c, cost) : "");
 
-        tile.addView(metric(Kit.numUnit(L.f("%s km", Ui.f(t.distanceKm, "%.1f")), 0.55f), L.t("Mileage")),
-                new LinearLayout.LayoutParams(0, -2, 1f));
-        double per100 = t.energyPer100Km();
-        tile.addView(metric(Double.isNaN(per100) ? "--"
-                        : Kit.valueUnit(Ui.f(per100, "%.1f"), L.t("kWh/100km"), 0.5f), L.t("Consumption")),
-                new LinearLayout.LayoutParams(0, -2, 1.5f));
-        double used = t.socUsed();
-        tile.addView(metric(Double.isNaN(used) ? "--" : Kit.numUnit(Ui.f(used, "%.0f") + "%", 0.55f),
-                L.t("Battery used")), new LinearLayout.LayoutParams(0, -2, 1f));
-        double cost = Cost.total(t, c);
-        tile.addView(metric(Double.isNaN(cost) ? "--" : Kit.numUnit(Cost.money(c, cost), 0.5f), L.t("Cost")),
-                new LinearLayout.LayoutParams(0, -2, 1.3f));
-
-        Kit.IconView chev = new Kit.IconView(c, Kit.IconView.CHEVRON, Kit.MUTED);
-        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(k.d(16), k.d(16));
-        clp.setMarginStart(k.d(6));
-        tile.addView(chev, clp);
-        outer.addView(tile, new FrameLayout.LayoutParams(-1, -2));
+        LinearLayout outer = new LinearLayout(c);
+        outer.setPadding(0, 0, 0, dp(12));
+        LinearLayout card = k.bigCard();
+        card.setPaddingRelative(dp(14), dp(4), dp(14), dp(6));
+        LinearLayout head = k.row();
+        head.setPaddingRelative(dp(2), 0, dp(2), 0);
+        TextView date = k.t(name.format(new Date(day.startMs)), Kit.LABEL, Kit.TEXT, Kit.MEDIUM);
+        date.setSingleLine(true);
+        head.addView(date, new LinearLayout.LayoutParams(0, -2, 1f));
+        TextView total = k.t(sum, Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
+        total.setSingleLine(true);
+        head.addView(total);
+        card.addView(head, new LinearLayout.LayoutParams(-1, dp(44)));
+        for (Trip t : day.trips) card.addView(tripRow(t), new LinearLayout.LayoutParams(-1, dp(64)));
+        outer.addView(card, new LinearLayout.LayoutParams(-1, -2));
         return outer;
     }
 
-    private LinearLayout metric(CharSequence value, String caption) {
-        LinearLayout m = k.column();
-        m.setPaddingRelative(0, 0, k.d(8), 0);
-        TextView v = k.label("", 20, Kit.TEXT, Kit.BOLD);
+    private static StateListDrawable pressable() {
+        StateListDrawable d = new StateListDrawable();
+        d.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(0x14FFFFFF));
+        d.addState(new int[]{}, new ColorDrawable(0x00000000));
+        return d;
+    }
+
+    /** One trip: score ring, time and duration, then mileage, consumption, battery used and cost. */
+    private View tripRow(final Trip t) {
+        LinearLayout row = k.row();
+        row.setPaddingRelative(dp(2), 0, dp(2), 0);
+        row.setBackground(pressable());
+        row.setClickable(true);
+        row.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                host.openTrip(t);
+            }
+        });
+        View hairline = new View(c);
+        hairline.setBackgroundColor(Kit.LINE);
+
+        double sc = Stats.score(t);
+        RingView ring = new RingView(c, 4.8f, 18, 10);
+        ring.setTrackColor(0x17FFFFFF);
+        ring.set(Double.isNaN(sc) ? 0 : sc, 100, Ui.f(sc, "%.0f"), "", Kit.scoreColor(sc));
+        row.addView(ring, new LinearLayout.LayoutParams(dp(W_RING), dp(W_RING)));
+
+        SimpleDateFormat tf = new SimpleDateFormat("HH:mm", L.dateLocale());
+        LinearLayout when = k.column();
+        when.setPaddingRelative(dp(14), 0, 0, 0);
+        TextView range = k.t(tf.format(new Date(t.startMs)) + " – " + (t.ended ? tf.format(new Date(t.endMs)) : "..."),
+                Kit.LABEL, Kit.TEXT, Kit.MEDIUM);
+        range.setSingleLine(true);
+        when.addView(range);
+        LinearLayout second = k.row();
+        TextView dur = k.t(Ui.duration(t.durationSec()), Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
+        dur.setSingleLine(true);
+        second.addView(dur);
+        if (!t.ended) {
+            TextView tag = k.t(L.t("Recording"), Kit.CAPTION, Kit.ACCENT, Kit.MEDIUM);
+            tag.setBackground(Ui.round(Kit.ACCENT_SOFT, 13, c));
+            tag.setPadding(dp(10), dp(1), dp(10), dp(1));
+            LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(-2, -2);
+            tlp.setMarginStart(dp(10));
+            second.addView(tag, tlp);
+        }
+        when.addView(second);
+        row.addView(when, new LinearLayout.LayoutParams(dp(W_TIME), -2));
+
+        float unit = Kit.CAPTION / Kit.TITLE;
+        row.addView(figure(Kit.numUnit(L.f("%s km", Ui.f(t.distanceKm, "%.1f")), unit), W_KM));
+
+        // consumption per 100 km: kWh, and litres too on a trip that burned fuel (the whole trip, no split)
+        double kwh = t.energyPer100Km();
+        double lit = Stats.burnedFuel(t) ? t.fuelPer100Km() : Double.NaN;
+        if (Double.isNaN(lit)) {
+            row.addView(figure(Double.isNaN(kwh) ? "--"
+                    : Kit.numUnit(Ui.f(kwh, "%.1f") + " kWh", unit), W_PER100));
+        } else {
+            LinearLayout two = k.column();
+            TextView a = k.t("", Kit.BODY, Kit.TEXT, Kit.BOLD);
+            a.setText(Double.isNaN(kwh) ? "--" : Kit.numUnit(Ui.f(kwh, "%.1f") + " kWh", Kit.CAPTION / Kit.BODY));
+            a.setSingleLine(true);
+            TextView b = k.t("", Kit.BODY, Kit.TEXT, Kit.BOLD);
+            b.setText(Kit.numUnit(L.f("%s L", Ui.f(lit, "%.1f")), Kit.CAPTION / Kit.BODY));
+            b.setSingleLine(true);
+            two.addView(a);
+            two.addView(b);
+            row.addView(two, new LinearLayout.LayoutParams(dp(W_PER100), -2));
+        }
+
+        double used = t.socUsed();
+        row.addView(figure(Double.isNaN(used) ? "--" : Kit.numUnit(Ui.f(used, "%.0f") + "%", unit), W_BATTERY));
+        double cost = Cost.total(t, c);
+        TextView costView = k.t("", Kit.TITLE, Kit.TEXT, Kit.BOLD);
+        costView.setText(Double.isNaN(cost) ? "--" : Kit.numUnit(Cost.money(c, cost), unit));
+        costView.setSingleLine(true);
+        row.addView(costView, new LinearLayout.LayoutParams(0, -2, 1f));
+        row.addView(new Kit.IconView(c, Kit.IconView.CHEVRON, Kit.MUTED), new LinearLayout.LayoutParams(dp(W_CHEVRON), dp(W_CHEVRON)));
+
+        // the rows are separated by a thin line above each one
+        LinearLayout wrapper = k.column();
+        wrapper.addView(hairline, new LinearLayout.LayoutParams(-1, 1));
+        wrapper.addView(row, new LinearLayout.LayoutParams(-1, 0, 1f));
+        return wrapper;
+    }
+
+    private TextView figure(CharSequence value, int widthDp) {
+        TextView v = k.t("", Kit.TITLE, Kit.TEXT, Kit.BOLD);
         v.setText(value);
         v.setSingleLine(true);
-        m.addView(v);
-        TextView cap = k.label(caption, 12, Kit.MUTED, Kit.MEDIUM);
-        cap.setSingleLine(true);
-        cap.setPadding(0, k.d(1), 0, 0);
-        m.addView(cap);
-        return m;
+        v.setLayoutParams(new LinearLayout.LayoutParams(dp(widthDp), -2));
+        return v;
     }
 }

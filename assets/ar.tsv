@@ -55,7 +55,6 @@ fix	متصل
 searching	جارٍ البحث
 off	متوقف
 Data link: %s	رابط البيانات: %s
-Turn on Vehicle data link in Setting for battery and energy	فعّل رابط بيانات المركبة من الإعدادات للحصول على بيانات البطارية والطاقة
 Auto-start is blocked by BYD - see Setting	BYD تمنع التشغيل التلقائي - راجع الإعدادات
 No trip recorded yet	لم تُسجَّل أي رحلة بعد
 Current trip	الرحلة الحالية
@@ -64,7 +63,6 @@ Export CSV	تصدير CSV
 No trips yet	لا توجد رحلات بعد
 Restore trips from backup	استعادة الرحلات من النسخة الاحتياطية
 Restore %d trip(s) from backup	استعادة %d رحلة من النسخة الاحتياطية
-Consumption (kWh/100km)	الاستهلاك (kWh/100 كم)
 Cost (%s)	التكلفة (%s)
 Highest achievements	أعلى الإنجازات
 Longest trip	أطول رحلة
@@ -72,7 +70,6 @@ Longest trip	أطول رحلة
 Longest drive	أطول مدة قيادة
 Top speed	أعلى سرعة
 %s km/h	%s كم/س
-Most efficient (5 km+)	الأكثر كفاءة (5 كم فأكثر)
 Best drive score	أفضل تقييم قيادة
 Total distance	إجمالي المسافة
 %s%% driven electric	%s%% قيادة كهربائية
@@ -84,12 +81,8 @@ Fuel used	الوقود المستهلك
 %s L	%s لتر
 over %d trip(s)	خلال %d رحلة
 recorded for new trips	يُسجَّل للرحلات الجديدة
-CO2 avoided (estimate)	CO2 المتجنَّب (تقدير)
-%s kg	%s كجم
 about %s trees a year	ما يعادل %s شجرة في السنة
 needs fuel data	يحتاج إلى بيانات الوقود
-Level (next: %s km)	المستوى (التالي عند %s كم)
-Level (top)	المستوى (الأعلى)
 Mileage	المسافة
 Consumption	الاستهلاك
 Trips	الرحلات
@@ -99,7 +92,6 @@ Daily	يومي
 Monthly	شهري
 Average drive score	متوسط تقييم القيادة
 Number of trips	عدد الرحلات
-Fuel used (L)	الوقود المستهلك (لتر)
  - last 12 months	 - آخر 12 شهرًا
  - last 14 days	 - آخر 14 يومًا
 Trip details	تفاصيل الرحلة
@@ -109,7 +101,6 @@ Battery	البطارية
 Energy used	الطاقة المستهلكة
 %s kWh	%s kWh
 %s kWh/100km	%s kWh/100 كم
-%s L/100km	%s لتر/100 كم
 Electric / hybrid distance	المسافة الكهربائية / الهجينة
 %1$s km / %2$s km	%1$s كم / %2$s كم
 Odometer change	التغير في عدّاد المسافة
@@ -146,7 +137,7 @@ Energy added (estimate)	الطاقة المضافة (تقدير)
 Energy added	الطاقة المضافة
 Average power	متوسط القدرة
 Highest power reported	أعلى قدرة مسجَّلة
-not reported by the car	لم تُبلغ بها السيارة
+not reported	غير مُبلَّغ عنها
 Charger	الشاحن
 Partial: this charge happened while the head unit was asleep. Only the battery level before and after is known, so the times shown are the window in which it happened, not how long it charged.	جزئية: حدث هذا الشحن أثناء سكون الشاشة. المعروف فقط مستوى البطارية قبل الشحن وبعده، لذا فالأوقات المعروضة هي الفترة التي حدث فيها الشحن وليست مدة الشحن الفعلية.
 Partial: the app missed part of this session (the head unit was asleep or the app was not running), so the battery gain and energy can be lower than the real total.	جزئية: فاتت التطبيقَ جزءٌ من هذه الجلسة (كانت الشاشة في وضع السكون أو التطبيق لا يعمل)، لذا قد تكون البطارية والطاقة المسجّلتان أقل من الإجمالي الفعلي.
@@ -222,6 +213,8 @@ Are my trips backed up?	هل رحلاتي محفوظة احتياطيًا؟
 Yes, by default. Each finished trip is also saved as a small file in Documents/TripRecorderNG/backup, so the trips survive an uninstall or a cleared app. Setting > Restore from backup adds any missing trips back.	نعم، افتراضيًا. تُحفظ كل رحلة منتهية أيضًا في ملف صغير داخل Documents/TripRecorderNG/backup، فتبقى الرحلات بعد إلغاء التثبيت أو مسح بيانات التطبيق. ويعيد «الإعدادات > استعادة من النسخة الاحتياطية» أي رحلات مفقودة.
 How is the cost calculated?	كيف تُحسب التكلفة؟
 Prices start at 0.010 OMR per kWh and 0.239 OMR per litre. Change them in Setting > Energy prices (leave a price empty to go back to the default). A trip costs the energy it took from the battery times the electricity price, plus the fuel it burned times the fuel price. This car is a plug-in hybrid, so fuel is recorded with each trip made since the update (older trips only get the electricity part). A charging session costs the energy it added times the electricity price. Charging losses are not included.	الأسعار الافتراضية 0.010 OMR لكل kWh و0.239 OMR لكل لتر. يمكنك تغييرها من «الإعدادات > أسعار الطاقة» (اترك السعر فارغًا للعودة إلى الافتراضي). تكلفة الرحلة = الطاقة التي سُحبت من البطارية × سعر الكهرباء + الوقود الذي استُهلك × سعر الوقود. هذه السيارة هجينة قابلة للشحن، لذلك يُسجَّل الوقود مع كل رحلة منذ التحديث (أما الرحلات الأقدم فتحصل على جزء الكهرباء فقط). وتكلفة جلسة الشحن = الطاقة التي أضافتها × سعر الكهرباء. ولا تُحتسب خسائر الشحن.
+Why does a hybrid trip show two consumption numbers?	لماذا تُظهر الرحلة الهجينة رقمين للاستهلاك؟
+The car's energy counter is net: it also goes down when the engine charges the battery, so one kWh/100km figure for a mixed trip is misleading. On a hybrid trip the app splits it by the car's own electric and hybrid kilometres. Electric: kWh per 100 km driven on electricity, with the energy the engine put into the battery added back. Hybrid: litres per 100 km driven with the engine running; it includes the fuel that charged the battery. Both are estimates; the totals (kWh, litres, cost) are exact. Statistics and Attainment follow the same rule: Consumption counts trips that used no fuel, and Fuel is litres per 100 km of hybrid driving.	عدّاد الطاقة في السيارة صافٍ: فهو ينقص أيضًا عندما يشحن المحرك البطارية، لذا يكون رقم kWh/100 كم واحد لرحلة مختلطة مضلِّلًا. ولهذا يقسم التطبيق الرحلة الهجينة بحسب الكيلومترات الكهربائية والهجينة التي تسجّلها السيارة نفسها. كهربائي: kWh لكل 100 كم قُطعت بالكهرباء، مع إضافة الطاقة التي دفعها المحرك إلى البطارية. هجين: لترات لكل 100 كم قُطعت والمحرك يعمل، وهي تشمل الوقود الذي شحن البطارية. الرقمان تقديريان، أما الإجماليات (kWh واللترات والتكلفة) فدقيقة. وتتبع الإحصائيات والإنجازات القاعدة نفسها: يحتسب «الاستهلاك» الرحلات التي لم تستهلك وقودًا، و«الوقود» هو لترات لكل 100 كم من القيادة الهجينة.
 What are Driving advice, CO2 avoided and the driving level?	ما هي نصائح القيادة وثاني أكسيد الكربون المتجنَّب ومستوى القيادة؟
 Driving advice on a trip uses the stock app's advice texts, chosen by simple rules (hard braking or acceleration, high average speed, high consumption, a long drive). CO2 avoided compares your trips with a typical petrol car (8 L per 100 km) minus the fuel you burned and an assumed 0.4 kg CO2 per kWh of grid electricity: it is an estimate. The driving level uses the stock app's level names but steps by the distance recorded here.	تستخدم نصائح القيادة نصوص النصائح من تطبيق BYD الأصلي، وتُختار بقواعد بسيطة (كبح أو تسارع حاد، متوسط سرعة مرتفع، استهلاك مرتفع، قيادة طويلة). ويقارن ثاني أكسيد الكربون المتجنَّب رحلاتك بسيارة بنزين نموذجية (8 لتر لكل 100 كم) مطروحًا منه الوقود الذي استهلكته وافتراض 0.4 كجم لكل kWh من كهرباء الشبكة: وهو تقدير. أما مستوى القيادة فيستخدم أسماء مستويات التطبيق الأصلي لكن بحسب المسافة المسجَّلة هنا.
 What are Tweaks?	ما هي «تعديلات»؟
@@ -287,10 +280,8 @@ Speed	السرعة
 Elevation	الارتفاع
 Efficiency	الكفاءة
 No speed data	لا توجد بيانات سرعة
-Speed (km/h) - touch the chart to see it on the map	السرعة (كم/س) - المس الرسم البياني لرؤيتها على الخريطة
 Battery along the route was not recorded for this trip (%1$s%% -> %2$s%%)	لم تُسجَّل البطارية على طول المسار لهذه الرحلة (%1$s%% -> %2$s%%)
 No battery data for this trip	لا توجد بيانات بطارية لهذه الرحلة
-Battery (%) - touch the chart to see it on the map	البطارية (%) - المس الرسم البياني لرؤيتها على الخريطة
 No altitude data for this trip	لا توجد بيانات ارتفاع لهذه الرحلة
 Energy along the route was not recorded for this trip	لم تُسجَّل الطاقة على طول المسار لهذه الرحلة
 Not enough distance in any speed band	لا توجد مسافة كافية في أي نطاق سرعة
@@ -444,7 +435,6 @@ Max	الأقصى
 Energy	الطاقة
 Behavior	السلوك
 kWh/100km	kWh/100 كم
-EV	كهرباء
 Battery and energy need the Vehicle data link	تحتاج البطارية والطاقة إلى رابط بيانات المركبة
 Total	الإجمالي
 Battery used	البطارية المستهلكة
@@ -452,3 +442,31 @@ Lowest	الأدنى
 Highest	الأعلى
 Gained	المكتسب
 Level	المستوى
+Most efficient	الأكثر كفاءة
+Electric	كهربائي
+Best fuel economy	أفضل اقتصاد في الوقود
+Hybrid	هجين
+L/100km	لتر/100 كم
+points	نقاط
+recorded	مسجّلة
+Fuel economy	اقتصاد الوقود
+Hybrid driving	القيادة الهجينة
+CO2 avoided	CO2 المتجنَّب
+Driving level	مستوى القيادة
+%1$d of %2$d	%1$d من %2$d
+Top level	أعلى مستوى
+%1$s km to level %2$d	%1$s كم للوصول إلى المستوى %2$d
+Time	الوقت
+about %s kWh	تقريبًا %s kWh
+Per 100 km	لكل 100 كم
+Electric consumption (kWh/100km)	الاستهلاك الكهربائي (kWh/100 كم)
+Fuel economy (L/100km, hybrid driving)	اقتصاد الوقود (لتر/100 كم، القيادة الهجينة)
+kWh per 100 km	kWh لكل 100 كم
+Used	المستهلك
+Turn on Vehicle data link in Setting	فعّل رابط بيانات المركبة من الإعدادات
+Touch to see it on the map	المس لرؤيته على الخريطة
+Trip	الرحلة
+Engine charging	شحن المحرك للبطارية
+km	كم
+L	لتر
+kg	كجم

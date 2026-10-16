@@ -39,7 +39,7 @@ final class TripChartView extends View {
     private double[] t = new double[0];   // ms
     private double[] y = new double[0];   // NaN where unknown
     private String unit = "";
-    private int color = Ui.BLUE;
+    private int color = Kit.BLUE;
     private String empty = "";
     private int cursorIdx = -1;
     private double cursorT = Double.NaN;
@@ -54,15 +54,15 @@ final class TripChartView extends View {
         line.setStrokeWidth(2.5f * d);
         line.setStrokeJoin(Paint.Join.ROUND);
         fill.setStyle(Paint.Style.FILL);
-        grid.setColor(Ui.DIVIDER);
+        grid.setColor(Kit.LINE);
         grid.setStrokeWidth(1f * d);
-        label.setColor(Ui.TEXT_LABEL);
-        label.setTextSize(13 * sd);
+        label.setColor(Kit.MUTED);
+        label.setTextSize(18 * sd);
         cursor.setColor(0xFFFFFFFF);
         cursor.setStrokeWidth(1.5f * d);
-        msg.setColor(Ui.TEXT_LABEL);
+        msg.setColor(Kit.MUTED);
         msg.setTextAlign(Paint.Align.CENTER);
-        msg.setTextSize(16 * sd);
+        msg.setTextSize(18 * sd);
     }
 
     /** Samples further apart than this are not joined by a line (default 90 s). */
@@ -104,7 +104,7 @@ final class TripChartView extends View {
             c.drawText(empty, w / 2f, h / 2f, msg);
             return;
         }
-        float left = 46 * d, right = 8 * d, top = 10 * d, bottom = h - 24 * d;
+        float left = 54 * d, right = 10 * d, top = 14 * d, bottom = h - 32 * d;
         double min = Double.MAX_VALUE, max = -Double.MAX_VALUE;
         for (double v : y) {
             if (Double.isNaN(v)) continue;
@@ -125,7 +125,7 @@ final class TripChartView extends View {
             float yy = bottom - (bottom - top) * i / 2f;
             c.drawLine(left, yy, w - right, yy, grid);
             double v = min + (max - min) * i / 2.0;
-            c.drawText(String.format(java.util.Locale.US, "%.0f", v), left - 6 * d, yy + 5 * d, label);
+            c.drawText(String.format(java.util.Locale.US, "%.0f", v), left - 8 * d, yy + 6.5f * d, label);
         }
         label.setTextAlign(Paint.Align.CENTER);
         for (int i = 0; i <= 2; i++) {
@@ -135,7 +135,7 @@ final class TripChartView extends View {
             if (i == 0) label.setTextAlign(Paint.Align.LEFT);
             else if (i == 2) label.setTextAlign(Paint.Align.RIGHT);
             else label.setTextAlign(Paint.Align.CENTER);
-            c.drawText(txt, xx, h - 4 * d, label);
+            c.drawText(txt, xx, h - 5 * d, label);
         }
 
         fill.setShader(new LinearGradient(0, top, 0, bottom, (color & 0x00FFFFFF) | 0x55000000,
@@ -197,7 +197,7 @@ final class TripChartView extends View {
             return true;
         }
         getParent().requestDisallowInterceptTouchEvent(true);
-        float left = 46 * d, right = 8 * d;
+        float left = 54 * d, right = 10 * d;
         double t0 = t[0], t1 = Math.max(t[t.length - 1], t[0] + 1);
         double want = t0 + (t1 - t0) * (e.getX() - left) / (getWidth() - left - right);
         want = Math.max(t0, Math.min(t1, want));

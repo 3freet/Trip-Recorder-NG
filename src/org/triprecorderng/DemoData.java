@@ -7,14 +7,21 @@ import java.util.List;
 final class DemoData {
     private DemoData() {}
 
+    private static final double[][] TRIPS = {
+            // distance km, minutes, hours ago, max speed, soc start, soc end, kWh (net), accel, brake,
+            // fuel L, hybrid km, battery points the engine put back
+            {12.4, 34, 3, 92, 61, 55, 1.9, 1, 0, 0, 0, 0},
+            {3.2, 9, 27, 58, 55, 54, 0.5, 0, 1, 0, 0, 0},
+            {48.7, 62, 52, 118, 90, 76, 4.6, 4, 3, 2.4, 19, 5},
+            {9.8, 22, 78, 76, 80, 77, 1.5, 0, 0, 0, 0, 0},
+            {15.1, 28, 100, 88, 85, 80, 2.4, 1, 1, 0, 0, 0},
+            {6.4, 15, 124, 64, 79, 77, 0.9, 0, 0, 0, 0, 0},
+            {22.3, 37, 150, 102, 100, 93, 3.4, 2, 1, 0, 0, 0}};
+
     static void insert(android.content.Context ctx) {
         TripDb db = TripDb.get(ctx);
         long now = System.currentTimeMillis();
-        double[][] spec = {
-                // distance km, minutes, hours ago, max speed, soc start, soc end, kWh, accel, brake
-                {12.4, 34, 3, 92, 61, 56, 2.1, 1, 0},
-                {3.2, 9, 27, 58, 56, 55, 0.6, 0, 1},
-                {48.7, 62, 52, 118, 90, 72, 8.6, 4, 3}};
+        double[][] spec = TRIPS;
         for (int i = 0; i < spec.length; i++) {
             double[] s = spec[i];
             Trip t = new Trip();
@@ -34,9 +41,9 @@ final class DemoData {
             t.elecEnd = 4000 + s[6];
             t.odoStartKm = 12000;
             t.odoEndKm = 12000 + Math.round(s[0]);
-            // plug-in hybrid counters: the long trip burned some fuel, the short ones were all electric
-            double fuelL = i == 2 ? 3.1 : 0;
-            double hevKm = i == 2 ? 21 : 0;
+            // plug-in hybrid counters: the long trip burned some fuel, the others were all electric
+            double fuelL = s[9];
+            double hevKm = s[10];
             t.fuelStart = 1400;
             t.fuelEnd = 1400 + fuelL;
             t.evStart = 17000;
@@ -60,12 +67,18 @@ final class DemoData {
                 weight += Math.pow(speed[k] / 100.0, 1.4) + 0.02;
             }
             double elec = t.elecStart;
+            // the battery level falls, rises while the engine charges it (45 to 60 % of the way), then falls again
+            double charged = s[11];
+            double fall = s[4] - s[5] + charged;
             for (int k = 0; k < n; k++) {
                 double a = k / (n - 1.0);
                 double lat = 51.50 + 0.04 * Math.sin(a * 3.0 + i) * a + 0.03 * a;
                 double lon = -0.12 + 0.06 * a + 0.015 * Math.cos(a * 5.0 + i);
                 if (k > 0) elec += (s[6] * (Math.pow(speed[k] / 100.0, 1.4) + 0.02) / weight);
-                double soc = s[4] + (s[5] - s[4]) * a;
+                double soc = charged > 0
+                        ? s[4] - fall * 0.5 * Math.min(a, 0.45) / 0.45 + charged * Math.max(0, Math.min(1, (a - 0.45) / 0.15))
+                        - fall * 0.5 * Math.max(0, a - 0.6) / 0.4
+                        : s[4] + (s[5] - s[4]) * a;
                 double alt = 10 + 40 * Math.sin(a * 4.0 + i) + (k % 3);
                 pts.add(new double[]{t.startMs + k * step, lat, lon, alt, speed[k], speed[k], 90,
                         Math.round(soc), Math.round(elec * 10) / 10.0});
@@ -124,7 +137,7 @@ final class DemoData {
 
     static void clear(android.content.Context ctx) {
         TripDb db = TripDb.get(ctx);
-        for (int i = 1; i <= 3; i++) db.delete("demo-" + i);
+        for (int i = 1; i <= TRIPS.length; i++) db.delete("demo-" + i);
         for (int i = 1; i <= 2; i++) db.deleteCharge("demo-charge-" + i);
     }
 }

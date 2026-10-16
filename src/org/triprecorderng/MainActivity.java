@@ -60,6 +60,10 @@ public class MainActivity extends Activity {
     private View navView;
     private View qaButton;
     private View settingButton;
+    // title bar actions of the detail screens
+    private LinearLayout exportButton;
+    private LinearLayout placeButton;
+    private LinearLayout deleteButton;
     private TextView titleView;
     private final LinearLayout[] tabViews = new LinearLayout[6];
     private final int[] tabIcons = new int[6];
@@ -296,6 +300,17 @@ public class MainActivity extends Activity {
             }
         });
         bar.addView(settingButton);
+        exportButton = barButton(GlyphView.SHARE, L.t("Export GPX"), null);
+        placeButton = barButton(GlyphView.PIN, L.t("Show place"), null);
+        deleteButton = barButton(GlyphView.TRASH, L.t("Delete"), null);
+        ((TextView) deleteButton.getChildAt(1)).setTextColor(0xFFFF8D8D);
+        ((GlyphView) deleteButton.getChildAt(0)).setColor(0xFFFF8D8D);
+        exportButton.setVisibility(View.GONE);
+        placeButton.setVisibility(View.GONE);
+        deleteButton.setVisibility(View.GONE);
+        bar.addView(exportButton);
+        bar.addView(placeButton);
+        bar.addView(deleteButton);
         column.addView(bar, new LinearLayout.LayoutParams(-1, Ui.dp(this, 64)));
 
         LinearLayout body = new LinearLayout(this);
@@ -360,13 +375,16 @@ public class MainActivity extends Activity {
         navView.setVisibility(vis);
         qaButton.setVisibility(vis);
         settingButton.setVisibility(vis);
+        exportButton.setVisibility(View.GONE);
+        placeButton.setVisibility(View.GONE);
+        deleteButton.setVisibility(View.GONE);
     }
 
     private int res(String name) {
         return getResources().getIdentifier(name, "drawable", getPackageName());
     }
 
-    private View barButton(int glyph, String text, View.OnClickListener l) {
+    private LinearLayout barButton(int glyph, String text, View.OnClickListener l) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
@@ -453,6 +471,10 @@ public class MainActivity extends Activity {
                 return trips;
             }
 
+            @Override public List<Charge> charges() {
+                return charges;
+            }
+
             @Override public void openTrip(Trip t) {
                 showDetail(t);
             }
@@ -527,14 +549,22 @@ public class MainActivity extends Activity {
         titleView.setText(L.t("Trip details"));
         content.removeAllViews();
         content.addView(TripDetailPage.build(this, t, new TripDetailPage.Host() {
-            @Override public void exportGpx(Trip trip) {
-                MainActivity.this.exportGpx(trip);
-            }
-
-            @Override public void confirmDelete(Trip trip) {
-                MainActivity.this.confirmDelete(trip);
+            @Override public List<Charge> charges() {
+                return charges;
             }
         }));
+        exportButton.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                exportGpx(t);
+            }
+        });
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                confirmDelete(t);
+            }
+        });
+        exportButton.setVisibility(View.VISIBLE);
+        deleteButton.setVisibility(View.VISIBLE);
     }
 
     // ---- Tweaks ----------------------------------------------------------------------------
@@ -581,24 +611,28 @@ public class MainActivity extends Activity {
         setChrome(true);
         titleView.setText(L.t("Charging details"));
         content.removeAllViews();
-        content.addView(ChargeDetailPage.build(this, c, kwhPerPct, new ChargeDetailPage.Host() {
-            @Override public void confirmDelete(final Charge ch) {
+        content.addView(ChargeDetailPage.build(this, c, kwhPerPct));
+        placeButton.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                MapLink.openPlace(MainActivity.this, c.lat, c.lon);
+            }
+        });
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
                 Ui.show(new AlertDialog.Builder(MainActivity.this)
                         .setMessage(L.t("Delete this charging session permanently?"))
                         .setPositiveButton(L.t("Delete"), new android.content.DialogInterface.OnClickListener() {
                             @Override public void onClick(android.content.DialogInterface d, int w) {
-                                TripDb.get(MainActivity.this).deleteCharge(ch.id);
+                                TripDb.get(MainActivity.this).deleteCharge(c.id);
                                 closeOverlay();
                                 loadTrips(null);
                             }
                         })
                         .setNegativeButton(L.t("Cancel"), null));
             }
-
-            @Override public void showPlace(Charge ch) {
-                MapLink.openPlace(MainActivity.this, ch.lat, ch.lon);
-            }
-        }));
+        });
+        placeButton.setVisibility(!Double.isNaN(c.lat) && !Double.isNaN(c.lon) ? View.VISIBLE : View.GONE);
+        deleteButton.setVisibility(View.VISIBLE);
     }
 
     // ---- settings and Q&A ------------------------------------------------------------------
@@ -1291,6 +1325,9 @@ public class MainActivity extends Activity {
         static final int BACK = 0;
         static final int HELP = 1;
         static final int GEAR = 2;
+        static final int SHARE = 3;
+        static final int PIN = 4;
+        static final int TRASH = 5;
         private final int kind;
         private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -1304,6 +1341,11 @@ public class MainActivity extends Activity {
             p.setStrokeWidth(2.4f * c.getResources().getDisplayMetrics().density);
         }
 
+        void setColor(int color) {
+            p.setColor(color);
+            invalidate();
+        }
+
         @Override protected void onDraw(Canvas c) {
             float w = getWidth();
             float h = getHeight();
@@ -1311,6 +1353,29 @@ public class MainActivity extends Activity {
             float cy = h / 2f;
             float r = Math.min(w, h) * 0.42f;
             switch (kind) {
+                case SHARE:
+                    c.drawLine(cx, cy + r * 0.35f, cx, cy - r, p);
+                    c.drawLine(cx - r * 0.45f, cy - r * 0.55f, cx, cy - r, p);
+                    c.drawLine(cx + r * 0.45f, cy - r * 0.55f, cx, cy - r, p);
+                    c.drawLine(cx - r * 0.8f, cy + r * 0.2f, cx - r * 0.8f, cy + r * 0.85f, p);
+                    c.drawLine(cx - r * 0.8f, cy + r * 0.85f, cx + r * 0.8f, cy + r * 0.85f, p);
+                    c.drawLine(cx + r * 0.8f, cy + r * 0.85f, cx + r * 0.8f, cy + r * 0.2f, p);
+                    break;
+                case PIN:
+                    c.drawCircle(cx, cy - r * 0.2f, r * 0.62f, p);
+                    c.drawLine(cx - r * 0.5f, cy + r * 0.25f, cx, cy + r * 0.95f, p);
+                    c.drawLine(cx + r * 0.5f, cy + r * 0.25f, cx, cy + r * 0.95f, p);
+                    c.drawCircle(cx, cy - r * 0.2f, r * 0.2f, p);
+                    break;
+                case TRASH:
+                    c.drawLine(cx - r * 0.9f, cy - r * 0.55f, cx + r * 0.9f, cy - r * 0.55f, p);
+                    c.drawLine(cx - r * 0.3f, cy - r * 0.55f, cx - r * 0.3f, cy - r * 0.9f, p);
+                    c.drawLine(cx + r * 0.3f, cy - r * 0.55f, cx + r * 0.3f, cy - r * 0.9f, p);
+                    c.drawLine(cx - r * 0.3f, cy - r * 0.9f, cx + r * 0.3f, cy - r * 0.9f, p);
+                    c.drawLine(cx - r * 0.65f, cy - r * 0.55f, cx - r * 0.5f, cy + r * 0.9f, p);
+                    c.drawLine(cx - r * 0.5f, cy + r * 0.9f, cx + r * 0.5f, cy + r * 0.9f, p);
+                    c.drawLine(cx + r * 0.5f, cy + r * 0.9f, cx + r * 0.65f, cy - r * 0.55f, p);
+                    break;
                 case BACK:
                     c.drawLine(cx + r * 0.35f, cy - r * 0.8f, cx - r * 0.45f, cy, p);
                     c.drawLine(cx - r * 0.45f, cy, cx + r * 0.35f, cy + r * 0.8f, p);

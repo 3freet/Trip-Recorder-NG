@@ -149,8 +149,9 @@ final class GaugeView extends View {
         }
         cv.drawCircle(kx, ky, stroke * 0.27f, knob);
 
-        float numSize = d * 0.30f * (number.length() >= 3 ? 0.86f : 1f);
-        float unitSize = d * 0.092f;
+        float numSize = d * 0.32f * (number.length() >= 3 ? 0.86f : 1f);
+        // the unit under the number is never smaller than 18 sp
+        float unitSize = Math.max(d * 0.08f, 18f * getResources().getDisplayMetrics().scaledDensity);
         num.setTextSize(numSize);
         suf.setTextSize(numSize * 0.45f);
         sub.setTextSize(unitSize);

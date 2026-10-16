@@ -36,7 +36,7 @@ final class TripChartsPanel extends LinearLayout {
         super(ctx);
         route = routeView;
         setOrientation(VERTICAL);
-        setBackground(Ui.round(Kit.CARD, 22, ctx));
+        setBackground(Ui.round(Kit.CARD, 24, ctx));
         setPadding(Ui.dp(ctx, 16), Ui.dp(ctx, 10), Ui.dp(ctx, 16), Ui.dp(ctx, 8));
 
         LinearLayout top = new LinearLayout(ctx);
@@ -45,9 +45,10 @@ final class TripChartsPanel extends LinearLayout {
         final String[] names = {L.t("Speed"), L.t("Battery"), L.t("Elevation"), L.t("Efficiency")};
         for (int i = 0; i < 4; i++) {
             final int m = i;
-            TextView t = Ui.text(ctx, names[i], 17, Ui.TEXT_DATE);
+            TextView t = Ui.text(ctx, names[i], 20, Ui.TEXT_DATE);
             t.setGravity(Gravity.CENTER);
-            t.setPadding(Ui.dp(ctx, 16), Ui.dp(ctx, 7), Ui.dp(ctx, 16), Ui.dp(ctx, 7));
+            t.setSingleLine(true);
+            t.setPadding(Ui.dp(ctx, 18), Ui.dp(ctx, 9), Ui.dp(ctx, 18), Ui.dp(ctx, 9));
             t.setOnClickListener(new OnClickListener() {
                 @Override public void onClick(View v) {
                     select(m);
@@ -56,7 +57,9 @@ final class TripChartsPanel extends LinearLayout {
             chips[i] = t;
             top.addView(t);
         }
-        readout = Ui.text(ctx, "", 15, Ui.TEXT_LABEL);
+        readout = Ui.text(ctx, "", 18, Ui.TEXT_LABEL);
+        readout.setSingleLine(true);
+        readout.setEllipsize(android.text.TextUtils.TruncateAt.END);
         readout.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
         top.addView(readout, new LinearLayout.LayoutParams(0, -2, 1f));
         addView(top, new LinearLayout.LayoutParams(-1, -2));
@@ -70,7 +73,7 @@ final class TripChartsPanel extends LinearLayout {
             }
         });
         bars = new BarChartView(ctx);
-        barsEmpty = Ui.text(ctx, "", 16, Ui.TEXT_LABEL);
+        barsEmpty = Ui.text(ctx, "", 18, Ui.TEXT_LABEL);
         barsEmpty.setGravity(Gravity.CENTER);
         frame.addView(chart, new FrameLayout.LayoutParams(-1, -1));
         frame.addView(bars, new FrameLayout.LayoutParams(-1, -1));
@@ -105,7 +108,7 @@ final class TripChartsPanel extends LinearLayout {
         for (int i = 0; i < 4; i++) {
             boolean sel = i == mode;
             chips[i].setTextColor(sel ? Kit.ACCENT : Kit.MUTED);
-            chips[i].setBackground(Ui.round(sel ? Kit.ACCENT_SOFT : 0x00000000, 18, getContext()));
+            chips[i].setBackground(Ui.round(sel ? Kit.ACCENT_SOFT : 0x00000000, 24, getContext()));
         }
     }
 
@@ -127,7 +130,7 @@ final class TripChartsPanel extends LinearLayout {
                 chart.setGapMs(90_000);
                 chart.setBridgeBelow(5);          // a stop with no samples (older trips) is a flat line at ~0, not a hole
                 chart.set(times, speeds, "km/h", Kit.BLUE, L.t("No speed data"));
-                readout.setText(L.t("Speed (km/h) - touch the chart to see it on the map"));
+                readout.setText(L.t("Touch to see it on the map"));
                 break;
             case BATTERY:
                 chart.setBridgeBelow(Double.NaN);
@@ -136,7 +139,7 @@ final class TripChartsPanel extends LinearLayout {
                         ? L.f("Battery along the route was not recorded for this trip (%1$s%% -> %2$s%%)",
                         Ui.f(trip.socStart, "%.0f"), Ui.f(trip.socEnd, "%.0f"))
                         : L.t("No battery data for this trip"));
-                readout.setText(L.t("Battery (%) - touch the chart to see it on the map"));
+                readout.setText(L.t("Touch to see it on the map"));
                 break;
             case ELEVATION:
                 chart.setBridgeBelow(Double.NaN);

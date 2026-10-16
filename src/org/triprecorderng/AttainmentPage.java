@@ -3,19 +3,21 @@ package org.triprecorderng;
 import android.content.Context;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
- * The Attainment screen: the driving level and the distance behind it on the left, the personal records and
- * the totals as tiles on the right.
+ * The Attainment screen: the driving level and the way to the next one on the left, then the personal records and the
+ * totals as two lists (what it is, when, and the figure with its unit).
  */
 final class AttainmentPage {
-    private static final float SCALE = 1.35f;
+    private static final int BLUE_TEXT = 0xFF8FB2FF;
 
     private final Context c;
     private final List<Trip> trips;
@@ -28,41 +30,57 @@ final class AttainmentPage {
     private AttainmentPage(Context c, List<Trip> trips) {
         this.c = c;
         this.trips = trips;
-        this.k = new Kit(c, SCALE);
+        this.k = new Kit(c, 1f);
+    }
+
+    private int dp(float v) {
+        return Ui.dp(c, v);
+    }
+
+    private static String cap(String s) {
+        return s.isEmpty() ? s : s.substring(0, 1).toUpperCase(Locale.US) + s.substring(1);
     }
 
     private View create() {
         Stats.Records r = Stats.records(trips);
+        SimpleDateFormat df = new SimpleDateFormat("d MMM yyyy", L.dateLocale());
+        SimpleDateFormat shortDay = new SimpleDateFormat("d MMM", L.dateLocale());
+
         LinearLayout row = new LinearLayout(c);
         row.setOrientation(LinearLayout.HORIZONTAL);
-        row.addView(level(r), new LinearLayout.LayoutParams(0, -1, 3f));
+        row.addView(level(r), new LinearLayout.LayoutParams(dp(262), -1));
 
-        LinearLayout right = k.column();
-        SimpleDateFormat df = new SimpleDateFormat("d MMM yyyy", L.dateLocale());
-
-        right.addView(k.header(L.t("Highest achievements")));
-        LinearLayout best = k.row();
-        best.addView(tile(Kit.IconView.ROUTE, L.t("Longest trip"),
-                r.longest == null ? "--" : L.f("%s km", Ui.f(r.longest.distanceKm, "%.1f")), date(r.longest, df)), cell(0));
-        best.addView(tile(Kit.IconView.CLOCK, L.t("Longest drive"),
-                r.longestTime == null ? "--" : Ui.duration(r.longestTime.durationSec()), date(r.longestTime, df)), cell(1));
-        best.addView(tile(Kit.IconView.SPEED, L.t("Top speed"),
-                r.fastest == null ? "--" : L.f("%s km/h", Ui.f(r.fastest.maxSpeedKmh, "%.0f")), date(r.fastest, df)), cell(1));
-        best.addView(tile(Kit.IconView.LEAF, L.t("Most efficient (5 km+)"),
-                r.mostEfficient == null ? "--" : Ui.f(r.mostEfficient.energyPer100Km(), "%.1f"),
-                r.mostEfficient == null ? "" : L.t("kWh/100km") + "\n" + date(r.mostEfficient, df)), cell(1));
-        best.addView(tile(Kit.IconView.STAR, L.t("Best drive score"),
-                r.bestScore == null ? "--" : Ui.f(Stats.score(r.bestScore), "%.0f"), date(r.bestScore, df)), cell(1));
-        right.addView(best, new LinearLayout.LayoutParams(-1, 0, 1f));
+        LinearLayout records = list(L.t("Highest achievements"));
+        add(records, Kit.IconView.ROUTE, Kit.ACCENT, L.t("Longest trip"), date(r.longest, df),
+                r.longest == null ? "--" : Ui.f(r.longest.distanceKm, "%.1f"), L.t("km"));
+        add(records, Kit.IconView.CLOCK, Kit.ACCENT, L.t("Longest drive"), date(r.longestTime, df),
+                r.longestTime == null ? "--" : Kit.numUnit(Ui.duration(r.longestTime.durationSec()), 0.62f), "");
+        add(records, Kit.IconView.SPEED, Kit.ACCENT, L.t("Top speed"), date(r.fastest, df),
+                r.fastest == null ? "--" : Ui.f(r.fastest.maxSpeedKmh, "%.0f"), L.t("km/h"));
+        add(records, Kit.IconView.LEAF, Kit.ACCENT, L.t("Most efficient"),
+                r.mostEfficient == null ? "" : L.t("Electric") + " · " + date(r.mostEfficient, shortDay),
+                r.mostEfficient == null ? "--" : Ui.f(r.mostEfficient.energyPer100Km(), "%.1f"), L.t("kWh/100km"));
+        add(records, Kit.IconView.PUMP, Kit.AMBER, L.t("Best fuel economy"),
+                r.bestFuel == null ? "" : L.t("Hybrid") + " · " + date(r.bestFuel, shortDay),
+                r.bestFuel == null ? "--" : Ui.f(Stats.fuelPer100Hybrid(r.bestFuel, 10), "%.1f"), L.t("L/100km"));
+        add(records, Kit.IconView.STAR, Kit.ACCENT, L.t("Best drive score"), date(r.bestScore, df),
+                r.bestScore == null ? "--" : Ui.f(Stats.score(r.bestScore), "%.0f"), L.t("points"));
 
         double fuelSum = 0;
         double costSum = 0;
+        double hybridKm = 0;
+        double hybridFuel = 0;
         int fuelTrips = 0;
         boolean anyCost = false;
         for (Trip t : trips) {
             if (!Double.isNaN(t.fuelUsed())) {
                 fuelSum += t.fuelUsed();
                 fuelTrips++;
+            }
+            double h = t.hevKm();
+            if (Stats.burnedFuel(t) && !Double.isNaN(h) && h >= 1) {
+                hybridKm += h;
+                hybridFuel += t.fuelUsed();
             }
             double v = Cost.total(t, c);
             if (!Double.isNaN(v)) {
@@ -71,25 +89,29 @@ final class AttainmentPage {
             }
         }
         Stats.Co2 co2 = Stats.co2Avoided(trips);
-        TextView h2 = k.header(L.t("Total"));
-        LinearLayout.LayoutParams h2lp = new LinearLayout.LayoutParams(-1, -2);
-        h2lp.topMargin = k.d(12);
-        right.addView(h2, h2lp);
-        LinearLayout totals = k.row();
-        totals.addView(tile(Kit.IconView.LIST, L.t("Total trips"), String.valueOf(r.count), ""), cell(0));
-        totals.addView(tile(Kit.IconView.CLOCK, L.t("Total drive time"), Ui.duration(r.totalSec), ""), cell(1));
-        totals.addView(tile(Kit.IconView.COIN, L.t("Total cost") + " (" + Prefs.currency(c) + ")",
-                anyCost ? Cost.amount(c, costSum) : "--", L.t("electricity + fuel")), cell(1));
-        totals.addView(tile(Kit.IconView.PUMP, L.t("Fuel used"), fuelTrips > 0 ? L.f("%s L", Ui.f(fuelSum, "%.1f")) : "--",
-                fuelTrips > 0 ? L.f("over %d trip(s)", fuelTrips) : L.t("recorded for new trips")), cell(1));
-        totals.addView(tile(Kit.IconView.LEAF, L.t("CO2 avoided (estimate)"),
-                co2.trips > 0 ? L.f("%s kg", Ui.f(co2.kg, "%.0f")) : "--",
-                co2.trips > 0 ? L.f("about %s trees a year", Ui.f(co2.trees, "%.1f")) : L.t("needs fuel data")), cell(1));
-        right.addView(totals, new LinearLayout.LayoutParams(-1, 0, 1f));
 
-        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(0, -1, 8f);
-        rlp.setMarginStart(k.d(10));
-        row.addView(right, rlp);
+        LinearLayout totals = list(L.t("Total"));
+        add(totals, Kit.IconView.LIST, BLUE_TEXT, L.t("Total trips"), cap(L.t("recorded")),
+                String.valueOf(r.count), "");
+        add(totals, Kit.IconView.CLOCK, BLUE_TEXT, L.t("Total drive time"), cap(L.t("recorded")),
+                Kit.numUnit(Ui.duration(r.totalSec), 0.62f), "");
+        add(totals, Kit.IconView.COIN, Kit.AMBER, L.t("Total cost"), cap(L.t("electricity + fuel")),
+                anyCost ? Cost.amount(c, costSum) : "--", Prefs.currency(c));
+        add(totals, Kit.IconView.PUMP, Kit.AMBER, L.t("Fuel used"),
+                fuelTrips > 0 ? cap(L.f("over %d trip(s)", fuelTrips)) : cap(L.t("recorded for new trips")),
+                fuelTrips > 0 ? Ui.f(fuelSum, "%.1f") : "--", L.t("L"));
+        add(totals, Kit.IconView.PUMP, Kit.AMBER, L.t("Fuel economy"), L.t("Hybrid driving"),
+                hybridKm >= TripEnergy.MIN_MODE_KM ? Ui.f(hybridFuel / hybridKm * 100.0, "%.1f") : "--", L.t("L/100km"));
+        add(totals, Kit.IconView.LEAF, Kit.ACCENT, L.t("CO2 avoided"),
+                co2.trips > 0 ? cap(L.f("about %s trees a year", Ui.f(co2.trees, "%.1f"))) : cap(L.t("needs fuel data")),
+                co2.trips > 0 ? Ui.f(co2.kg, "%.0f") : "--", L.t("kg"));
+
+        LinearLayout.LayoutParams l1 = new LinearLayout.LayoutParams(0, -1, 1f);
+        l1.setMarginStart(dp(12));
+        row.addView(records, l1);
+        LinearLayout.LayoutParams l2 = new LinearLayout.LayoutParams(0, -1, 1f);
+        l2.setMarginStart(dp(12));
+        row.addView(totals, l2);
         return row;
     }
 
@@ -97,33 +119,86 @@ final class AttainmentPage {
         return t == null ? "" : df.format(new Date(t.startMs));
     }
 
-    private LinearLayout.LayoutParams cell(int first) {
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -1, 1f);
-        if (first != 0) lp.setMarginStart(k.d(8));
-        return lp;
+    /** A list card with its heading; the rows added to it share its height. */
+    private LinearLayout list(String heading) {
+        LinearLayout card = k.bigCard();
+        card.setPaddingRelative(dp(16), dp(14), dp(16), dp(8));
+        TextView h = k.t(heading, Kit.CAPTION, Kit.MUTED, Kit.MEDIUM);
+        h.setPadding(dp(2), 0, 0, dp(2));
+        card.addView(h, new LinearLayout.LayoutParams(-1, -2));
+        return card;
+    }
+
+    /** One row: a badge, what it is with a line under it, and the figure with its unit under it. */
+    private void add(LinearLayout card, int icon, int color, String label, String sub, CharSequence value, String unit) {
+        LinearLayout row = k.row();
+        if (card.getChildCount() > 1) {
+            View hairline = new View(c);
+            hairline.setBackgroundColor(Kit.LINE);
+            card.addView(hairline, new LinearLayout.LayoutParams(-1, 1));
+        }
+        FrameLayout badge = new FrameLayout(c);
+        badge.setBackground(Ui.round((color & 0x00FFFFFF) | 0x26000000, 22, c));
+        FrameLayout.LayoutParams ilp = new FrameLayout.LayoutParams(dp(24), dp(24));
+        ilp.gravity = Gravity.CENTER;
+        badge.addView(new Kit.IconView(c, icon, color), ilp);
+        row.addView(badge, new LinearLayout.LayoutParams(dp(44), dp(44)));
+
+        LinearLayout text = k.column();
+        text.setPaddingRelative(dp(14), 0, dp(8), 0);
+        TextView l = k.t(label, Kit.BODY, Kit.SOFT, Kit.MEDIUM);
+        l.setSingleLine(true);
+        text.addView(l);
+        if (!sub.isEmpty()) {
+            TextView s = k.t(sub, Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
+            s.setSingleLine(true);
+            text.addView(s);
+        }
+        row.addView(text, new LinearLayout.LayoutParams(0, -2, 1f));
+
+        LinearLayout fig = k.column();
+        fig.setGravity(Gravity.END);
+        TextView v = k.t("", 28, Kit.TEXT, Kit.BOLD);
+        v.setText(value);
+        v.setSingleLine(true);
+        fig.addView(v);
+        if (!unit.isEmpty()) {
+            TextView u = k.t(unit, Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
+            u.setSingleLine(true);
+            u.setGravity(Gravity.END);
+            fig.addView(u);
+        }
+        row.addView(fig, new LinearLayout.LayoutParams(-2, -2));
+        card.addView(row, new LinearLayout.LayoutParams(-1, 0, 1f));
     }
 
     /** The level card: a gauge of the way to the next level, its name, and the distance driven in all. */
     private View level(Stats.Records r) {
-        LinearLayout card = k.card();
-        card.setPaddingRelative(k.d(14), k.d(14), k.d(14), k.d(14));
+        LinearLayout card = k.bigCard();
+        card.setPaddingRelative(dp(16), dp(16), dp(16), dp(16));
         int lv = Stats.level(r.totalKm);
         boolean top = lv + 1 >= Stats.LEVEL_KM.length;
         double frac = top ? 1 : (r.totalKm - Stats.LEVEL_KM[lv]) / (Stats.LEVEL_KM[lv + 1] - Stats.LEVEL_KM[lv]);
 
-        TextView cap = k.label(top ? L.t("Level (top)")
-                : L.f("Level (next: %s km)", Ui.f(Stats.LEVEL_KM[lv + 1], "%.0f")), 12.5f, Kit.MUTED, Kit.MEDIUM);
-        card.addView(cap, new LinearLayout.LayoutParams(-1, -2));
+        LinearLayout head = k.row();
+        head.addView(k.t(L.t("Driving level"), Kit.CAPTION, Kit.MUTED, Kit.REGULAR), new LinearLayout.LayoutParams(0, -2, 1f));
+        head.addView(k.t(L.f("%1$d of %2$d", lv + 1, Stats.LEVEL_KM.length), Kit.CAPTION, Kit.MUTED, Kit.REGULAR));
+        card.addView(head, new LinearLayout.LayoutParams(-1, -2));
 
-        GaugeView gauge = new GaugeView(c, k.d(190));
+        GaugeView gauge = new GaugeView(c, dp(214));
         gauge.set(frac, Kit.ACCENT, Kit.BLUE, String.valueOf(lv + 1), "", L.t("Level"));
         LinearLayout.LayoutParams glp = new LinearLayout.LayoutParams(-1, 0, 1f);
-        glp.topMargin = k.d(4);
+        glp.topMargin = dp(4);
         card.addView(gauge, glp);
 
-        TextView name = k.label(Stats.levelName(lv), 16, Kit.TEXT, Kit.BOLD);
+        TextView name = k.t(Stats.levelName(lv), Kit.LABEL, Kit.TEXT, Kit.MEDIUM);
         name.setGravity(Gravity.CENTER);
         card.addView(name, new LinearLayout.LayoutParams(-1, -2));
+        TextView next = k.t(top ? L.t("Top level")
+                : L.f("%1$s km to level %2$d", Ui.f(Stats.LEVEL_KM[lv + 1] - r.totalKm, "%.0f"), lv + 2),
+                Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
+        next.setGravity(Gravity.CENTER);
+        card.addView(next, new LinearLayout.LayoutParams(-1, -2));
 
         double ev = 0;
         double hev = 0;
@@ -136,44 +211,18 @@ final class AttainmentPage {
         View line = new View(c);
         line.setBackgroundColor(Kit.LINE);
         LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(-1, 1);
-        llp.topMargin = k.d(12);
-        llp.bottomMargin = k.d(10);
+        llp.topMargin = dp(14);
+        llp.bottomMargin = dp(12);
         card.addView(line, llp);
-        card.addView(k.label(L.t("Total distance"), 12.5f, Kit.MUTED, Kit.MEDIUM));
-        TextView total = k.label("", 26, Kit.TEXT, Kit.BOLD);
-        total.setText(Kit.numUnit(L.f("%s km", Ui.f(r.totalKm, "%.0f")), 0.5f));
+        card.addView(k.t(L.t("Total distance"), Kit.CAPTION, Kit.MUTED, Kit.REGULAR));
+        TextView total = k.t("", Kit.VALUE_L, Kit.TEXT, Kit.BOLD);
+        total.setText(Kit.numUnit(L.f("%s km", String.format(Locale.US, "%,.0f", r.totalKm)), 0.53f));
+        total.setSingleLine(true);
         card.addView(total);
         if (ev + hev >= 1) {
-            TextView sub = k.label(L.f("%s%% driven electric", Ui.f(ev / (ev + hev) * 100, "%.0f")), 12.5f,
-                    Kit.ACCENT, Kit.MEDIUM);
-            sub.setPadding(0, k.d(2), 0, 0);
-            card.addView(sub);
+            card.addView(k.t(L.f("%s%% driven electric", Ui.f(ev / (ev + hev) * 100, "%.0f")), Kit.BODY, Kit.ACCENT,
+                    Kit.REGULAR));
         }
         return card;
-    }
-
-    /** A tile: icon and what it is, the figure, and a line under it (a date, or a note). */
-    private View tile(int icon, String caption, CharSequence value, String sub) {
-        LinearLayout t = k.card();
-        t.setPaddingRelative(k.d(12), k.d(12), k.d(12), k.d(10));
-        LinearLayout top = k.row();
-        top.addView(new Kit.IconView(c, icon, Kit.ACCENT), new LinearLayout.LayoutParams(k.d(17), k.d(17)));
-        TextView cp = k.label(caption, 12, Kit.MUTED, Kit.MEDIUM);
-        cp.setPaddingRelative(k.d(7), 0, 0, 0);
-        cp.setLines(3);
-        top.addView(cp, new LinearLayout.LayoutParams(0, -2, 1f));
-        t.addView(top, new LinearLayout.LayoutParams(-1, -2));
-        TextView v = k.label("", 24, Kit.TEXT, Kit.BOLD);
-        v.setText(value instanceof String ? Kit.numUnit((String) value, 0.5f) : value);
-        v.setSingleLine(true);
-        v.setPadding(0, k.d(10), 0, 0);
-        t.addView(v, new LinearLayout.LayoutParams(-1, -2));
-        if (!sub.isEmpty()) {
-            TextView s = k.label(sub, 12, Kit.MUTED, Kit.MEDIUM);
-            s.setPadding(0, k.d(3), 0, 0);
-            s.setMaxLines(2);
-            t.addView(s, new LinearLayout.LayoutParams(-1, -2));
-        }
-        return t;
     }
 }

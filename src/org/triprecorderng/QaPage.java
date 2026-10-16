@@ -62,6 +62,15 @@ final class QaPage {
                                 + "hybrid, so fuel is recorded with each trip made since the update (older trips "
                                 + "only get the electricity part). A charging session costs the energy it added "
                                 + "times the electricity price. Charging losses are not included.")},
+                {L.t("Why does a hybrid trip show two consumption numbers?"),
+                        L.t("The car's energy counter is net: it also goes down when the engine charges the "
+                                + "battery, so one kWh/100km figure for a mixed trip is misleading. On a hybrid trip "
+                                + "the app splits it by the car's own electric and hybrid kilometres. Electric: kWh "
+                                + "per 100 km driven on electricity, with the energy the engine put into the battery "
+                                + "added back. Hybrid: litres per 100 km driven with the engine running; it includes "
+                                + "the fuel that charged the battery. Both are estimates; the totals (kWh, litres, "
+                                + "cost) are exact. Statistics and Attainment follow the same rule: Consumption "
+                                + "counts trips that used no fuel, and Fuel is litres per 100 km of hybrid driving.")},
                 {L.t("What are Driving advice, CO2 avoided and the driving level?"),
                         L.t("Driving advice on a trip uses the stock app's advice texts, chosen by simple rules "
                                 + "(hard braking or acceleration, high average speed, high consumption, a long "

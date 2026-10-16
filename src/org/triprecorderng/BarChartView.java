@@ -26,10 +26,10 @@ final class BarChartView extends View {
         axis.setColor(Kit.LINE);
         axis.setStrokeWidth(1f * d);
         label.setColor(Kit.MUTED);
-        label.setTextSize(15 * sd);
+        label.setTextSize(18 * sd);
         label.setTextAlign(Paint.Align.CENTER);
         value.setColor(Kit.SOFT);
-        value.setTextSize(15 * sd);
+        value.setTextSize(18 * sd);
         value.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         value.setTextAlign(Paint.Align.CENTER);
     }
@@ -51,8 +51,8 @@ final class BarChartView extends View {
         if (n == 0) return;
         float w = getWidth();
         float h = getHeight();
-        float bottom = h - 34 * d;
-        float top = 28 * d;
+        float bottom = h - 40 * d;
+        float top = 34 * d;
         double max = 0;
         for (double v : data) if (!Double.isNaN(v) && v > max) max = v;
         if (max <= 0) max = 1;
@@ -63,6 +63,10 @@ final class BarChartView extends View {
         c.drawLine(0, bottom, w, bottom, axis);
         float slot = w / n;
         float bw = Math.min(slot * 0.6f, 54 * d);
+        // when the names would touch, name every other bar (counted from the last one, which is today)
+        float widest = 0;
+        for (String s : labels) if (s != null) widest = Math.max(widest, label.measureText(s));
+        int step = Math.max(1, (int) Math.ceil((widest + 12 * d) / slot));
         bar.setColor(color);
         for (int i = 0; i < n; i++) {
             bar.setShader(new android.graphics.LinearGradient(0, top, 0, bottom, color,
@@ -77,8 +81,8 @@ final class BarChartView extends View {
                         : String.format(java.util.Locale.US, "%." + decimals + "f", v);
                 c.drawText(t, cx, bottom - bh - 6 * d, value);
             }
-            if (i < labels.length && labels[i] != null) {
-                c.drawText(labels[i], cx, bottom + 22 * d, label);
+            if (i < labels.length && labels[i] != null && (n - 1 - i) % step == 0) {
+                c.drawText(labels[i], cx, bottom + 28 * d, label);
             }
         }
     }
