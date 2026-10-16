@@ -106,7 +106,7 @@ final class ChargingPage {
             }
             head.addView(stat(Kit.IconView.LIST, BLUE_TEXT, L.f("%d session(s)", charges.size())));
             if (anyKwh) {
-                head.addView(stat(Kit.IconView.BOLT, BLUE_TEXT, L.f("about %s kWh added", Ui.f(kwh, "%.0f"))), gapped());
+                head.addView(stat(Kit.IconView.BOLT, BLUE_TEXT, L.f("about %s added", Ui.f(kwh, "%.0f") + " " + L.t("kWh"))), gapped());
             }
             if (anyCost) {
                 head.addView(stat(Kit.IconView.COIN, Kit.MUTED, L.f("about %s", Cost.money(c, cost))), gapped());
@@ -229,7 +229,7 @@ final class ChargingPage {
         }
         String sum = (day.sessions.size() == 1 ? "" : L.f("%d session(s)", day.sessions.size()) + L.sep())
                 + L.ltr("+" + Ui.f(gain, "%.0f") + "%")
-                + (anyKwh ? L.sep() + L.f("about %s kWh", Ui.f(kwh, "%.1f")) : "");
+                + (anyKwh ? L.sep() + L.f("about %s", Ui.f(kwh, "%.1f") + " " + L.t("kWh")) : "");
 
         LinearLayout outer = new LinearLayout(c);
         outer.setPadding(0, 0, 0, dp(12));
@@ -306,7 +306,7 @@ final class ChargingPage {
         row.addView(gain, new LinearLayout.LayoutParams(dp(W_GAIN), -2));
 
         LinearLayout bat = k.column();
-        TextView range2 = k.t(L.ltr(Ui.f(ch.socStart, "%.0f") + " → " + Ui.f(ch.socEnd, "%.0f")), Kit.LABEL, Kit.TEXT, Kit.BOLD);
+        TextView range2 = k.t(Ui.f(ch.socStart, "%.0f") + " " + L.arrow() + " " + Ui.f(ch.socEnd, "%.0f"), Kit.LABEL, Kit.TEXT, Kit.BOLD);
         range2.setSingleLine(true);
         bat.addView(range2);
         Kit.RangeBar bar = new Kit.RangeBar(c);
@@ -318,7 +318,7 @@ final class ChargingPage {
 
         double e = ch.energyKwh(kwhPerPct);
         TextView energy = k.t("", Kit.TITLE, Kit.TEXT, Kit.BOLD);
-        energy.setText(Double.isNaN(e) ? "--" : Kit.valueUnit(kwhText(ch, kwhPerPct), "kWh", unit));
+        energy.setText(Double.isNaN(e) ? "--" : Kit.valueUnit(kwhText(ch, kwhPerPct), L.t("kWh"), unit));
         energy.setSingleLine(true);
         row.addView(energy, new LinearLayout.LayoutParams(dp(W_ENERGY), -2));
 

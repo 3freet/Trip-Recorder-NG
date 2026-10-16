@@ -77,11 +77,17 @@ final class L {
     }
 
     /**
-     * A number with its unit kept as one right-to-left phrase inside Arabic text, so what stands next to it (another
-     * figure with a Latin unit) cannot pull its number or its unit to the other side.
+     * A phrase kept as one right-to-left unit inside Arabic text ("9.4 kWh"), so that what stands next to it (another
+     * figure with a Latin unit) cannot pull its number or its unit to the other side: the number is read first, on
+     * the right, then its unit to the left of it.
      */
     static String rtl(String s) {
         return arabic ? "\u2067" + s + "\u2069" : s;
+    }
+
+    /** The arrow of a change "from -> to": it points the way the eye reads, to the left in Arabic. */
+    static String arrow() {
+        return arabic ? "\u2190" : "\u2192";
     }
 
     /** Locale for dates: the head unit's own, or Arabic month and day names with Latin digits. */

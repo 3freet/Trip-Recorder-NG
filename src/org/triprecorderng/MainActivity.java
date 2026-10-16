@@ -240,7 +240,12 @@ public class MainActivity extends Activity {
         lastLoad = System.currentTimeMillis();
         new Thread(new Runnable() {
             @Override public void run() {
-                final List<Trip> all = TripDb.get(MainActivity.this).all();
+                List<Trip> loaded = TripDb.get(MainActivity.this).all();
+                boolean unsplit = false;
+                for (Trip t : loaded) if (t.ended && Double.isNaN(t.driveSec)) unsplit = true;
+                // older and restored trips get their driving/parked split worked out from their stored samples
+                if (unsplit && DriveSplit.backfill(MainActivity.this) > 0) loaded = TripDb.get(MainActivity.this).all();
+                final List<Trip> all = loaded;
                 final List<Charge> allCharges = TripDb.get(MainActivity.this).charges();
                 ui.post(new Runnable() {
                     @Override public void run() {
@@ -471,10 +476,6 @@ public class MainActivity extends Activity {
                 return trips;
             }
 
-            @Override public List<Charge> charges() {
-                return charges;
-            }
-
             @Override public void openTrip(Trip t) {
                 showDetail(t);
             }
@@ -548,11 +549,7 @@ public class MainActivity extends Activity {
         setChrome(true);
         titleView.setText(L.t("Trip details"));
         content.removeAllViews();
-        content.addView(TripDetailPage.build(this, t, new TripDetailPage.Host() {
-            @Override public List<Charge> charges() {
-                return charges;
-            }
-        }));
+        content.addView(TripDetailPage.build(this, t));
         exportButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 exportGpx(t);
@@ -1099,9 +1096,11 @@ public class MainActivity extends Activity {
                 String code = cur.getText().toString().trim();
                 if (code.isEmpty()) code = "OMR";
                 String el = cleanPrice(elec.getText().toString()), fu = cleanPrice(fuel.getText().toString());
-                summary.setText(L.f("Electricity %1$s %2$s/kWh     Fuel %3$s %2$s/L",
-                        el.isEmpty() ? trimNumber(Cost.DEFAULT_ELEC_PRICE) + L.t(" (default)") : el, code,
-                        fu.isEmpty() ? trimNumber(Cost.DEFAULT_FUEL_PRICE) + L.t(" (default)") : fu));
+                summary.setText(L.f("Electricity %1$s     Fuel %2$s",
+                        (el.isEmpty() ? trimNumber(Cost.DEFAULT_ELEC_PRICE) : el) + " " + code + "/" + L.t("kWh")
+                                + (el.isEmpty() ? L.t(" (default)") : ""),
+                        (fu.isEmpty() ? trimNumber(Cost.DEFAULT_FUEL_PRICE) : fu) + " " + code + "/L"
+                                + (fu.isEmpty() ? L.t(" (default)") : "")));
             }
         };
         cur.addTextChangedListener(watcher);

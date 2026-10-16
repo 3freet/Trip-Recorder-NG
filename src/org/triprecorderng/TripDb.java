@@ -12,7 +12,7 @@ import java.util.List;
 /** Local SQLite storage: one row per trip plus an optional GPS track per trip. */
 final class TripDb extends SQLiteOpenHelper {
     private static final String NAME = "trips.db";
-    private static final int VERSION = 6;
+    private static final int VERSION = 7;
 
     private static TripDb instance;
     private final Context appCtx;
@@ -35,7 +35,7 @@ final class TripDb extends SQLiteOpenHelper {
                 + "elec_start REAL, elec_end REAL, hard_accel INTEGER, hard_brake INTEGER,"
                 + "start_lat REAL, start_lon REAL, end_lat REAL, end_lon REAL,"
                 + "fuel_start REAL, fuel_end REAL, ev_start REAL, ev_end REAL, hev_start REAL, hev_end REAL,"
-                + "speed_km REAL, journey_acc REAL, journey_last REAL)");
+                + "speed_km REAL, journey_acc REAL, journey_last REAL, drive_kwh REAL, drive_s REAL)");
         db.execSQL("CREATE TABLE points ("
                 + "trip_id TEXT, ts INTEGER, lat REAL, lon REAL, alt REAL, gps_speed REAL,"
                 + "car_speed REAL, bearing REAL, soc REAL, elec REAL)");
@@ -77,6 +77,11 @@ final class TripDb extends SQLiteOpenHelper {
             createCharges(db);
         } else if (oldV < 4) {
             db.execSQL("ALTER TABLE charges ADD COLUMN partial INTEGER DEFAULT 0");
+        }
+        if (oldV < 7) {
+            // v7: energy and time of the driving, parked time left out (worked out from the samples for older trips)
+            db.execSQL("ALTER TABLE trips ADD COLUMN drive_kwh REAL");
+            db.execSQL("ALTER TABLE trips ADD COLUMN drive_s REAL");
         }
         if (oldV < 6) {
             // v6: speed-integrated distance kept apart from the shown distance, and the car's journey counter
@@ -133,6 +138,8 @@ final class TripDb extends SQLiteOpenHelper {
         put(cv, "speed_km", t.speedKm);
         put(cv, "journey_acc", t.journeyAcc);
         put(cv, "journey_last", t.journeyLast);
+        put(cv, "drive_kwh", t.driveKwh);
+        put(cv, "drive_s", t.driveSec);
         getWritableDatabase().insertWithOnConflict("trips", null, cv,
                 SQLiteDatabase.CONFLICT_REPLACE);
     }
@@ -195,13 +202,15 @@ final class TripDb extends SQLiteOpenHelper {
         t.speedKm = c.isNull(28) ? t.distanceKm : c.getDouble(28);   // older trips: their distance was the speed integral
         t.journeyAcc = dbl(c, 29);
         t.journeyLast = dbl(c, 30);
+        t.driveKwh = dbl(c, 31);
+        t.driveSec = dbl(c, 32);
         return t;
     }
 
     private static final String COLS = "id,start_ms,end_ms,last_update_ms,ended,mode,distance_km,"
             + "odo_start,odo_end,moving_s,idle_s,max_speed,soc_start,soc_end,elec_start,elec_end,"
             + "hard_accel,hard_brake,start_lat,start_lon,end_lat,end_lon,fuel_start,fuel_end,"
-            + "ev_start,ev_end,hev_start,hev_end,speed_km,journey_acc,journey_last";
+            + "ev_start,ev_end,hev_start,hev_end,speed_km,journey_acc,journey_last,drive_kwh,drive_s";
 
     synchronized List<Trip> all() {
         List<Trip> out = new ArrayList<>();

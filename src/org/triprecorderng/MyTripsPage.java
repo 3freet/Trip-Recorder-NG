@@ -304,7 +304,7 @@ final class MyTripsPage {
         range.setSingleLine(true);
         when.addView(range);
         LinearLayout second = k.row();
-        TextView dur = k.t(Ui.duration(t.durationSec()), Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
+        TextView dur = k.t(Ui.duration(t.drivingSec()), Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
         dur.setSingleLine(true);
         second.addView(dur);
         if (!t.ended) {
@@ -326,11 +326,11 @@ final class MyTripsPage {
         double lit = Stats.burnedFuel(t) ? t.fuelPer100Km() : Double.NaN;
         if (Double.isNaN(lit)) {
             row.addView(figure(Double.isNaN(kwh) ? "--"
-                    : Kit.numUnit(Ui.f(kwh, "%.1f") + " kWh", unit), W_PER100));
+                    : Kit.numUnit(Ui.f(kwh, "%.1f") + " " + L.t("kWh"), unit), W_PER100));
         } else {
             LinearLayout two = k.column();
             TextView a = k.t("", Kit.BODY, Kit.TEXT, Kit.BOLD);
-            a.setText(Double.isNaN(kwh) ? "--" : Kit.numUnit(Ui.f(kwh, "%.1f") + " kWh", Kit.CAPTION / Kit.BODY));
+            a.setText(Double.isNaN(kwh) ? "--" : Kit.numUnit(Ui.f(kwh, "%.1f") + " " + L.t("kWh"), Kit.CAPTION / Kit.BODY));
             a.setSingleLine(true);
             TextView b = k.t("", Kit.BODY, Kit.TEXT, Kit.BOLD);
             b.setText(Kit.numUnit(L.f("%s L", Ui.f(lit, "%.1f")), Kit.CAPTION / Kit.BODY));

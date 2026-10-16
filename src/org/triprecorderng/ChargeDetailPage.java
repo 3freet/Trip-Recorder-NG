@@ -75,7 +75,9 @@ final class ChargeDetailPage {
                                 }
                                 double[] p = pts.get(index);
                                 String t = new SimpleDateFormat("HH:mm", L.dateLocale()).format(new Date((long) timeMs));
-                                readout.setText(t + "   " + Ui.f(TripAnalysis.valueAt(times, soc, timeMs), "%.0f") + "%"
+                                // each figure is a block of its own, so they follow one another the way the text runs
+                                readout.setText(L.ltr(t) + "   "
+                                        + L.ltr(Ui.f(TripAnalysis.valueAt(times, soc, timeMs), "%.0f") + "%")
                                         + (Double.isNaN(p[2]) || p[2] <= 0 ? ""
                                         : "   " + L.f("%s kW", Ui.f(p[2], "%.1f"))));
                             }
@@ -121,7 +123,7 @@ final class ChargeDetailPage {
         double hours = ch.durationSec() / 3600.0;
         LinearLayout list = k.column();
         list.setPadding(0, dp(8), 0, 0);
-        fact(list, L.t("Battery"), L.ltr(Ui.f(ch.socStart, "%.0f") + "% → " + Ui.f(ch.socEnd, "%.0f") + "%"));
+        fact(list, L.t("Battery"), Ui.f(ch.socStart, "%.0f") + "% " + L.arrow() + " " + Ui.f(ch.socEnd, "%.0f") + "%");
         fact(list, ch.energyIsEstimate() ? L.t("Energy added (estimate)") : L.t("Energy added"),
                 Double.isNaN(e) ? "--" : L.f("%s kWh", Ui.f(e, "%.1f")));
         fact(list, L.t("Average power"), Double.isNaN(e) || hours < 0.02 || ch.partial ? "--"

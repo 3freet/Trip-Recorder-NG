@@ -31,8 +31,6 @@ final class ThisTripPage {
         /** The recorded trips, newest first. */
         List<Trip> trips();
 
-        List<Charge> charges();
-
         void openTrip(Trip t);
 
         void openSetting();
@@ -641,13 +639,13 @@ final class ThisTripPage {
         TextView used = k.t(L.t("Used"), Kit.CAPTION, Kit.MUTED, Kit.REGULAR);
         used.setMaxLines(2);
         row.addView(used, new LinearLayout.LayoutParams(dp(92), -2));
-        TextView[] ev = item(row, Kit.IconView.BOLT, Kit.ACCENT);
+        TextView[] ev = item(row, Kit.IconView.BOLT, Kit.ACCENT, 1.35f);
         evValue = ev[0];
         evPer100 = ev[1];
-        TextView[] fuel = item(row, Kit.IconView.PUMP, Kit.AMBER);
+        TextView[] fuel = item(row, Kit.IconView.PUMP, Kit.AMBER, 1f);
         fuelValue = fuel[0];
         fuelPer100 = fuel[1];
-        costValue = item(row, Kit.IconView.COIN, Kit.MUTED)[0];
+        costValue = item(row, Kit.IconView.COIN, Kit.MUTED, 0.8f)[0];
         return row;
     }
 
@@ -655,7 +653,7 @@ final class ThisTripPage {
      * An icon and a value in the footer, one third of its width, with a line under the value that is only there
      * when it has something to say. Returns the value and that line.
      */
-    private TextView[] item(LinearLayout row, int icon, int color) {
+    private TextView[] item(LinearLayout row, int icon, int color, float weight) {
         LinearLayout cell = k.column();
         cell.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout top = k.row();
@@ -670,7 +668,7 @@ final class ThisTripPage {
         per100.setPaddingRelative(dp(30), 0, 0, 0);
         per100.setVisibility(View.GONE);
         cell.addView(per100);
-        row.addView(cell, new LinearLayout.LayoutParams(0, -2, 1f));
+        row.addView(cell, new LinearLayout.LayoutParams(0, -2, weight));
         return new TextView[]{v, per100};
     }
 
@@ -792,7 +790,7 @@ final class ThisTripPage {
         liveTag.setVisibility(live ? View.VISIBLE : View.GONE);
 
         setText(distValue, Kit.numUnit(L.f("%s km", Ui.f(show.distanceKm, "%.1f")), 22f / 48f));
-        setText(durValue, Kit.numUnit(Ui.duration(show.durationSec()), 22f / 48f));
+        setText(durValue, Kit.numUnit(Ui.duration(show.drivingSec()), 22f / 48f));
         double sc = Stats.score(show);
         score.set(Double.isNaN(sc) ? 0 : sc, 100, Ui.f(sc, "%.0f"), "", Kit.scoreColor(sc));
 
@@ -803,7 +801,7 @@ final class ThisTripPage {
         // energy: what is left, what the trip took and what it cost per km
         double socNow = live && !Double.isNaN(l.soc) ? l.soc : show.socEnd;
         double per100 = show.energyPer100Km();
-        boolean burned = Stats.burnedFuel(show);
+        boolean burned = Stats.hybridDriving(show);
         if (Double.isNaN(socNow) && Double.isNaN(per100) && !burned) {
             energyBlocks.setVisibility(View.GONE);
             energyNote.setVisibility(View.VISIBLE);
@@ -853,7 +851,7 @@ final class ThisTripPage {
         setText(costValue, Double.isNaN(cost) ? "--" : Kit.numUnit(Cost.money(c, cost), fu));
         // a trip that burned fuel: what the whole trip used per 100 km (the Energy tile has the electric and the
         // hybrid figures)
-        double kwh100 = show.energyPer100Km();
+        double kwh100 = show.wholeEnergyPer100Km();
         double l100 = show.fuelPer100Km();
         setLine(evPer100, burned && !Double.isNaN(kwh100) ? Ui.f(kwh100, "%.1f") + " " + L.t("kWh/100km") : null);
         setLine(fuelPer100, burned && !Double.isNaN(l100) ? Ui.f(l100, "%.1f") + " " + L.t("L/100km") : null);
@@ -861,7 +859,7 @@ final class ThisTripPage {
 
     /** Electric and hybrid driving apart: the electric one with what the engine charged added back (about). */
     private void showHybrid(Trip show) {
-        TripEnergy e = EnergyLoader.get(c, show, host.charges());
+        TripEnergy e = EnergyLoader.get(c, show);
         double evKm = show.evKm();
         double hevKm = show.hevKm();
         setText(electricCaption, L.t("Electric") + " · "

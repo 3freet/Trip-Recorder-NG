@@ -176,9 +176,11 @@ final class SettingsPage {
                     }
                 });
         Kit.Row prices = action(L.t("Energy prices"),
-                L.f("Electricity %1$s %2$s/kWh%3$s, fuel %4$s %2$s/L%5$s", Ui.f(Cost.elecPrice(c), "%.4f"),
-                        Prefs.currency(c), Cost.elecIsDefault(c) ? L.t(" (default)") : "",
-                        Ui.f(Cost.fuelPrice(c), "%.3f"), Cost.fuelIsDefault(c) ? L.t(" (default)") : ""),
+                L.f("Electricity %1$s, fuel %2$s",
+                        Ui.f(Cost.elecPrice(c), "%.4f") + " " + Prefs.currency(c) + "/" + L.t("kWh")
+                                + (Cost.elecIsDefault(c) ? L.t(" (default)") : ""),
+                        Ui.f(Cost.fuelPrice(c), "%.3f") + " " + Prefs.currency(c) + "/L"
+                                + (Cost.fuelIsDefault(c) ? L.t(" (default)") : "")),
                 L.t("Set"), false, new View.OnClickListener() {
                     @Override public void onClick(View v) {
                         host.showPriceDialog();

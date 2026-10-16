@@ -50,7 +50,8 @@ final class Exporter {
                     + "avg_speed_kmh,max_speed_kmh,soc_start,soc_end,soc_used,energy_used,"
                     + "energy_per_100km,hard_accel,hard_brake,start_lat,start_lon,end_lat,end_lon,"
                     + "mode,ended,id,fuel_used_l,fuel_per_100km,ev_km,hev_km,electricity_cost,fuel_cost,"
-                    + "total_cost,currency,speed_integral_km,car_trip_counter_km\n");
+                    + "total_cost,currency,speed_integral_km,car_trip_counter_km,drive_s,parked_s,"
+                    + "drive_energy,parked_energy\n");
             for (Trip t : trips) {
                 w.write(local(t.startMs) + "," + (t.endMs > 0 ? local(t.endMs) : "") + ","
                         + t.durationSec() + "," + num(t.distanceKm, "%.3f") + ","
@@ -67,7 +68,10 @@ final class Exporter {
                         + num(Cost.elec(t, ctx), "%.4f") + "," + num(Cost.fuel(t, ctx), "%.4f") + ","
                         + num(Cost.total(t, ctx), "%.4f") + ","
                         + Prefs.currency(ctx) + "," + num(t.speedKm, "%.3f") + ","
-                        + num(t.journeyAcc, "%.1f") + "\n");
+                        + num(t.journeyAcc, "%.1f") + "," + (Double.isNaN(t.driveSec) ? "" : t.drivingSec()) + ","
+                        + (Double.isNaN(t.driveSec) ? "" : t.parkedSec()) + ","
+                        + num(Double.isNaN(t.driveKwh) ? Double.NaN : t.driveEnergy(), "%.2f") + ","
+                        + num(t.parkedEnergy(), "%.2f") + "\n");
             }
         } finally {
             w.close();

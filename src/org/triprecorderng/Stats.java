@@ -33,12 +33,19 @@ final class Stats {
     }
 
     /**
-     * The trip burned no fuel (its fuel counter was recorded and stayed at zero): its kWh per 100 km is a real electric
-     * consumption. Trips from before the fuel counter was recorded are neither electric-only nor hybrid.
+     * The engine did not drive the car (its fuel counter was recorded and stayed at zero, or the car did not drive a
+     * kilometre in hybrid mode): its kWh per 100 km is a real electric consumption. Trips from before the fuel counter
+     * was recorded are neither electric-only nor hybrid.
      */
     static boolean electricOnly(Trip t) {
         double f = t.fuelUsed();
-        return !Double.isNaN(f) && f < TripEnergy.FUEL_EPS;
+        return !Double.isNaN(f) && (f < TripEnergy.FUEL_EPS || t.hevKm() < 1);
+    }
+
+    /** The engine drove the car a good part of the way: its consumption is shown as electric and hybrid apart. */
+    static boolean hybridDriving(Trip t) {
+        double f = t.fuelUsed();
+        return !Double.isNaN(f) && f >= TripEnergy.FUEL_EPS && t.hevKm() >= TripEnergy.MIN_MODE_KM;
     }
 
     /** The trip burned fuel. */
@@ -108,7 +115,7 @@ final class Stats {
                 if (t.startMs < from.getTimeInMillis() || t.startMs >= to.getTimeInMillis()) continue;
                 count++;
                 km += t.distanceKm;
-                double e = t.energyUsed();
+                double e = t.driveEnergy();
                 if (!Double.isNaN(e) && t.distanceKm >= 0.5) {
                     energy += e;
                     energyKm += t.distanceKm;
@@ -170,9 +177,9 @@ final class Stats {
         for (Trip t : trips) {
             r.count++;
             r.totalKm += t.distanceKm;
-            r.totalSec += t.durationSec();
+            r.totalSec += t.drivingSec();
             if (r.longest == null || t.distanceKm > r.longest.distanceKm) r.longest = t;
-            if (r.longestTime == null || t.durationSec() > r.longestTime.durationSec()) r.longestTime = t;
+            if (r.longestTime == null || t.drivingSec() > r.longestTime.drivingSec()) r.longestTime = t;
             if (r.fastest == null || t.maxSpeedKmh > r.fastest.maxSpeedKmh) r.fastest = t;
             double eff = t.energyPer100Km();
             if (!Double.isNaN(eff) && eff > 0 && t.distanceKm >= 5

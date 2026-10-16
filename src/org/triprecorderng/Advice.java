@@ -77,7 +77,7 @@ final class Advice {
             out.add(energy1());
             out.add(energy2());
         }
-        if (t.durationSec() >= 2 * 3600) out.add(fatigue1());
+        if (t.drivingSec() >= 2 * 3600) out.add(fatigue1());
         if (out.isEmpty()) out.add(excellent());
         return out.size() > 3 ? new ArrayList<>(out.subList(0, 3)) : out;
     }

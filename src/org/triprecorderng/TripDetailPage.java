@@ -19,29 +19,23 @@ import java.util.Locale;
  * Export and Delete are in the title bar (MainActivity).
  */
 final class TripDetailPage {
-    interface Host {
-        List<Charge> charges();
-    }
-
     private static final int AMBER_TEXT = Kit.AMBER;
 
     private final Context c;
     private final Trip t;
-    private final Host host;
     private final Kit k;
     private final TextView overView;
     private LinearLayout consumption;
     private View root;
     private int polls;
 
-    static View build(Context c, Trip t, Host host) {
-        return new TripDetailPage(c, t, host).create();
+    static View build(Context c, Trip t) {
+        return new TripDetailPage(c, t).create();
     }
 
-    private TripDetailPage(Context c, Trip t, Host host) {
+    private TripDetailPage(Context c, Trip t) {
         this.c = c;
         this.t = t;
-        this.host = host;
         this.k = new Kit(c, 1f);
         this.overView = k.t("...", Kit.BODY, Kit.TEXT, Kit.MEDIUM);
     }
@@ -112,7 +106,7 @@ final class TripDetailPage {
         dist.setText(Kit.numUnit(L.f("%s km", Ui.f(t.distanceKm, "%.1f")), 20f / 38f));
         dist.setSingleLine(true);
         big.addView(dist);
-        big.addView(k.t(Ui.duration(t.durationSec()), Kit.CAPTION, Kit.MUTED, Kit.REGULAR));
+        big.addView(k.t(Ui.duration(t.drivingSec()), Kit.CAPTION, Kit.MUTED, Kit.REGULAR));
         hero.addView(big);
         // what the trip cost, in view from the start
         double total = Cost.total(t, c);
@@ -154,7 +148,7 @@ final class TripDetailPage {
         LinearLayout r2 = new LinearLayout(c);
         r2.setOrientation(LinearLayout.HORIZONTAL);
         r2.addView(tile(Kit.numUnit(L.f("%s kWh", Ui.f(t.energyUsed(), "%.1f")), 18f / 26f),
-                L.t("Battery") + ", " + L.ltr(Ui.f(t.socStart, "%.0f") + " → " + Ui.f(t.socEnd, "%.0f") + "%")),
+                L.t("Battery") + ", " + Ui.f(t.socStart, "%.0f") + " " + L.arrow() + " " + Ui.f(t.socEnd, "%.0f") + "%"),
                 new LinearLayout.LayoutParams(0, -2, 1f));
         if (!Double.isNaN(t.fuelUsed())) {
             r2.addView(tile(Kit.numUnit(L.f("%s L", Ui.f(t.fuelUsed(), "%.1f")), 18f / 26f), L.t("Fuel used")), spaced());
@@ -175,7 +169,7 @@ final class TripDetailPage {
         addFact(more, L.t("Distance measured by"),
                 !Double.isNaN(t.journeyAcc) && t.journeyAcc >= JourneyTracker.TRUST_KM
                         ? L.t("car trip counter") : L.t("speed"));
-        if (!Stats.burnedFuel(t) && !Double.isNaN(t.evKm()) && !Double.isNaN(t.hevKm())) {
+        if (!Stats.hybridDriving(t) && !Double.isNaN(t.evKm()) && !Double.isNaN(t.hevKm())) {
             addFact(more, L.t("Electric / hybrid distance"),
                     L.f("%1$s km / %2$s km", Ui.f(t.evKm(), "%.0f"), Ui.f(t.hevKm(), "%.0f")));
         }
@@ -262,16 +256,17 @@ final class TripDetailPage {
     }
 
     /**
-     * The consumption block. A trip that burned fuel shows electric and hybrid driving apart and what the engine put
-     * into the battery; the electric figure waits for the battery trace and fills in when it has been read.
+     * The consumption block. A trip the engine drove a good part of shows electric and hybrid driving apart and what
+     * the engine put into the battery; the electric figure waits for the battery trace and fills in when it has been
+     * read. What the car used while parked is shown on its own, and is not part of the consumption.
      */
     private void fillConsumption() {
         consumption.removeAllViews();
-        double cost = Cost.total(t, c);
+        double cost = Cost.driving(t, c);
         String costPer100 = Double.isNaN(cost) || t.distanceKm < 0.5 ? "--"
-                : Cost.money(c, cost / t.distanceKm * 100.0) + "/100km";
-        if (Stats.burnedFuel(t)) {
-            TripEnergy e = EnergyLoader.get(c, t, host.charges());
+                : Cost.amount(c, cost / t.distanceKm * 100.0) + " " + Prefs.currency(c) + L.t("/100km");
+        if (Stats.hybridDriving(t)) {
+            TripEnergy e = EnergyLoader.get(c, t);
             double ev = t.evKm();
             double hev = t.hevKm();
             addFact(consumption, L.t("Electric") + " · " + L.f("%s km", Double.isNaN(ev) ? "--" : Ui.f(ev, "%.0f")),
@@ -280,16 +275,18 @@ final class TripDetailPage {
             addFact(consumption, L.t("Hybrid") + " · " + L.f("%s km", Double.isNaN(hev) ? "--" : Ui.f(hev, "%.0f")),
                     Double.isNaN(e.hybridLPer100) ? "--" : Ui.f(e.hybridLPer100, "%.1f") + " " + L.t("L/100km"));
             if (!Double.isNaN(e.chargedPct) && e.chargedPct > 0) {
-                TextView v = k.t(L.ltr("≈ +" + Ui.f(e.chargedPct, "%.0f") + "%") + " · "
+                // the approximately sign comes first, then the signed percentage as one piece, then the energy
+                TextView v = k.t("≈ " + L.ltr("+" + Ui.f(e.chargedPct, "%.0f") + "%") + " · "
                         + L.f("%s kWh", Ui.f(e.chargedKwh, "%.1f")), Kit.BODY, AMBER_TEXT, Kit.MEDIUM);
                 addFact(consumption, L.t("Engine charging"), v);
             }
             // what the whole trip used per 100 km, the two ways of driving taken together
-            double kwh100 = t.energyPer100Km();
+            double kwh100 = t.wholeEnergyPer100Km();
             double l100 = t.fuelPer100Km();
             addFact(consumption, L.t("Whole trip per 100 km"),
                     L.rtl(Double.isNaN(kwh100) ? "--" : L.f("%s kWh", Ui.f(kwh100, "%.1f"))) + " · "
                     + L.rtl(Double.isNaN(l100) ? "--" : L.f("%s L", Ui.f(l100, "%.1f"))));
+            addParked();
             addFact(consumption, L.t("Cost"), costPer100);
             if (!e.traced && polls++ < 20) {
                 root.postDelayed(new Runnable() {
@@ -300,8 +297,18 @@ final class TripDetailPage {
             }
         } else {
             addFact(consumption, L.t("Energy used"), L.f("%s kWh", Ui.f(t.energyUsed(), "%.1f")));
+            addParked();
             addFact(consumption, L.t("Consumption"), L.f("%s kWh/100km", Ui.f(t.energyPer100Km(), "%.1f")));
             addFact(consumption, L.t("Cost"), costPer100);
         }
+    }
+
+    /** What the car used while it stood parked (air conditioning, the cable in), when that is worth a line. */
+    private void addParked() {
+        double kwh = t.parkedEnergy();
+        long sec = t.parkedSec();
+        if (sec < 600 && !(kwh >= 0.5)) return;
+        addFact(consumption, L.t("While parked"),
+                L.rtl(Double.isNaN(kwh) ? "--" : L.f("%s kWh", Ui.f(kwh, "%.1f"))) + " · " + L.rtl(Ui.duration(sec)));
     }
 }

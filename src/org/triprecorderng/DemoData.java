@@ -28,17 +28,23 @@ final class DemoData {
             t.id = "demo-" + (i + 1);
             t.mode = "demo";
             t.startMs = now - (long) (s[2] * 3600_000);
-            t.endMs = t.startMs + (long) (s[1] * 60_000);
+            // one trip stayed open after the drive: the car stood parked with the air conditioning on
+            double parkedMin = i == 5 ? 95 : 0;
+            double parkedKwh = i == 5 ? 1.3 : 0;
+            long driveEndMs = t.startMs + (long) (s[1] * 60_000);
+            t.endMs = driveEndMs + (long) (parkedMin * 60_000);
             t.lastUpdateMs = t.endMs;
             t.ended = true;
             t.distanceKm = s[0];
             t.movingSec = s[1] * 60 * 0.85;
-            t.idleSec = s[1] * 60 * 0.15;
+            t.idleSec = s[1] * 60 * 0.15 + parkedMin * 60;
             t.maxSpeedKmh = s[3];
             t.socStart = s[4];
             t.socEnd = s[5];
             t.elecStart = 4000;
-            t.elecEnd = 4000 + s[6];
+            t.elecEnd = 4000 + s[6] + parkedKwh;
+            t.driveKwh = s[6];
+            t.driveSec = s[1] * 60;
             t.odoStartKm = 12000;
             t.odoEndKm = 12000 + Math.round(s[0]);
             // plug-in hybrid counters: the long trip burned some fuel, the others were all electric
@@ -57,7 +63,7 @@ final class DemoData {
             db.upsert(t);
             List<double[]> pts = new ArrayList<>();
             int n = Math.max(100, (int) (s[1] * 6) + 1); // a sample every ~10 s, like a real recording
-            long step = (t.endMs - t.startMs) / (n - 1);
+            long step = (driveEndMs - t.startMs) / (n - 1);
             double[] speed = new double[n];
             double weight = 0;
             for (int k = 0; k < n; k++) {
@@ -82,6 +88,13 @@ final class DemoData {
                 double alt = 10 + 40 * Math.sin(a * 4.0 + i) + (k % 3);
                 pts.add(new double[]{t.startMs + k * step, lat, lon, alt, speed[k], speed[k], 90,
                         Math.round(soc), Math.round(elec * 10) / 10.0});
+            }
+            if (parkedMin > 0) {
+                double[] end = pts.get(pts.size() - 1);
+                for (int m = 5; m <= parkedMin; m += 5) {
+                    pts.add(new double[]{driveEndMs + m * 60_000L, end[1], end[2], end[3], 0, 0, 90, end[7],
+                            Math.round((end[8] + parkedKwh * m / parkedMin) * 10) / 10.0});
+                }
             }
             db.addPoints(t.id, pts);
             List<double[]> ev = new ArrayList<>();

@@ -57,6 +57,13 @@ final class Cost {
         return (Double.isNaN(e) ? 0 : e) + (Double.isNaN(f) ? 0 : f);
     }
 
+    /** What the driving cost: the energy of the driving (not of the parked car) and the fuel burned. */
+    static double driving(Trip t, Context c) {
+        double e = t.driveEnergy(), f = fuel(t, c);
+        if (Double.isNaN(e) && Double.isNaN(f)) return Double.NaN;
+        return (Double.isNaN(e) ? 0 : e * elecPrice(c)) + (Double.isNaN(f) ? 0 : f);
+    }
+
     /** What the energy added by a charging session cost, at the electricity price. */
     static double charge(Charge ch, double kwhPerPercent, Context c) {
         double e = ch.energyKwh(kwhPerPercent);

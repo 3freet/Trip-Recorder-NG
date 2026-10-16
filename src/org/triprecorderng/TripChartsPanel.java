@@ -207,9 +207,9 @@ final class TripChartsPanel extends LinearLayout {
         double speed = TripAnalysis.valueAt(times, speeds, timeMs);
         double battery = TripAnalysis.valueAt(times, soc, timeMs);
         double elevation = TripAnalysis.valueAt(times, alt, timeMs);
-        StringBuilder sb = new StringBuilder(clock.format(new Date((long) timeMs)));
+        StringBuilder sb = new StringBuilder(L.ltr(clock.format(new Date((long) timeMs))));
         sb.append("   ").append(L.f("%s km/h", Ui.f(speed, "%.0f")));
-        if (!Double.isNaN(battery)) sb.append("   ").append(Ui.f(battery, "%.0f")).append("%");
+        if (!Double.isNaN(battery)) sb.append("   ").append(L.ltr(Ui.f(battery, "%.0f") + "%"));
         if (!Double.isNaN(elevation)) sb.append("   ").append(L.f("%d m", Math.round(elevation)));
         readout.setText(sb.toString());
     }

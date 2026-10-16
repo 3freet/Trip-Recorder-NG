@@ -73,6 +73,16 @@ final class QaPage {
                                 + "distance. In Statistics, Consumption is the car's net figure for every trip, "
                                 + "Electric leaves out the trips that burned fuel, Fuel is the litres burned and Fuel "
                                 + "economy is litres per 100 km of hybrid driving.")},
+                {L.t("Why is a parked car not counted in kWh/100km and the drive time?"),
+                        L.t("A trip lasts while the ignition is on, so a car left parked with the air "
+                                + "conditioning on, or with the cable in, stays in the same trip for hours. "
+                                + "Standing still for 5 minutes or more counts as parked: the energy used then "
+                                + "(shown as While parked in the trip details) and the time are left out of "
+                                + "kWh/100km, the drive time and the longest drive. The totals, the battery used "
+                                + "and the cost still include everything the trip used. Shorter stops, like "
+                                + "traffic lights, are part of the drive. Trips recorded before this was added "
+                                + "are worked out again from their saved samples; a trip with no saved samples "
+                                + "keeps its whole figures.")},
                 {L.t("What are Driving advice, CO2 avoided and the driving level?"),
                         L.t("Driving advice on a trip uses the stock app's advice texts, chosen by simple rules "
                                 + "(hard braking or acceleration, high average speed, high consumption, a long "

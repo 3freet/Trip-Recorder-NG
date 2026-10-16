@@ -99,30 +99,40 @@ sees the car's IP address and the app's build name. Opening a trip in a map app 
 The left card is what the car is doing now: the recording state, a gauge that shows the battery while the car is
 parked or charging and the speed while it drives, and the state of GPS and of the vehicle data. A note under it
 says what to fix when BYD blocks auto-start or the Vehicle data link is off (tap it to open Setting). The right
-card is the current trip, or the last one: distance, duration and drive score, then speed, energy and behavior, and
+card is the current trip, or the last one: distance, drive time and drive score, then speed, energy and behavior, and
 at the bottom what the trip has used so far (electricity in kWh, fuel in litres) and what it cost; on a trip that
 burned fuel, what the whole trip used per 100 km is under the kWh and the litres. The energy tile shows the battery
 left and used and the consumption: kWh/100 km with how far that is from the median of your earlier all-electric
-trips, or, when the engine ran, the two figures explained under
+trips, or, when the engine drove the car 5 km or more, the two figures explained under
 [Consumption on a hybrid trip](#consumption-on-a-hybrid-trip). Tap the card to open the trip's details.
 Source: `ThisTripPage`, `GaugeView`.
 
+## Driving and parked time
+A trip lasts while the ignition is on, so a car left parked with the air conditioning on, or with the cable in, stays
+in the same trip for hours. The app tells the driving from the parking in every trip: standing still for 5 minutes or
+more is parking, and shorter stops (junctions, queues) are part of the drive. What the car used while parked is shown
+as **While parked** in the trip details and is left out of kWh/100 km everywhere (This Trip, My Trips, the details,
+Statistics, Attainment, the driving advice); the parked time is left out of the drive time, the longest drive and the
+total drive time. What the trip used in total (kWh, litres, battery, cost) still includes everything. The split is made
+from the recorded samples as the trip goes and, once, for trips recorded before it existed or restored from a backup;
+a trip with no saved samples keeps its whole figures. The CSV export has the drive and parked time and energy.
+Source: `DriveSplit`, `Trip`.
+
 ## Consumption on a hybrid trip
 The car's energy counter is net: it also goes down when the engine charges the battery and when the car
-recovers energy, so one kWh/100 km figure for a trip that burned fuel is misleading (the petrol kilometres count
-as free). A trip that burned fuel is therefore shown as two figures, split by the car's own electric and hybrid
-kilometre counters:
+recovers energy, so one kWh/100 km figure for a trip the engine drove is misleading (the petrol kilometres count
+as free). A trip the engine drove for 5 km or more is therefore shown as two figures, split by the car's own electric
+and hybrid kilometre counters:
 - **Electric**: kWh per 100 km driven on electricity. The energy the engine put into the battery is added back to
   the kWh used (it is estimated from the rises of the battery level while moving, at the kWh per battery point
   measured on the same trip), so charging by the engine does not make the electric driving look better.
 - **Hybrid**: litres per 100 km driven with the engine running. It includes the fuel that charged the battery.
 
-Both are estimates. Electric shows "--" when the trip has under 5 km on electricity, the battery fell by under 8
-points, or a charging session overlaps the driving; Hybrid shows "--" under 5 km of hybrid driving. A trip stays open
-while the car is plugged in, so when the cable was in before or after the drive only the part from the first to the
-last moment the car moved is used. The totals (kWh, litres, cost) stay exact, and the plain figures are still there:
-what the whole trip used per 100 km (under the totals on This Trip, in the Consumption block of the details and in My
-Trips). In Statistics, Consumption is the car's net kWh per 100 km of every trip and Electric leaves out the trips that
+Both are estimates. Electric shows "--" when the trip has under 5 km on electricity or the battery fell by under 8
+points while driving; Hybrid needs 5 km of hybrid driving. A trip the engine drove less than that is shown as an
+electric trip. The totals (kWh, litres, cost) stay exact, and the plain figures are still there: what the whole trip
+used per 100 km, parked time included (under the totals on This Trip and in the Consumption block of the details).
+In Statistics, Consumption is the car's net kWh per 100 km of every trip and Electric leaves out the trips that
 burned fuel; Fuel is the litres burned and Fuel economy is litres per 100 km of hybrid driving. In Attainment, Most
 efficient is the lowest net figure of any trip and, in a second row, of the trips that burned no fuel, and Best fuel
 economy is litres per 100 km of hybrid driving. Source: `TripEnergy`, `EnergyLoader`, `Stats`.

@@ -96,6 +96,8 @@ public class RecorderService extends Service {
 
     // ---- trip state ------------------------------------------------------------------------
     private Trip trip;
+    /** Tells the driving of the running trip from the car standing parked (see DriveSplit). */
+    private DriveSplit split;
     private int baselineLeft;
     private final List<Double> bOdo = new ArrayList<>();
     private final List<Double> bElec = new ArrayList<>();
@@ -165,8 +167,11 @@ public class RecorderService extends Service {
             Tweaks.avasStart(this, "service start", false);
             lastTickMs = SystemClock.elapsedRealtime();
             handler.postDelayed(tick, TICK_MS);
+            final Context app = getApplicationContext();
+            Thread st = new Thread(() -> DriveSplit.backfill(app), "drive-split");
+            st.setDaemon(true);
+            st.start();
             if (Prefs.autoBackup(this)) {
-                final Context app = getApplicationContext();
                 Thread bt = new Thread(() -> {
                     Backup.migrateOldFolders(app);
                     Backup.writeMissing(app);
@@ -342,6 +347,7 @@ public class RecorderService extends Service {
         if (!Double.isNaN(speed) && now - lastPointMs >= (moving ? POINT_MS : IDLE_POINT_MS)) {
             lastPointMs = now;
             recordPoint(wall, speed, moving);
+            feedSplit(wall, speed);
         }
 
         long saveEvery = moving ? SAVE_MOVING_MS : SAVE_IDLE_MS;
@@ -412,6 +418,7 @@ public class RecorderService extends Service {
             trip.startLat = l.getLatitude();
             trip.startLon = l.getLongitude();
         }
+        split = new DriveSplit();
         db.upsert(trip);
         current = trip;
         Diag.log("trip started (" + mode + ") " + trip.id);
@@ -554,6 +561,17 @@ public class RecorderService extends Service {
         pending.add(new double[]{wall, lat, lon, alt, gpsKmh, carSpeed, bearing, trip.socEnd, trip.elecEnd});
     }
 
+    /** Gives the sample to the driving/parked split and keeps its result in the trip (never lets it break recording). */
+    private void feedSplit(long wall, double speed) {
+        try {
+            if (split == null) split = new DriveSplit();
+            split.add(wall, speed, trip.elecEnd, trip.socEnd);
+            split.applyTo(trip);
+        } catch (Throwable x) {
+            Diag.log("drive split failed", x);
+        }
+    }
+
     private void saveTrip(boolean final_) {
         if (trip == null) return;
         try {
@@ -586,6 +604,14 @@ public class RecorderService extends Service {
         trip.endMs = wall;
         trip.lastUpdateMs = wall;
         ignitionWasKnown = true;
+        try {
+            if (split != null) {
+                split.finish();
+                split.applyTo(trip);
+            }
+        } catch (Throwable x) {
+            Diag.log("drive split failed", x);
+        }
         saveTrip(true);
         double observed = JourneyTracker.observedScale(trip);
         if (!Double.isNaN(observed)) {
@@ -605,6 +631,7 @@ public class RecorderService extends Service {
             Backup.write(this, trip);
         }
         trip = null;
+        split = null;
         current = null;
         baselineLeft = 0;
         live.tripActive = false;
@@ -621,6 +648,12 @@ public class RecorderService extends Service {
             trip = open;
             current = open;
             baselineLeft = 0;
+            try {
+                split = DriveSplit.replay(db.points(open.id));   // carry on from what the stored samples say
+                split.applyTo(trip);
+            } catch (Throwable x) {
+                split = new DriveSplit();
+            }
             if (Double.isNaN(trip.speedKm) || trip.speedKm == 0) trip.speedKm = trip.distanceKm;
             long now = SystemClock.elapsedRealtime();
             lastOnMs = now;

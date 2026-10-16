@@ -170,6 +170,7 @@ final class AttainmentPage {
         TextView v = k.t("", 28, Kit.TEXT, Kit.BOLD);
         v.setText(value);
         v.setSingleLine(true);
+        v.setGravity(Gravity.END);   // the figure and its unit end on the same side, whichever way the text runs
         fig.addView(v);
         if (!unit.isEmpty()) {
             TextView u = k.t(unit, Kit.CAPTION, Kit.MUTED, Kit.REGULAR);

@@ -8,24 +8,31 @@ package org.triprecorderng;
  * litres of the hybrid part include the fuel that charged the battery. The whole-trip figures (kWh, litres, cost) are
  * exact; the electric figure here adds back what the engine charged, which is estimated from the rises of the battery
  * percentage while the car was moving.
+ *
+ * <p>The energy of a car left parked (air conditioning, the cable in) is not driving: every consumption figure here
+ * uses the energy of the driving only (see {@link DriveSplit}).
  */
 final class TripEnergy {
     /** Per-mode figures need at least this many km of that mode (the car's km counters step 1 km). */
     static final double MIN_MODE_KM = 5;
-    /** The electric estimate needs the battery to have dropped at least this many points. */
+    /** The electric estimate needs the battery to have dropped at least this many points while driving. */
     static final double MIN_DROP_PCT = 8;
     /** Less fuel than this counts as none (the fuel counter steps 0.1 L). */
     static final double FUEL_EPS = 0.05;
     /** A swing of the battery percentage must be at least this many points to count (it moves in 1 point steps). */
     static final double SWING_PCT = 2;
 
-    /** The trip burned fuel: its kWh per 100 km mixes two ways of driving. */
+    /** The engine drove the car a good part of the way: the trip is shown as electric and hybrid driving apart. */
     final boolean hybrid;
-    /** Net battery energy per 100 km over the whole trip, NaN when unknown. */
+    /** Net kWh per 100 km of the whole trip, parked time included. NaN when unknown. */
     final double kwhPer100;
-    /** Fuel per 100 km over the whole trip, NaN when none was burned. */
+    /** Litres per 100 km of the whole trip, NaN when none was burned. */
     final double lPer100;
-    /** Electric driving, kWh per 100 km, with what the engine charged added back. NaN when it cannot be estimated. */
+    /**
+     * Electric driving, kWh per 100 km, parked time left out. On a trip the engine did not drive this is all the
+     * driving; on a hybrid trip it is the electric kilometres only, with what the engine charged added back (NaN
+     * when that cannot be estimated).
+     */
     final double electricKwhPer100;
     /** Hybrid driving, litres per 100 km (includes the fuel that charged the battery). NaN when too short. */
     final double hybridLPer100;
@@ -49,49 +56,36 @@ final class TripEnergy {
 
     /** The figures that need only the trip's own counters (no battery trace). */
     static TripEnergy basic(Trip t) {
-        return of(t.distanceKm, t.energyUsed(), t.fuelUsed(), t.evKm(), t.hevKm(), t.socStart, t.socEnd, null, false,
-                Double.NaN, Double.NaN, Double.NaN);
+        return of(t.distanceKm, t.energyUsed(), t.driveEnergy(), t.fuelUsed(), t.evKm(), t.hevKm(), Double.NaN,
+                Double.NaN, false);
     }
 
     /**
-     * @param socMoving battery percentage samples taken while the car was moving, in time order; null when the
-     *                  trace was not read
-     * @param pluggedIn the car was charging from a cable during the trip (the battery rose for another reason), so
-     *                  the trip's own start and end battery readings cannot be used
-     * @param spanNetKwh energy counter change, and {@code spanSocStart}/{@code spanSocEnd} battery percentage, between
-     *                  the first and the last moment the car moved: used instead of the trip's own when it was plugged
-     *                  in before or after the drive (NaN when they are not known or the car charged while moving)
+     * @param wholeKwh    energy counter change over the whole trip
+     * @param driveKwh    the same while driving (the whole when the parked part is not known)
+     * @param kwhPerPoint kWh per battery point while driving (NaN when it cannot be told)
+     * @param chargedPct  battery points the engine put back while driving, from the rises of the battery percentage
+     *                    (NaN when the trace was not read)
+     * @param traced      the battery trace was read
      */
-    static TripEnergy of(double km, double netKwh, double fuelL, double evKm, double hevKm, double socStart,
-                         double socEnd, double[] socMoving, boolean pluggedIn,
-                         double spanNetKwh, double spanSocStart, double spanSocEnd) {
-        boolean hybrid = !Double.isNaN(fuelL) && fuelL >= FUEL_EPS;
-        double kwh100 = !Double.isNaN(netKwh) && km >= 0.5 ? netKwh / km * 100.0 : Double.NaN;
-        double l100 = hybrid && km >= 0.5 ? fuelL / km * 100.0 : Double.NaN;
-        double hybridL = hybrid && hevKm >= MIN_MODE_KM ? fuelL / hevKm * 100.0 : Double.NaN;
-        double electric = Double.NaN;
-        double chargedPct = Double.NaN;
+    static TripEnergy of(double km, double wholeKwh, double driveKwh, double fuelL, double evKm, double hevKm,
+                         double kwhPerPoint, double chargedPct, boolean traced) {
+        boolean burned = !Double.isNaN(fuelL) && fuelL >= FUEL_EPS;
+        boolean hybrid = burned && hevKm >= MIN_MODE_KM;
+        double whole100 = !Double.isNaN(wholeKwh) && km >= 0.5 ? wholeKwh / km * 100.0 : Double.NaN;
+        double drive = Double.isNaN(driveKwh) ? wholeKwh : Math.max(0, driveKwh);
+        double drive100 = !Double.isNaN(drive) && km >= 0.5 ? drive / km * 100.0 : Double.NaN;
+        double l100 = burned && km >= 0.5 ? fuelL / km * 100.0 : Double.NaN;
+        double hybridL = hybrid ? fuelL / hevKm * 100.0 : Double.NaN;
+        double electric = hybrid ? Double.NaN : drive100;
+        double charged = Double.NaN;
         double chargedKwh = Double.NaN;
-        double net = netKwh;
-        double s0 = socStart;
-        double s1 = socEnd;
-        boolean usable = !pluggedIn;
-        if (pluggedIn && spanNetKwh > 0 && !Double.isNaN(spanSocStart) && !Double.isNaN(spanSocEnd)) {
-            net = spanNetKwh;
-            s0 = spanSocStart;
-            s1 = spanSocEnd;
-            usable = true;
+        if (hybrid && evKm >= MIN_MODE_KM && drive > 0 && !Double.isNaN(kwhPerPoint) && !Double.isNaN(chargedPct)) {
+            charged = chargedPct;
+            chargedKwh = chargedPct * kwhPerPoint;
+            electric = (drive + chargedKwh) / evKm * 100.0;
         }
-        if (hybrid && socMoving != null && socMoving.length >= 10 && usable && evKm >= MIN_MODE_KM && net > 0) {
-            double drop = s0 - s1;
-            if (!Double.isNaN(drop) && drop >= MIN_DROP_PCT) {
-                double kwhPerPoint = net / drop;
-                chargedPct = swings(socMoving, SWING_PCT)[0];
-                chargedKwh = chargedPct * kwhPerPoint;
-                electric = (net + chargedKwh) / evKm * 100.0;
-            }
-        }
-        return new TripEnergy(hybrid, kwh100, l100, electric, hybridL, chargedPct, chargedKwh, socMoving != null);
+        return new TripEnergy(hybrid, whole100, l100, electric, hybridL, charged, chargedKwh, traced);
     }
 
     /**

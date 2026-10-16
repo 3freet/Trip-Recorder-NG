@@ -30,15 +30,32 @@ final class Trip {
     double evStart = Double.NaN, evEnd = Double.NaN;
     double hevStart = Double.NaN, hevEnd = Double.NaN;
 
+    // what the car did while driving, standstills of 5 minutes or more (parking) left out (see DriveSplit); NaN until
+    // worked out. The parked part of the trip is the whole trip minus these.
+    double driveKwh = Double.NaN;
+    double driveSec = Double.NaN;
+
     int hardAccel;
     int hardBrake;
 
     double startLat = Double.NaN, startLon = Double.NaN;
     double endLat = Double.NaN, endLon = Double.NaN;
 
+    /** From the start of the trip to its end (or now), parked time included. */
     long durationSec() {
         long end = ended && endMs > 0 ? endMs : lastUpdateMs;
         return Math.max(0, (end - startMs) / 1000);
+    }
+
+    /** Time spent driving: the whole duration when the parked time has not been worked out. */
+    long drivingSec() {
+        if (Double.isNaN(driveSec)) return durationSec();
+        return Math.min(durationSec(), Math.round(driveSec));
+    }
+
+    /** Time the car stood parked in the trip (a standstill of 5 minutes or more, or time with no samples). */
+    long parkedSec() {
+        return Double.isNaN(driveSec) ? 0 : Math.max(0, durationSec() - drivingSec());
     }
 
     double avgSpeedKmh() {
@@ -56,7 +73,28 @@ final class Trip {
         return Math.max(0, elecEnd - elecStart);
     }
 
+    /** Energy used while driving; all of it when the parked part has not been worked out. */
+    double driveEnergy() {
+        if (Double.isNaN(driveKwh)) return energyUsed();
+        return Math.max(0, driveKwh);
+    }
+
+    /** Energy used while parked (air conditioning, the cable in), NaN when it cannot be told. */
+    double parkedEnergy() {
+        double e = energyUsed();
+        if (Double.isNaN(e) || Double.isNaN(driveKwh)) return Double.NaN;
+        return Math.max(0, e - Math.max(0, driveKwh));
+    }
+
+    /** kWh per 100 km of the driving: the energy of a parked car is not part of it. */
     double energyPer100Km() {
+        double e = driveEnergy();
+        if (Double.isNaN(e) || distanceKm < 0.5) return Double.NaN;
+        return e / distanceKm * 100.0;
+    }
+
+    /** kWh per 100 km of the whole trip, parked time included. */
+    double wholeEnergyPer100Km() {
         double e = energyUsed();
         if (Double.isNaN(e) || distanceKm < 0.5) return Double.NaN;
         return e / distanceKm * 100.0;
