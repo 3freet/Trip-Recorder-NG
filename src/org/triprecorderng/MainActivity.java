@@ -100,9 +100,14 @@ public class MainActivity extends Activity {
         handleExtras(intent);
     }
 
-    /** Test hook: "adb shell am start ... --ez demo_trips true" adds sample trips, clear_demo removes them. */
+    /**
+     * Test hooks: "adb shell am start ... --ez demo_trips true" adds sample trips, clear_demo removes them;
+     * "--es blind_test left|right --ei blind_secs 20" shows the blind-spot window as if that signal were on.
+     */
     private void handleExtras(final Intent i) {
         if (i == null) return;
+        String blind = i.getStringExtra("blind_test");
+        if (blind != null) BlindSpot.test("left".equals(blind) ? SideCamera.LEFT : SideCamera.RIGHT, i.getIntExtra("blind_secs", 20));
         final boolean add = i.getBooleanExtra("demo_trips", false);
         final boolean clear = i.getBooleanExtra("clear_demo", false);
         if (!add && !clear) return;

@@ -37,6 +37,10 @@
     <uses-permission android:name="android.permission.BYDAUTO_DOOR_LOCK_COMMON" />
     <uses-permission android:name="android.permission.BYDAUTO_RADAR_COMMON" />
 
+    <!-- the blind-spot cameras: the car's 360-degree camera and a window over other apps (both given from the Tweaks screen) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <application
         android:name=".App"
         android:supportsRtl="true"

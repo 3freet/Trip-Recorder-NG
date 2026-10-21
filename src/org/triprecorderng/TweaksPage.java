@@ -36,6 +36,14 @@ final class TweaksPage {
     private Kit.SwitchView keepAvasSwitch;
     private ActionView modem;
     private Kit.SwitchView autoModemSwitch;
+    private Kit.SwitchView blindSwitch;
+    private TextView blindState;
+    private LinearLayout blindViews;
+    private Kit.SwitchView blindParkSwitch;
+    private Kit.SwitchView blindClusterSwitch;
+    private Kit.Row blindClusterRow;
+    private Kit.Row blindAllowRow;
+    private int shownView = -1;
     private View dotCell;
     private TextView connCell;
     private TextView connCellNote;
@@ -83,6 +91,7 @@ final class TweaksPage {
         left.addView(cloudCard(), k.gap(-1, -2, 0, 8));
         left.addView(avasCard(), k.gap(-1, -2, 0, 8));
         left.addView(modemCard(), k.gap(-1, -2, 0, 8));
+        left.addView(blindSpotCard(), k.gap(-1, -2, 0, 8));
         left.addView(noteLine(), k.gap(-1, k.d(30), 0, 6));
         sv.addView(left, new ViewGroup.LayoutParams(-1, -2));
         cols.addView(sv, new LinearLayout.LayoutParams(0, -1, 400f));
@@ -246,6 +255,105 @@ final class TweaksPage {
         return modem.card;
     }
 
+    private View blindSpotCard() {
+        LinearLayout card = k.card();
+
+        LinearLayout big = k.row();
+        big.setPadding(k.d(16), k.d(10), k.d(16), k.d(10));
+        LinearLayout text = k.column();
+        text.addView(k.label(L.t("Blind-spot cameras"), 17, Kit.TEXT, Kit.BOLD));
+        TextView desc = k.label(L.t("Shows the side camera in a window while a turn signal is on."), 12.5f, Kit.MUTED, Kit.MEDIUM);
+        desc.setPadding(0, k.d(3), 0, 0);
+        text.addView(desc);
+        blindState = k.label("", 13, Kit.MUTED, Kit.BOLD);
+        blindState.setPadding(0, k.d(3), 0, 0);
+        text.addView(blindState);
+        big.addView(text, new LinearLayout.LayoutParams(0, -2, 1f));
+        blindSwitch = new Kit.SwitchView(c);
+        big.addView(blindSwitch, new LinearLayout.LayoutParams(k.d(60), k.d(34)));
+        big.setMinimumHeight(k.d(60));
+        big.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Prefs.setBlindSpot(c, !Prefs.blindSpot(c));
+                BlindSpot.sync(c);
+                refresh();
+            }
+        });
+        card.addView(big, new LinearLayout.LayoutParams(-1, -2));
+
+        // the camera and the right to draw over other apps can only be given through the debugging service
+        blindAllowRow = k.buttonRow(L.t("Needs permission"),
+                L.t("The camera, and drawing over other apps, are given through the car's network debugging."),
+                L.t("Allow"), true);
+        blindAllowRow.onClick(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Tweaks.allowBlindSpot(c);
+                refresh();
+            }
+        });
+        blindAllowRow.divider();
+        card.addView(blindAllowRow.view, new LinearLayout.LayoutParams(-1, -2));
+
+        LinearLayout pick = k.row();
+        pick.setPadding(k.d(16), k.d(10), k.d(16), k.d(10));
+        pick.addView(k.label(L.t("Picture"), 15, Kit.TEXT, Kit.BOLD), new LinearLayout.LayoutParams(0, -2, 1f));
+        blindViews = k.row();
+        pick.addView(blindViews);
+        card.addView(k.line(16));
+        card.addView(pick, new LinearLayout.LayoutParams(-1, -2));
+
+        blindParkSwitch = new Kit.SwitchView(c);
+        Kit.Row park = k.switchRow(L.t("Fisheye while parked"),
+                L.t("In P the picture is the fisheye, whatever the Picture is set to."), blindParkSwitch, true);
+        park.onClick(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Prefs.setBlindSpotFisheyeInPark(c, !Prefs.blindSpotFisheyeInPark(c));
+                refresh();
+            }
+        });
+        park.divider();
+        card.addView(park.view, new LinearLayout.LayoutParams(-1, -2));
+
+        blindClusterSwitch = new Kit.SwitchView(c);
+        blindClusterRow = k.switchRow(L.t("On the instrument cluster"),
+                L.t("The left signal's picture goes to the cluster, the right one stays on this screen. In gear D "
+                        + "it can cover part of the car's own Left Rear view. Needs the Vehicle data link."),
+                blindClusterSwitch, true);
+        blindClusterRow.onClick(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Prefs.setBlindSpotCluster(c, !Prefs.blindSpotCluster(c));
+                refresh();
+            }
+        });
+        blindClusterRow.divider();
+        card.addView(blindClusterRow.view, new LinearLayout.LayoutParams(-1, -2));
+        return card;
+    }
+
+    /** One choice of the picture: the selected one carries the accent tint. */
+    private TextView chip(String text, boolean selected, View.OnClickListener l) {
+        TextView t = k.label(text, 14, selected ? Kit.ACCENT : Kit.SOFT, Kit.BOLD);
+        t.setGravity(Gravity.CENTER);
+        t.setSingleLine(true);
+        t.setMinHeight(k.d(36));
+        t.setPadding(k.d(16), 0, k.d(16), 0);
+        t.setBackground(Ui.round(selected ? Kit.ACCENT_SOFT : Kit.NEUTRAL_BG, 18 * k.scale, c));
+        t.setOnClickListener(l);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2);
+        lp.setMarginStart(k.d(8));
+        t.setLayoutParams(lp);
+        return t;
+    }
+
+    private View.OnClickListener pickView(final int view) {
+        return new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Prefs.setBlindSpotView(c, view);
+                refresh();
+            }
+        };
+    }
+
     private View connectionCard() {
         LinearLayout card = k.card();
         card.setPadding(k.d(16), k.d(14), k.d(16), k.d(14));
@@ -404,6 +512,14 @@ final class TweaksPage {
         addExplain(explain, L.t("Modem reboot"),
                 L.t("Restarts the modem with AT commands, as Engineer Mode's AT Command Tool does. The line under "
                         + "the button says how long LTE took to come back."));
+        addExplain(explain, L.t("Blind-spot cameras"),
+                L.t("While a turn signal is on, the camera on that side is shown in a window next to the car's own "
+                        + "blind-spot window, and stays a moment after the signal goes off. A tap on it closes it, "
+                        + "and it can be dragged anywhere on the screen. "
+                        + "The turn signal is read through the Vehicle data link. Side view is the car's own side "
+                        + "view, rebuilt; Fisheye is the camera's picture as it comes, and in P it can be used "
+                        + "whatever Picture says. On the cluster, the left "
+                        + "signal's picture is shown there instead."));
         addExplain(explain, L.t("Reboot automatically"),
                 L.t("Runs the reboot by itself when APN2 and APN3 have both been down and the modem has had no "
                         + "signal for about 2.5 minutes: at most 3 times in a row, 15 minutes apart."));
@@ -416,6 +532,7 @@ final class TweaksPage {
         addCommand(cmds, L.t("Connect to BYD cloud"), Tweaks.CLOUD_COMMAND);
         addCommand(cmds, L.t("AVAS (external EV sound)"), Tweaks.AVAS_CALL);
         addCommand(cmds, L.t("Modem reboot"), Tweaks.MODEM_AT);
+        addCommand(cmds, L.t("Blind-spot cameras"), Tweaks.blindSpotCommandText(c));
         LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(k.d(290), -2);
         clp.setMarginStart(k.d(24));
         two.addView(cmds, clp);
@@ -477,6 +594,7 @@ final class TweaksPage {
         keepRoamSwitch.setOn(Prefs.keepRoaming(c));
         keepAvasSwitch.setOn(Prefs.keepAvasOff(c));
         autoModemSwitch.setOn(Prefs.autoModemReboot(c));
+        refreshBlindSpot();
         cloud.update(Tweaks.CLOUD);
         avas.update(Tweaks.AVAS);
         modem.update(Tweaks.MODEM);
@@ -499,6 +617,34 @@ final class TweaksPage {
                 : n.appsUse == NetStatus.APPS_CELLULAR ? L.t("Cellular")
                 : n.appsUse == NetStatus.APPS_ETHERNET ? L.t("Ethernet")
                 : n.appsUse == NetStatus.APPS_OTHER ? L.t("Other") : L.t("Nothing"));
+    }
+
+    private void refreshBlindSpot() {
+        boolean on = Prefs.blindSpot(c);
+        blindSwitch.setOn(on);
+        boolean permitted = BlindSpot.permitted(c);
+        int st = BlindSpot.state();
+        String say = !on ? L.t("Off")
+                : !permitted ? L.t("Needs permission")
+                : st == BlindSpot.NEEDS_LINK ? L.t("Needs the Vehicle data link")
+                : st == BlindSpot.SHOWING ? L.t("Showing now") : L.t("Ready");
+        blindState.setText(say);
+        blindState.setTextColor(on && permitted && st >= BlindSpot.READY ? Kit.ACCENT : on ? Kit.AMBER : Kit.MUTED);
+        blindAllowRow.setVisible(on && !permitted);
+        TextView pill = (TextView) blindAllowRow.control;
+        pill.setText(Tweaks.BLIND_SPOT.state == Tweaks.Action.BUSY ? L.t("Allowing...")
+                : Tweaks.BLIND_SPOT.state == Tweaks.Action.OK ? L.t("Allowed") : L.t("Allow"));
+        blindAllowRow.setDesc(Tweaks.BLIND_SPOT.state == Tweaks.Action.FAILED ? Tweaks.BLIND_SPOT.detail
+                : L.t("The camera, and drawing over other apps, are given through the car's network debugging."));
+        int view = Prefs.blindSpotView(c);
+        if (view != shownView) {
+            shownView = view;
+            blindViews.removeAllViews();
+            blindViews.addView(chip(L.t("Side view"), view == SideCamera.VIEW_SIDE, pickView(SideCamera.VIEW_SIDE)));
+            blindViews.addView(chip(L.t("Fisheye"), view == SideCamera.VIEW_FISHEYE, pickView(SideCamera.VIEW_FISHEYE)));
+        }
+        blindParkSwitch.setOn(Prefs.blindSpotFisheyeInPark(c));
+        blindClusterSwitch.setOn(Prefs.blindSpotCluster(c));
     }
 
     /** The radio and the two mobile connections, from the helper's latest reading (nothing without the link). */

@@ -139,6 +139,53 @@ final class Prefs {
         sp(c).edit().putBoolean("keep_avas_off", on).apply();
     }
 
+    /** Whether the Tweaks screen's blind-spot cameras (a side camera in a window while a turn signal is on) are on. Off by default. */
+    static boolean blindSpot(Context c) {
+        return sp(c).getBoolean("blind_spot", false);
+    }
+
+    static void setBlindSpot(Context c, boolean on) {
+        sp(c).edit().putBoolean("blind_spot", on).apply();
+    }
+
+    /** What the blind-spot window shows: {@link SideCamera#VIEW_SIDE} (the car's own side view, rebuilt) or the fisheye. */
+    static int blindSpotView(Context c) {
+        return sp(c).getInt("blind_spot_view", SideCamera.VIEW_SIDE);
+    }
+
+    static void setBlindSpotView(Context c, int view) {
+        sp(c).edit().putInt("blind_spot_view", view).apply();
+    }
+
+    /** Whether the picture is the fisheye while the car is in P, whatever {@link #blindSpotView} says. Off by default. */
+    static boolean blindSpotFisheyeInPark(Context c) {
+        return sp(c).getBoolean("blind_spot_fisheye_park", false);
+    }
+
+    static void setBlindSpotFisheyeInPark(Context c, boolean on) {
+        sp(c).edit().putBoolean("blind_spot_fisheye_park", on).apply();
+    }
+
+    /** Whether the left signal's picture goes to the instrument cluster instead of the centre screen. Off by default. */
+    static boolean blindSpotCluster(Context c) {
+        return sp(c).getBoolean("blind_spot_cluster", false);
+    }
+
+    static void setBlindSpotCluster(Context c, boolean on) {
+        sp(c).edit().putBoolean("blind_spot_cluster", on).apply();
+    }
+
+    /** Where the blind-spot window was last left on the centre screen, as {x, y} in 2560 x 1440 pixels, or null. */
+    static int[] blindSpotPlace(Context c) {
+        SharedPreferences p = sp(c);
+        if (!p.contains("blind_spot_x")) return null;
+        return new int[]{p.getInt("blind_spot_x", 0), p.getInt("blind_spot_y", 0)};
+    }
+
+    static void setBlindSpotPlace(Context c, int x, int y) {
+        sp(c).edit().putInt("blind_spot_x", x).putInt("blind_spot_y", y).apply();
+    }
+
     /** Whether the modem is rebooted by itself when both mobile connections are down with no signal. Off by default. */
     static boolean autoModemReboot(Context c) {
         return sp(c).getBoolean("auto_modem_reboot", false);

@@ -34,6 +34,7 @@ final class Tweaks {
     static final Action CLOUD = new Action();
     static final Action AVAS = new Action();
     static final Action MODEM = new Action();
+    static final Action BLIND_SPOT = new Action();
 
     /** The commands the roaming switch runs. */
     static final String ROAMING_COMMAND = "settings put global data_roaming 1";
@@ -170,6 +171,43 @@ final class Tweaks {
                 }
             }
         }, "tweak-cloud");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    // ---- blind-spot cameras -------------------------------------------------------------------------------
+    /** What the blind-spot cameras need that only the shell user can give: the camera and the right to draw over other apps. */
+    private static String blindSpotCommand(Context ctx) {
+        String pkg = ctx.getPackageName();
+        return "pm grant " + pkg + " android.permission.CAMERA; appops set " + pkg + " SYSTEM_ALERT_WINDOW allow";
+    }
+
+    /** The same commands for the Details sheet, with the package name spelled out. */
+    static String blindSpotCommandText(Context ctx) {
+        return blindSpotCommand(ctx).replace("; ", "\n");
+    }
+
+    /** Gives the app the camera and the draw-over-apps permission now (a button press). Never blocks the caller. */
+    static void allowBlindSpot(final Context ctx) {
+        final Context app = ctx.getApplicationContext();
+        if (!begin(BLIND_SPOT)) return;
+        Thread t = new Thread(new Runnable() {
+            @Override public void run() {
+                String when = hhmm();
+                try {
+                    AdbLoopback.Result r = new AdbLoopback(app).runShell(blindSpotCommand(app), 20_000);
+                    if (r.status == AdbLoopback.Status.OK) {
+                        finish(BLIND_SPOT, true, "");
+                    } else {
+                        finish(BLIND_SPOT, false, L.f("failed at %1$s: %2$s", when, statusWord(r)));
+                    }
+                    Diag.log("tweak blind-spot permissions: " + r.status + " " + r.detail + " | " + r.output.trim());
+                } catch (Throwable e) {
+                    finish(BLIND_SPOT, false, L.f("failed at %s", when));
+                    Diag.log("tweak blind-spot permissions failed", e);
+                }
+            }
+        }, "tweak-blind-spot");
         t.setDaemon(true);
         t.start();
     }

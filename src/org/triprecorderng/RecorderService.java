@@ -203,6 +203,7 @@ public class RecorderService extends Service {
             super.onDestroy();
             return;
         }
+        BlindSpot.shutdown();
         try {
             unregisterReceiver(shutdownReceiver);
         } catch (Throwable ignored) {
@@ -262,6 +263,7 @@ public class RecorderService extends Service {
         }
         Tweaks.ensureRoaming(this, false, "periodic check");
         Tweaks.ensureAvas(this, "periodic check");
+        BlindSpot.sync(this);
         if (v instanceof HelperVehicle && now - lastNetPollMs >= NET_POLL_MS) {
             lastNetPollMs = now;
             Tweaks.noteNet(this, ((HelperVehicle) v).net());

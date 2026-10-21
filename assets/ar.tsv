@@ -477,3 +477,18 @@ A trip lasts while the ignition is on, so a car left parked with the air conditi
 While parked	أثناء التوقف
 kWh	كيلوواط
 100km	100 كم
+Blind-spot cameras	كاميرات النقطة العمياء
+Shows the side camera in a window while a turn signal is on.	تعرض كاميرا الجانب في نافذة أثناء تشغيل إشارة الانعطاف.
+Needs permission	يتطلب إذنًا
+The camera, and drawing over other apps, are given through the car's network debugging.	يُمنح إذن الكاميرا والعرض فوق التطبيقات الأخرى عبر تصحيح الشبكة في السيارة.
+Picture	الصورة
+On the instrument cluster	على لوحة العدادات
+The left signal's picture goes to the cluster, the right one stays on this screen. In gear D it can cover part of the car's own Left Rear view. Needs the Vehicle data link.	تظهر صورة الإشارة اليسرى على لوحة العدادات، وتبقى صورة اليمنى على هذه الشاشة. وفي وضع القيادة D قد تغطي جزءًا من عرض الخلف الأيسر الخاص بالسيارة. تتطلب رابط بيانات المركبة.
+While a turn signal is on, the camera on that side is shown in a window next to the car's own blind-spot window, and stays a moment after the signal goes off. A tap on it closes it, and it can be dragged anywhere on the screen. The turn signal is read through the Vehicle data link. Side view is the car's own side view, rebuilt; Fisheye is the camera's picture as it comes, and in P it can be used whatever Picture says. On the cluster, the left signal's picture is shown there instead.	أثناء تشغيل إشارة الانعطاف تُعرض كاميرا ذلك الجانب في نافذة بجوار نافذة النقطة العمياء الخاصة بالسيارة، وتبقى لحظة بعد إطفاء الإشارة. النقر عليها يغلقها، ويمكن سحبها إلى أي مكان في الشاشة. تُقرأ إشارة الانعطاف عبر رابط بيانات المركبة. العرض الجانبي هو منظر السيارة الجانبي نفسه بعد إعادة بنائه، وعين السمكة هي صورة الكاميرا كما تصل، ويمكن استخدامها في وضع P مهما كان اختيار الصورة. على لوحة العدادات تظهر صورة الإشارة اليسرى هناك بدلًا من هذه الشاشة.
+Showing now	تُعرض الآن
+Ready	جاهزة
+Allowing...	جارٍ السماح...
+Side view	عرض جانبي
+Fisheye	عين السمكة
+Fisheye while parked	عين السمكة أثناء الوقوف
+In P the picture is the fisheye, whatever the Picture is set to.	في وضع الوقوف P تكون الصورة عين السمكة مهما كان اختيار الصورة.

@@ -51,7 +51,9 @@ The Arabic screens are mirrored right to left in the content area, with the menu
 - It reads vehicle data through BYD's internal, undocumented vehicle API. Any software update of the car can
   change or break that. The only things the app changes on the car are Android's data-roaming switch, the request to
   connect to BYD's cloud, the AVAS (external EV sound) switch and a modem reboot, when you press the button or turn
-  on the toggle in the Tweaks tab, and the app itself, when you choose Install after Check for updates (it replaces itself with a
+  on the toggle in the Tweaks tab; with **Blind-spot cameras** on it also gives itself the camera and the
+  draw-over-apps permission, and, only with its cluster option, sets the car's flag for showing a window on the
+  instrument cluster while that window is up; and the app itself, when you choose Install after Check for updates (it replaces itself with a
   build downloaded from this project's GitHub releases, signed with the same key).
 - The optional **Vehicle data link** starts a small helper through the head unit's own debugging service on
   127.0.0.1 (loopback ADB), with a key the app creates itself. On the tested unit the car accepted that key
@@ -296,6 +298,29 @@ APN3, read from `net.lte.apn2.real_state` and `net.lte.apn3.real_state`) are dow
 although the SIM is loaded, for about 2.5 minutes in a row. It uses the same 30-second readings, reboots at most
 3 times in a row, at least 15 minutes apart, and starts counting again once a connection is back. Anything unclear
 (the properties cannot be read, the SIM is still loading) counts as "not stuck".
+
+**Blind-spot cameras** (off by default): while a turn signal is on, the camera on that side is shown in a window over
+the other apps, next to the car's own blind-spot window (the Image app's "Triggered by Turn Signal"), and stays for two
+seconds after the signal goes off, as the car's own does; a tap on it closes it. **Picture** chooses **Side view**, the
+car's own side view rebuilt from its camera calibration (the ground beside and ahead of the car, the car's side down one
+edge), or **Fisheye**, the camera's picture as it comes; **Fisheye while parked** shows the fisheye whenever the car is in P
+(the gear comes with the helper's turn-signal reply), whatever **Picture** says. **On the instrument cluster** sends the left signal's picture
+to the cluster instead of the centre screen (the right signal's stays on the centre screen); without it both go to the
+centre screen. The cluster only shows one small rectangle of its display (the area the car's own window uses), so the
+picture there takes the right third of that rectangle, beside the car's own (the car's own window is only there in gear D and when its Triggered by Turn Signal setting puts the left signal's window on the instrument, which the app reads from the Image app, read-only; in P, R or N, or with that setting off or on the centre screen only, ours takes the whole rectangle). With the car set to a full-screen image, ours stays off the centre screen in D at 15 km/h or less, where the car already shows the same picture. The window is titled **Left Front** or **Right Front** and has rounded corners, as the car's own windows do. The window needs two permissions, which the card asks for in one place: it shows **Needs permission** with an
+**Allow** button that gives the app the camera and the right to draw over other apps (`pm grant ... CAMERA`, `appops set
+... SYSTEM_ALERT_WINDOW allow`, through the loopback debugging like the other tweaks). The turn signal is read through the
+helper (the car refuses to tell an ordinary app; it is read the way the car's own window reads it, from the lamps' output
+`LIGHT_TURN_SIGNAL_LIGHT`, which stays on for as long as the lamps are in use, three blinks of a flick of the stalk
+included, with the stalk's position as a second source; request `turn`, helper protocol
+v8), so the card needs the Vehicle data link, as does the cluster option, where the helper also writes the car's
+"show the head unit's picture on the instrument cluster" flag (`PANORAMA_SCREEN_PROJECTION_STATUS_IVI_TO_INS_SET`, request
+`proj 1` while the window is up, `proj 2` after): the one thing the helper writes. The picture is the car's 360-degree camera
+feed opened through its own camera class (`android.hardware.AVMCamera`, the CAMERA permission only) and drawn with OpenGL
+at the camera's 30 frames a second; the camera is open only while the window is. The research behind it (the camera
+feed, the car's own calibration, why the engine cannot serve two windows, the cluster window) is written down in
+[docs/byd-internals](docs/byd-internals/README.md). Source: `BlindSpot` (turn signal, windows), `SideCamera` (camera and
+drawing), `HelperLink` (the helper connection for the turn signal and the flag), `Tweaks.allowBlindSpot`.
 
 ## Updates
 **Setting > Updates > Check for updates** asks GitHub for the newest release of the channel you follow. It is manual
