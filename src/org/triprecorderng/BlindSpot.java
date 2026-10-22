@@ -130,8 +130,16 @@ final class BlindSpot {
                 camera.hide();
             }
         });
-        if (cluster && link.connected()) link.projection(2);
-        link.close();
+        // stop() is called from a click and from the service's onDestroy, both on the main thread, where the helper
+        // cannot be talked to (a network call there is refused): the flag is switched off and the link closed elsewhere
+        Thread t = new Thread(new Runnable() {
+            @Override public void run() {
+                if (cluster && link.connected()) link.projection(2);
+                link.close();
+            }
+        }, "blind-spot-stop");
+        t.setDaemon(true);
+        t.start();
     }
 
     // ---- the watching thread ---------------------------------------------------------------------
