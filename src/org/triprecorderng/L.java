@@ -11,9 +11,10 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Language support: the app's texts are written in English in the code and looked up in assets/ar.tsv when
- * the app language is Arabic (a missing entry simply stays English). The language is chosen in Setting
- * (Automatic follows the head unit's language). Digits are always Latin so numbers read the same everywhere.
+ * Language support: the app's texts are written in English in the code and looked up in assets/ar.tsv or
+ * assets/ru.tsv when the app language is Arabic or Russian (a missing entry simply stays English). The language is
+ * chosen in Setting (Automatic follows the head unit's language). Digits are always Latin so numbers read the same
+ * everywhere. Only Arabic changes the direction of the text; Russian reads left to right like English.
  */
 final class L {
     private L() {}
@@ -21,18 +22,27 @@ final class L {
     static final String AUTO = "auto";
     static final String EN = "en";
     static final String AR = "ar";
+    static final String RU = "ru";
 
+    /** The language in use: "en", "ar" or "ru". */
+    private static volatile String lang = EN;
     private static volatile boolean arabic;
     private static Map<String, String> table;
+    private static String tableLang = "";
 
     /** Loads the translation table and reads the language setting. Safe to call more than once. */
     static synchronized void init(Context ctx) {
         Context app = ctx.getApplicationContext() != null ? ctx.getApplicationContext() : ctx;
-        arabic = resolve(setting(app));
-        if (table == null) table = load(app);
+        String next = resolve(setting(app));
+        if (!EN.equals(next) && !next.equals(tableLang)) {
+            table = load(app, next);
+            tableLang = next;
+        }
+        arabic = AR.equals(next);
+        lang = next;
     }
 
-    /** The stored choice: "auto", "en" or "ar". */
+    /** The stored choice: "auto", "en", "ar" or "ru". */
     static String setting(Context ctx) {
         SharedPreferences p = ctx.getApplicationContext().getSharedPreferences("triprecng", Context.MODE_PRIVATE);
         return p.getString("lang", AUTO);
@@ -44,20 +54,31 @@ final class L {
         init(ctx);
     }
 
-    private static boolean resolve(String setting) {
-        if (AR.equals(setting)) return true;
-        if (EN.equals(setting)) return false;
-        return "ar".equals(Locale.getDefault().getLanguage());
+    private static String resolve(String setting) {
+        if (AR.equals(setting) || RU.equals(setting) || EN.equals(setting)) return setting;
+        String d = Locale.getDefault().getLanguage();
+        return AR.equals(d) ? AR : RU.equals(d) ? RU : EN;
     }
 
     static boolean isArabic() {
         return arabic;
     }
 
-    /** The English text, or its Arabic translation when the app language is Arabic. */
+    /** The language in use: "en", "ar" or "ru". */
+    static String current() {
+        return lang;
+    }
+
+    /** A language's own name, as it is written in the language dialog. */
+    static String nameOf(String code) {
+        return AR.equals(code) ? "العربية" : RU.equals(code) ? "Русский" : "English";
+    }
+
+    /** The English text, or its translation when the app language is Arabic or Russian. */
     static String t(String en) {
-        if (!arabic || table == null) return en;
-        String v = table.get(en);
+        Map<String, String> m = table;
+        if (EN.equals(lang) || m == null) return en;
+        String v = m.get(en);
         return v != null ? v : en;
     }
 
@@ -95,8 +116,9 @@ final class L {
         return arabic ? "\u2190" : "\u2192";
     }
 
-    /** Locale for dates: the head unit's own, or Arabic month and day names with Latin digits. */
+    /** Locale for dates: the head unit's own, or Arabic month and day names with Latin digits, or Russian ones. */
     static Locale dateLocale() {
+        if (RU.equals(lang)) return new Locale.Builder().setLanguage("ru").setRegion("RU").build();
         if (!arabic) return Locale.getDefault();
         return new Locale.Builder().setLanguage("ar").setRegion("OM").setUnicodeLocaleKeyword("nu", "latn").build();
     }
@@ -116,10 +138,10 @@ final class L {
         return sb.toString();
     }
 
-    private static Map<String, String> load(Context ctx) {
+    private static Map<String, String> load(Context ctx, String code) {
         Map<String, String> m = new HashMap<>();
         try {
-            InputStream in = ctx.getAssets().open("ar.tsv");
+            InputStream in = ctx.getAssets().open(code + ".tsv");
             try {
                 BufferedReader r = new BufferedReader(new InputStreamReader(in, "UTF-8"));
                 String line;
@@ -133,7 +155,7 @@ final class L {
                 in.close();
             }
         } catch (Throwable t) {
-            Diag.log("could not load the Arabic texts", t);
+            Diag.log("could not load the texts for " + code, t);
         }
         return m;
     }

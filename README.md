@@ -1,12 +1,12 @@
-**English** | [العربية](README.ar.md)
+**English** | [العربية](README.ar.md) | [Русский](README.ru.md)
 
 # Trip Recorder NG
 
 An unofficial trip recorder for BYD cars with a DiLink head unit. It records every drive on the head unit
 itself (route, speed, battery and energy use, fuel, charging sessions, cost) and shows it in screens modelled
 on BYD's stock "Driving behavior" app: This Trip, My Trips, Attainment, Statistics, Charging and Tweaks, plus
-Q&A and Setting pages. Everything stays on the car, nothing is uploaded. The app is in English and Arabic
-(with a right-to-left layout for Arabic).
+Q&A and Setting pages. Everything stays on the car, nothing is uploaded. The app is in English, Arabic
+(with a right-to-left layout) and Russian.
 
 Package `org.triprecorderng`. Built and tested on one plug-in hybrid with DiLink 5.1 (Android 13). Other BYD
 models and software versions may behave differently; reports and fixes are welcome.
@@ -350,11 +350,12 @@ that file to say it is done; a refused install is read back from it.
   future dev change: the backup in `Documents/TripRecorderNG/backup` (written before each install) is the safety net.
 - Source: `Updates` (check, download, verification, install), `MainActivity` (the Setting rows and dialogs).
 
-## Languages (English and Arabic)
-**Setting > Language** chooses Automatic (follows the head unit's language; Arabic only when that is Arabic,
-otherwise English), English or Arabic. The choice is stored as `lang` (`auto|en|ar`) in the app's preferences and
+## Languages (English, Arabic and Russian)
+**Setting > Language** chooses Automatic (follows the head unit's language; Arabic or Russian only when that is
+Arabic or Russian, otherwise English), English, Arabic or Russian. The choice is stored as `lang` (`auto|en|ar|ru`) in the app's preferences and
 the app restarts its screens when it changes. Numbers always use Latin digits (as the car's own screens do), and
-dates use Arabic month and day names.
+dates use Arabic month and day names in Arabic and Russian ones in Russian. Russian reads left to right like English;
+only Arabic changes the layout direction.
 - **Where RTL is used.** The title bar and the left menu stay on the left in both languages (easier to reach from
   the driver's seat). Only the content area is right-to-left in Arabic: cards, rows, buttons, lists and text.
   The charts, the route map and the ring are drawn by hand and keep their left-to-right time and number axes.
@@ -362,13 +363,14 @@ dates use Arabic month and day names.
   (`L.ltr`). Code: `L` (translation lookup), `Ui.contentDirection`, `Ui.show` (dialogs), `MainActivity` (root
   layout forced LTR, `content` view takes the content direction).
 - **How text is translated.** Every visible string goes through `L.t("English text")` or
-  `L.f("English %s", args)`; the English text is the key into `assets/ar.tsv` (`english<TAB>arabic`, `\n`, `\t`
+  `L.f("English %s", args)`; the English text is the key into `assets/ar.tsv` and `assets/ru.tsv` (`english<TAB>translation`, `\n`, `\t`
   and `\\` escapes). A missing entry shows the English text, so a forgotten string is visible but never crashes.
   Keep the same `%s`/`%d` placeholders in both columns (`%1$d` form when the order changes).
-- **Adding or changing a text.** Wrap the string in `L.t`, then add the pair to `assets/ar.tsv` (or run
+- **Adding or changing a text.** Wrap the string in `L.t`, then add the pair to `assets/ar.tsv` and `assets/ru.tsv` (or run
   `python3 tools/check_translations.py`, which lists texts that are missing from the file, entries no longer used,
   placeholder differences and UI strings that were not wrapped). The Arabic wording is plain Modern Standard
-  Arabic and has not yet been reviewed by a native speaker; edit `ar.tsv` directly to improve it, no code change needed.
+  Arabic and has not yet been reviewed by a native speaker; the Russian wording likewise. Edit `ar.tsv` or `ru.tsv` directly to improve it,
+  no code change needed.
 - The app name "Trip Recorder NG" is never translated: the title bar, notification and launcher label are the same in both languages.
 
 ## Build
@@ -384,7 +386,7 @@ never be published. Keep them and a backup: an update only installs over an earl
 the same key, so with a new key you must uninstall first (the backup folder keeps your trips). To use an
 existing keystore set `KEYSTORE=path` and `KS_PASS=password`.
 
-**Translations.** `python3 tools/check_translations.py` checks `assets/ar.tsv` against the code (see Languages).
+**Translations.** `python3 tools/check_translations.py` checks `assets/ar.tsv` and `assets/ru.tsv` against the code (see Languages).
 
 ## Install / update
 `adb install -r --user 0 TripRecorderNG.apk`, then grant location (or accept the on-screen prompt).
@@ -452,7 +454,7 @@ socket protected by a random token. Trips then get battery used, consumption and
 ## Third-party content
 The GPL license below covers the code and original material written for this project. It does **not** cover
 material that comes from BYD's stock "Driving behavior" app and is included only to match its look and wording:
-the driving-advice sentences (`Advice.java`, with their Arabic translations in `assets/ar.tsv`), the driving
+the driving-advice sentences (`Advice.java`, with their translations in `assets/ar.tsv` and `assets/ru.tsv`), the driving
 level names (`Stats.java`) and the interface images in `res/drawable-xhdpi/` (tab icons, empty-trips picture,
 selected-tab background). That material belongs to BYD and is not offered under the GPL. If you redistribute this
 project, check that you may do so, or replace those items.

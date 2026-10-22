@@ -1,0 +1,495 @@
+You have a high frequency of sudden accelerations. It is recommended to stabilize the accelerator pedal, accelerate smoothly.	У вас часто бывают резкие разгоны. Рекомендуем держать педаль акселератора ровнее и разгоняться плавно.
+Frequent rapid acceleration will accelerate the wear and aging of parts and shorten the service life of the vehicle. We suggest you accelerate smoothly.	Частые резкие разгоны ускоряют износ и старение деталей и сокращают срок службы автомобиля. Рекомендуем разгоняться плавно.
+When there are many vehicles on the road or when driving at high speeds, it is recommended to control your speed reasonably and maintain a safe distance from the vehicle in front.	Когда на дороге много машин или вы едете на высокой скорости, разумно контролируйте скорость и держите безопасную дистанцию до впереди идущего автомобиля.
+Frequent sudden braking can accelerate wear on tires, braking systems, and cause shocks to the suspension and transmission systems. We recommend maintaining a safe distance and decelerate in advance.	Частое резкое торможение ускоряет износ шин и тормозной системы и создаёт ударные нагрузки на подвеску и трансмиссию. Рекомендуем держать безопасную дистанцию и притормаживать заранее.
+Driving too fast, easy to cause traffic accidents, it is recommended to follow the prescribed speed to ensure safety.	Слишком быстрая езда легко приводит к авариям. Рекомендуем соблюдать установленный скоростной режим.
+At high speeds, your field of vision narrows, making it difficult to properly handle sudden abnormalities ahead, which can easily lead to accidents. We recommend controlling your speed reasonably.	На высокой скорости поле зрения сужается, и трудно вовремя среагировать на внезапную опасность впереди — это легко приводит к авариям. Рекомендуем разумно контролировать скорость.
+We suggest regular maintenance, avoiding peak traffic times, reducing vehicle weight, and maintaining normal tire pressure to reduce energy consumption from all aspects.	Рекомендуем проходить регулярное обслуживание, избегать часов пик, снижать вес автомобиля и поддерживать нормальное давление в шинах, чтобы снизить расход энергии по всем статьям.
+We recommend driving at an economical speed within the speed limit, as driving too fast or too slow can increase fuel consumption.	Рекомендуем ездить с экономичной скоростью в пределах ограничения: слишком быстрая или слишком медленная езда увеличивает расход топлива.
+It is recommended to rationalize the time of continuous driving, and when you feel tired, stop at a safe place to rest as soon as possible; the longer you delay, the more fatigue you will feel and increasing the risk of accidents.	Рекомендуем разумно планировать время непрерывного вождения, а при усталости как можно скорее остановиться в безопасном месте и отдохнуть: чем дольше вы откладываете, тем сильнее усталость и выше риск аварии.
+Your driving habits are excellent, please continue to keep them up!	У вас отличные привычки вождения, так держать!
+Highest achievements	Лучшие достижения
+Longest trip	Дальняя поездка
+km	км
+Longest drive	Дольше за рулём
+Top speed	Макс. скорость
+km/h	км/ч
+Most efficient	Мин. расход
+kWh/100km	кВт·ч/100 км
+Electric	Электро
+Best fuel economy	Расход топлива
+Hybrid	Гибрид
+L/100km	л/100 км
+Best drive score	Лучшая оценка
+points	балл.
+Total	Итого
+Total trips	Всего поездок
+recorded	записано
+Total drive time	Время в пути
+Total cost	Общая стоимость
+electricity + fuel	электро + топливо
+Fuel used	Топливо
+over %d trip(s)	по поездкам: %d
+recorded for new trips	записывается для новых поездок
+L	л
+Fuel economy	Л/100 км
+Hybrid driving	Гибридный режим
+CO2 avoided	Избежано CO2
+about %s trees a year	деревьев в год: около %s
+needs fuel data	нужны данные о топливе
+kg	кг
+Driving level	Уровень вождения
+%1$d of %2$d	%1$d из %2$d
+Level	Уровень
+Top level	Высший уровень
+%1$s km to level %2$d	ещё %1$s км до уровня %2$d
+Total distance	Общий пробег
+%s km	%s км
+%s%% driven electric	%s%% на электротяге
+Battery (%) while charging - touch the chart to inspect	Заряд батареи (%) во время зарядки — коснитесь графика, чтобы рассмотреть
+Not enough samples to draw a chart	Недостаточно замеров для построения графика
+%s kW	%s кВт
+charging now	заряжается сейчас
+Battery	Батарея
+Energy added (estimate)	Добавлено (оценка)
+Energy added	Добавлено
+%s kWh	%s кВт·ч
+Average power	Средняя мощность
+Highest power reported	Пиковая мощность
+not reported	нет данных
+Charger	Зарядное устройство
+Cost	Стоимость
+Partial: this charge happened while the head unit was asleep. Only the battery level before and after is known, so the times shown are the window in which it happened, not how long it charged.	Неполная запись: эта зарядка прошла, пока головное устройство находилось в спящем режиме. Известен только уровень батареи до и после, поэтому показанное время — это окно, в котором она прошла, а не длительность зарядки.
+Partial: the app missed part of this session (the head unit was asleep or the app was not running), so the battery gain and energy can be lower than the real total.	Неполная запись: приложение пропустило часть этой сессии (головное устройство было в спящем режиме или приложение не работало), поэтому прирост заряда и энергия могут быть ниже реальных.
+Charging	Зарядка
+ - paused	 — пауза
+%d session(s)	Сессий зарядки: %d
+about %s added	добавлено около %s
+kWh	кВт·ч
+about %s	около %s
+Time	Время
+Gained	Прирост
+Type	Тип
+No charging sessions yet	Сессий зарядки пока нет
+A session is recorded automatically while the car charges	Сессия записывается автоматически, пока автомобиль заряжается
+Turn on Vehicle data link in Setting: charging is read from the car through it	Включите «Канал данных автомобиля» в настройках: зарядка считывается с автомобиля через него
+Partial	Неполная
+Off	Выкл.
+Connected - helper running	Подключено — помощник работает
+Connecting...	Подключение...
+Waiting for the car to accept the request (tap Allow on the car screen if it asks)	Ожидание, пока автомобиль примет запрос (если он спросит, нажмите «Разрешить» на экране автомобиля)
+Not connected - 	Нет связи — 
+Connecting soon...	Подключение скоро начнётся...
+ (retrying in %d s)	 (повтор через %d с)
+starting	запуск
+turned off	выключено
+helper already running	помощник уже работает
+the car's network debugging (ADB) is not ready yet	сетевая отладка автомобиля (ADB) ещё не готова
+approval pending	ожидается подтверждение
+debugging request was not accepted yet	запрос на отладку ещё не принят
+helper started	помощник запущен
+Open Setting > BYD auto-start apps, find Trip Recorder NG in 'Disable background Apps' and turn it OFF (OFF means the app is allowed to start). Then restart the head unit once.	Откройте Setting > BYD auto-start apps, найдите Trip Recorder NG в списке 'Disable background Apps' и выключите переключатель (выключено — приложению разрешён запуск). Затем один раз перезагрузите головное устройство.
+BYD did not start Trip Recorder NG by itself after the last restart, so trips are not recorded until you open the app.\n\n	BYD не запустила Trip Recorder NG сама после последней перезагрузки, поэтому поездки не записываются, пока вы не откроете приложение.\n\n
+Auto-start is not confirmed yet. BYD switches it back to blocked every time Trip Recorder is installed or updated, and until it is allowed the app does not record after a restart.\n\n	Автозапуск пока не подтверждён. BYD снова блокирует его при каждой установке или обновлении Trip Recorder, и пока он не разрешён, приложение не ведёт запись после перезагрузки.\n\n
+You chose not to see this reminder again. It comes back every %d openings of the app while auto-start is still blocked.\n\n	Вы решили больше не показывать это напоминание. Оно возвращается после каждых %d открытий приложения, пока автозапуск заблокирован.\n\n
+Turn off 'Disable background Apps'	Выключите 'Disable background Apps'
+Open BYD settings	Открыть настройки BYD
+Show every time	Показывать каждый раз
+Don't show again	Больше не показывать
+This reminder will show every time the app is opened.	Это напоминание будет показываться при каждом открытии приложения.
+Understood. The reminder comes back after %d openings of the app.	Понятно. Напоминание вернётся после %d открытий приложения.
+Later	Позже
+Driving Behavior Q&A	Вопросы и ответы о стиле вождения
+Setting	Настройки
+Export GPX	Экспорт GPX
+Show place	Показать место
+Delete	Удалить
+This Trip	Эта поездка
+My Trips	Мои поездки
+Attainment	Достижения
+Statistics	Статистика
+Tweaks	Твики
+BYD API via helper	API BYD через помощника
+GPS only	Только GPS
+BYD framework API	API фреймворка BYD
+autoservice binder	autoservice binder
+none	нет
+Trip details	Сведения о поездке
+Charging details	Сведения о зарядке
+Delete this charging session permanently?	Удалить эту сессию зарядки без возможности восстановления?
+Cancel	Отмена
+Vehicle data link turned off	Канал данных автомобиля выключен
+Connecting to the car's data service...	Подключение к службе данных автомобиля...
+Reconnecting...	Повторное подключение...
+Key removed and link turned off	Ключ удалён, канал выключен
+Automatic backup turned on	Автоматическое резервное копирование включено
+Automatic backup turned off	Автоматическое резервное копирование выключено
+Automatic (follows the head unit)	Автоматически (как на головном устройстве)
+Language	Язык
+Installed: %1$s%2$s   -   following: %3$s	Установлено: %1$s%2$s   -   канал: %3$s
+(not a release build)	(не релизная сборка)
+Dev: the newest builds, made for testing, may contain bugs	Dev: самые новые сборки для тестирования, возможны ошибки
+Stable: tested builds (recommended)	Stable: проверенные сборки (рекомендуется)
+Stable - tested builds (recommended)	Stable — проверенные сборки (рекомендуется)
+Dev - the newest builds, for testing	Dev — самые новые сборки, для тестирования
+Update channel	Канал обновлений
+Updates	Обновления
+OK	OK
+Checking for updates...	Проверка обновлений...
+Could not check for updates: %s	Не удалось проверить обновления: %s
+No %s build has been published yet.	В канале %s пока нет опубликованных сборок.
+You have the latest %1$s build: %2$s.	У вас последняя сборка канала %1$s: %2$s.
+A newer %1$s build is available: %2$s%3$s.	Доступна более новая сборка канала %1$s: %2$s%3$s.
+The latest %1$s build is %2$s%3$s, which is older than the installed build %4$s. Install it anyway?	Последняя сборка канала %1$s — %2$s%3$s, она старше установленной сборки %4$s. Всё равно установить?
+Installed: %s	Установлено: %s
+What's new	Что нового
+This switches the app from %1$s to %2$s.	Приложение будет переведено с канала %1$s на канал %2$s.
+Dev builds are made for testing and may contain bugs. Going back to Stable later usually works but cannot be guaranteed if a dev build changed how trips are stored (your backup in Documents/TripRecorderNG stays safe).	Dev-сборки предназначены для тестирования и могут содержать ошибки. Вернуться на Stable позже обычно можно, но это не гарантируется, если dev-сборка изменила способ хранения поездок (ваша резервная копия в Documents/TripRecorderNG останется в безопасности).
+The app restarts during the update. BYD switches its auto-start setting back on at every install: afterwards turn Trip Recorder NG OFF in 'Disable background Apps' and restart the head unit once.	Во время обновления приложение перезапускается. BYD при каждой установке снова включает настройку автозапуска: после установки выключите Trip Recorder NG в списке 'Disable background Apps' и один раз перезагрузите головное устройство.
+Update available	Доступно обновление
+Install	Установить
+Update only while the car is parked.	Обновлять можно только на стоянке.
+Installing needs the Vehicle data link: turn it on in Setting first. The app installs the update through the car's network debugging.	Для установки нужен «Канал данных автомобиля»: сначала включите его в настройках. Приложение устанавливает обновление через сетевую отладку автомобиля.
+Installing %s	Установка %s
+Downloading...	Загрузка...
+Downloading... %d%%	Загрузка... %d%%
+Checking the file...	Проверка файла...
+Installing... the app restarts in a moment.	Установка... приложение сейчас перезапустится.
+The update failed: %s	Не удалось обновить: %s
+The update failed.	Не удалось обновить.
+The car's network debugging could not be reached. Check Setting > Vehicle data link.	Не удалось связаться с сетевой отладкой автомобиля. Проверьте Настройки > Канал данных автомобиля.
+The car refused this app's debugging key. Turn the Vehicle data link off and on again.	Автомобиль отклонил ключ отладки этого приложения. Выключите и снова включите «Канал данных автомобиля».
+The car did not answer in time. If the app restarts by itself, the update worked.	Автомобиль не ответил вовремя. Если приложение перезапустится само, обновление прошло успешно.
+The update did not finish.	Обновление не завершено.
+The update was installed. If the app does not open by itself, open it again.	Обновление установлено. Если приложение не откроется само, откройте его снова.
+Details are in the log file.	Подробности — в файле журнала.
+Turn on Vehicle data link?	Включить «Канал данных автомобиля»?
+This adds battery, energy, odometer and ignition data to your trips.\n\nTo get them, Trip Recorder NG uses the car's own network debugging (ADB) on this head unit to start a small helper. Depending on the head unit, the car may ask you to allow debugging for this app (tick "Always allow" and tap Allow); on some units it is accepted automatically. After that the helper starts by itself each time the car boots.\n\nYou can switch it off here at any time (this stops the helper), and "Forget" deletes the app's key.	Это добавит в ваши поездки данные о батарее, энергии, одометре и зажигании.\n\nЧтобы получить их, Trip Recorder NG использует сетевую отладку (ADB) самого автомобиля на этом головном устройстве и запускает небольшого помощника. В зависимости от головного устройства автомобиль может попросить разрешить отладку для этого приложения (отметьте «Always allow» и нажмите Allow); на некоторых устройствах это принимается автоматически. После этого помощник запускается сам при каждом запуске автомобиля.\n\nВы можете выключить его здесь в любой момент (это остановит помощника), а «Забыть» удаляет ключ приложения.
+Turn on	Включить
+Not now	Не сейчас
+Currency	Валюта
+Electricity price per kWh	Цена электричества за кВт·ч
+default %s	по умолчанию %s
+Fuel price per litre	Цена топлива за литр
+Electricity %1$s     Fuel %2$s	Электричество %1$s     Топливо %2$s
+ (default)	 (по умолчанию)
+Energy prices	Цены на энергию
+Used to work out what each trip and each charge cost. Leave a price empty to use the default. The cost counts the energy taken from the battery, so charging losses are not included.	Используется для расчёта стоимости каждой поездки и каждой зарядки. Оставьте цену пустой, чтобы использовать значение по умолчанию. Стоимость считается по энергии, взятой из батареи, поэтому потери при зарядке не учитываются.
+Save	Сохранить
+Prices saved	Цены сохранены
+Everything is already backed up (%d files)	Всё уже сохранено в резервной копии (файлов: %d)
+Backed up %1$d item(s) (%2$d files in %3$s)	В резервную копию добавлено элементов: %1$d (файлов: %2$d в %3$s)
+Restore trips from backup?	Восстановить поездки из резервной копии?
+Trips found in the backup folder that are not in the app yet will be added. Existing trips are not changed.	Поездки из папки резервных копий, которых ещё нет в приложении, будут добавлены. Существующие поездки не изменятся.
+Restore	Восстановить
+%1$d trip(s) and %2$d charging session(s) restored	Восстановлено поездок: %1$d и сессий зарядки: %2$d
+%d already in the app	уже в приложении: %d
+%d could not be read	не удалось прочитать: %d
+Reboot the modem?	Перезагрузить модем?
+The car's mobile connection drops for about a minute while the modem restarts.	Мобильная связь автомобиля пропадёт примерно на минуту, пока модем перезапускается.
+Reboot	Перезагрузить
+Delete this trip permanently?	Удалить эту поездку без возможности восстановления?
+Saved %s	Сохранено: %s
+Export failed: %s	Не удалось экспортировать: %s
+Self-test	Самотест
+Could not open settings	Не удалось открыть настройки
+Exact track (GPX)	Точный трек (GPX)
+Follows roads, not the exact track	Строится по дорогам, а не по точному треку
+Other apps...	Другие приложения...
+Apps that open GPX files	Приложения, открывающие файлы GPX
+Open track with	Открыть трек в
+This trip has no GPS track	У этой поездки нет GPS-трека
+Could not open the track	Не удалось открыть трек
+No map app that opens GPX files is installed. OsmAnd is one.	Не установлено ни одного картографического приложения, открывающего файлы GPX. Например, OsmAnd.
+Could not open Google Maps	Не удалось открыть Google Карты
+%1$d trips, %2$s km	Поездок: %1$d, расстояние: %2$s км
+Export CSV	Экспорт CSV
+Mileage	Пробег
+Per 100 km	На 100 км
+Battery used	Батарея
+No trips yet	Поездок пока нет
+Restore trips from backup	Восстановить поездки из резервной копии
+Restore %d trip(s) from backup	Восстановить поездки из копии: %d
+Recording	Идёт запись
+%s L	%s л
+How is a trip recorded?	Как записывается поездка?
+A trip is one ignition cycle: it starts when the car is switched on and ends when it is switched off. If the ignition state cannot be read, a trip starts when the car moves and ends after three minutes standing still.	Поездка — это один цикл зажигания: она начинается, когда автомобиль включают, и заканчивается, когда его выключают. Если состояние зажигания прочитать нельзя, поездка начинается, когда автомобиль трогается, и заканчивается после трёх минут стоянки.
+What is measured?	Что измеряется?
+Speed (several times a second), battery level and the car's energy counter, plus the GPS position every few seconds. Distance comes from the car's own trip counter (from speed when that is not available).	Скорость (несколько раз в секунду), уровень заряда батареи и счётчик энергии автомобиля, а также положение GPS каждые несколько секунд. Расстояние берётся из собственного счётчика поездки автомобиля (из скорости, если он недоступен).
+Does it need internet?	Нужен ли интернет?
+No. Everything is stored on this head unit. Nothing is uploaded. The only exception is Setting > Check for updates, which contacts GitHub, and only when you tap it.	Нет. Всё хранится на этом головном устройстве, ничего не выгружается. Единственное исключение — Настройки > Проверить обновления: оно обращается к GitHub, и только когда вы его нажимаете.
+How is the drive score calculated?	Как считается оценка вождения?
+Simplified: 100 points, minus 5 for every hard acceleration or hard braking. It differs from the stock app, which uses settings downloaded from BYD.	Упрощённо: 100 баллов минус 5 за каждый резкий разгон или резкое торможение. Это отличается от штатного приложения, которое использует настройки, загружаемые с серверов BYD.
+What is the Vehicle data link?	Что такое «Канал данных автомобиля»?
+An optional setting (off by default). When on, the app starts a small helper through the car's network debugging so it can read BYD's own vehicle data: battery level, energy counter, odometer and ignition. Without it trips are recorded from GPS only.	Необязательная настройка (по умолчанию выключена). Когда она включена, приложение запускает небольшого помощника через сетевую отладку автомобиля, чтобы читать собственные данные автомобиля BYD: уровень заряда батареи, счётчик энергии, одометр и зажигание. Без неё поездки записываются только по GPS.
+Why does recording stop after a restart?	Почему запись останавливается после перезагрузки?
+BYD blocks apps from starting by themselves. Open Setting > BYD auto-start apps and turn Trip Recorder NG OFF in 'Disable background Apps'. BYD switches it back on every time the app is installed or updated, so do this again after an update.	BYD не даёт приложениям запускаться самостоятельно. Откройте Setting > BYD auto-start apps и выключите Trip Recorder NG в списке 'Disable background Apps'. BYD снова включает эту настройку при каждой установке или обновлении приложения, поэтому после обновления повторите это.
+Where are my files?	Где мои файлы?
+Export CSV and GPX from My Trips or Setting. Files go to Documents/TripRecorderNG.	Экспортируйте CSV и GPX из «Мои поездки» или «Настройки». Файлы сохраняются в Documents/TripRecorderNG.
+Are my trips backed up?	Сохраняются ли мои поездки в резервной копии?
+Yes, by default. Each finished trip is also saved as a small file in Documents/TripRecorderNG/backup, so the trips survive an uninstall or a cleared app. Setting > Restore from backup adds any missing trips back.	Да, по умолчанию. Каждая завершённая поездка также сохраняется как небольшой файл в Documents/TripRecorderNG/backup, поэтому поездки переживут удаление приложения или очистку его данных. Настройки > Восстановить из резервной копии вернёт все недостающие поездки.
+How is the cost calculated?	Как считается стоимость?
+Prices start at 0.010 OMR per kWh and 0.239 OMR per litre. Change them in Setting > Energy prices (leave a price empty to go back to the default). A trip costs the energy it took from the battery times the electricity price, plus the fuel it burned times the fuel price. This car is a plug-in hybrid, so fuel is recorded with each trip made since the update (older trips only get the electricity part). A charging session costs the energy it added times the electricity price. Charging losses are not included.	Цены по умолчанию: 0.010 OMR за кВт·ч и 0.239 OMR за литр. Измените их в Настройки > Цены на энергию (оставьте цену пустой, чтобы вернуть значение по умолчанию). Поездка стоит столько, сколько энергии она взяла из батареи, умноженное на цену электричества, плюс израсходованное топливо, умноженное на цену топлива. Этот автомобиль — подключаемый гибрид, поэтому топливо записывается для каждой поездки, совершённой после обновления (у более старых поездок есть только электрическая часть). Сессия зарядки стоит столько, сколько энергии она добавила, умноженное на цену электричества. Потери при зарядке не учитываются.
+Why does a hybrid trip show two consumption numbers?	Почему у гибридной поездки два значения расхода?
+The car's energy counter is net: it also goes down when the engine charges the battery, so one kWh/100km figure for a mixed trip is misleading. On a hybrid trip the app splits it by the car's own electric and hybrid kilometres. Electric: kWh per 100 km driven on electricity, with the energy the engine put into the battery added back. Hybrid: litres per 100 km driven with the engine running; it includes the fuel that charged the battery. Both are estimates; the totals (kWh, litres, cost) are exact, and Whole trip per 100 km is the plain total divided by the distance. In Statistics, Consumption is the car's net figure for every trip, Electric leaves out the trips that burned fuel, Fuel is the litres burned and Fuel economy is litres per 100 km of hybrid driving.	Счётчик энергии автомобиля показывает чистое значение: он уменьшается и тогда, когда двигатель заряжает батарею, поэтому одна цифра кВт·ч/100 км для смешанной поездки вводит в заблуждение. В гибридной поездке приложение делит расход по собственным электрическим и гибридным километрам автомобиля. Электро: кВт·ч на 100 км, пройденных на электричестве, с учётом энергии, которую двигатель закачал в батарею. Гибрид: литры на 100 км, пройденных при работающем двигателе; включает топливо, которое зарядило батарею. Обе цифры — оценки; итоги (кВт·ч, литры, стоимость) точные, а «Вся поездка на 100 км» — это простой итог, делённый на расстояние. В Статистике «Расход» — чистое значение автомобиля по каждой поездке, «Электро» не включает поездки, в которых сжигалось топливо, «Топливо» — израсходованные литры, а «Расход топлива» — литры на 100 км гибридного вождения.
+Why is a parked car not counted in kWh/100km and the drive time?	Почему стоянка не учитывается в кВт·ч/100 км и во времени в пути?
+A trip lasts while the ignition is on, so a car left parked with the air conditioning on, or with the cable in, stays in the same trip for hours. Standing still for 5 minutes or more counts as parked: the energy used then (shown as While parked in the trip details) and the time are left out of kWh/100km, the drive time and the longest drive. The totals, the battery used and the cost still include everything the trip used. Shorter stops, like traffic lights, are part of the drive. Trips recorded before this was added are worked out again from their saved samples; a trip with no saved samples keeps its whole figures.	Поездка длится, пока включено зажигание, поэтому автомобиль, оставленный на стоянке с включённым кондиционером или с подключённым кабелем, остаётся в той же поездке часами. Стоянка от 5 минут и дольше считается парковкой: потраченная за это время энергия (в сведениях о поездке она показана как «На стоянке») и время не входят в кВт·ч/100 км, время в пути и значение «Дольше всего за рулём». Итоги, использованный заряд батареи и стоимость по-прежнему включают всё, что поездка израсходовала. Более короткие остановки, например на светофорах, считаются частью езды. Поездки, записанные до появления этого правила, пересчитываются по сохранённым замерам; у поездки без сохранённых замеров остаются полные значения.
+What are Driving advice, CO2 avoided and the driving level?	Что такое советы по вождению, избежанный CO2 и уровень вождения?
+Driving advice on a trip uses the stock app's advice texts, chosen by simple rules (hard braking or acceleration, high average speed, high consumption, a long drive). CO2 avoided compares your trips with a typical petrol car (8 L per 100 km) minus the fuel you burned and an assumed 0.4 kg CO2 per kWh of grid electricity: it is an estimate. The driving level uses the stock app's level names but steps by the distance recorded here.	Советы по вождению в поездке используют тексты советов штатного приложения, выбираемые простыми правилами (резкое торможение или разгон, высокая средняя скорость, высокий расход, долгая поездка). Избежанный CO2 сравнивает ваши поездки с типичным бензиновым автомобилем (8 л на 100 км) за вычетом израсходованного вами топлива и предполагаемых 0.4 кг CO2 на кВт·ч сетевого электричества: это оценка. Уровень вождения использует названия уровней штатного приложения, но повышается по записанному здесь пробегу.
+What are Tweaks?	Что такое «Твики»?
+Small changes to the car that need the shell user's rights, made through the car's network debugging, so they need the Vehicle data link. The first one turns mobile data roaming on (settings put global data_roaming 1). "Keep data roaming on" repeats it at start-up, whenever the helper starts, and within a minute if something switches roaming off.	Небольшие изменения в автомобиле, требующие прав пользователя shell. Они вносятся через сетевую отладку автомобиля, поэтому нужен «Канал данных автомобиля». Первое из них включает мобильный интернет в роуминге (settings put global data_roaming 1). «Держать роуминг данных включённым» повторяет это при запуске, при каждом запуске помощника и в течение минуты, если что-то выключит роуминг.
+How are charging sessions recorded?	Как записываются сессии зарядки?
+With the Vehicle data link on, the app reads the car's charging state. A session starts when the car begins charging and ends a minute after it stops. It stores the battery level along the way. This car does not report charging power or energy, so the kWh added is an estimate: the battery percentage gained times the kWh per percent measured on your own trips. The head unit sleeps when the car is off and the app cannot record while it sleeps: a session it only saw part of is marked Partial, and the final battery level is read as soon as the unit wakes. If the whole charge happened while it slept, the app compares the battery level with the last one it saw and records the rise as a Partial session.	Когда включён «Канал данных автомобиля», приложение читает состояние зарядки автомобиля. Сессия начинается, когда автомобиль начинает заряжаться, и заканчивается через минуту после остановки зарядки. По ходу она сохраняет уровень заряда батареи. Этот автомобиль не сообщает мощность и энергию зарядки, поэтому добавленные кВт·ч — оценка: набранные проценты заряда, умноженные на кВт·ч на процент, измеренные по вашим собственным поездкам. Головное устройство засыпает, когда автомобиль выключен, и во сне приложение не может вести запись: сессия, которую оно застало лишь частично, помечается как «Неполная», а итоговый уровень заряда считывается, как только устройство просыпается. Если вся зарядка прошла, пока оно спало, приложение сравнивает уровень заряда с последним увиденным и записывает прирост как неполную сессию.
+What do the colours and charts on a trip show?	Что показывают цвета и графики в поездке?
+The route is coloured by speed (green slow, red fast). Red and amber dots mark hard braking and hard acceleration. Under the map, pick Speed, Battery, Elevation or Efficiency and touch the chart to see that moment on the map. Battery, Efficiency and event dots are recorded for trips made after the update; older trips show speed and elevation only.	Маршрут окрашен по скорости (зелёный — медленно, красный — быстро). Красные и янтарные точки отмечают резкое торможение и резкий разгон. Под картой выберите «Скорость», «Батарея», «Высота» или «Эффективность» и коснитесь графика, чтобы увидеть этот момент на карте. Батарея, эффективность и точки событий записываются для поездок после обновления; у более старых поездок есть только скорость и высота.
+Trip recording	Запись поездок
+Starting...	Запуск...
+No vehicle data	Нет данных автомобиля
+Connecting to the car's data...	Подключение к данным автомобиля...
+Waiting for ignition	Ожидание зажигания
+Waiting for movement	Ожидание движения
+Recording: %.1f km	Идёт запись: %.1f км
+No GPS track for this trip	У этой поездки нет GPS-трека
+Tap the map to open this trip in a map app	Коснитесь карты, чтобы открыть эту поездку в картографическом приложении
+The car did not move	Автомобиль не двигался
+130+ km/h	130+ км/ч
+hard braking %d	резких торможений: %d
+hard accel %d	резких разгонов: %d
+Log file: %s	Файл журнала: %s
+Change	Изменить
+Check for updates	Проверить обновления
+Electricity %1$s, fuel %2$s	Электричество %1$s, топливо %2$s
+Set	Задать
+Advanced	Дополнительно
+Options for experts: which builds the update check follows	Для опытных пользователей: за какими сборками следит проверка обновлений
+Hide	Скрыть
+Show	Показать
+General	Общие
+Trip recording service	Служба записи поездок
+Running	Работает
+Stopped	Остановлена
+Record route (GPS track)	Записывать маршрут (GPS-трек)
+On: trips keep their route on the map	Вкл.: поездки сохраняют маршрут на карте
+Off: new trips store no route and no event positions	Выкл.: новые поездки не сохраняют ни маршрут, ни места событий
+Vehicle data source	Источник данных автомобиля
+Location (GPS track)	Местоположение (GPS-трек)
+Allowed	Разрешено
+Not allowed	Не разрешено
+Allow	Разрешить
+Started automatically after the last restart	Запустилось автоматически после последней перезагрузки
+NOT started automatically after the last restart: turn Trip Recorder NG OFF in 'Disable background Apps'	НЕ запустилось автоматически после последней перезагрузки: выключите Trip Recorder NG в списке 'Disable background Apps'
+Not confirmed yet: turn Trip Recorder NG OFF in 'Disable background Apps', then restart the head unit once	Пока не подтверждено: выключите Trip Recorder NG в списке 'Disable background Apps', затем один раз перезагрузите головное устройство
+BYD auto-start apps	BYD auto-start apps
+Open	Открыть
+Vehicle data link	Канал данных автомобиля
+Reconnect	Переподключить
+Try to connect to the car's data right now	Попробовать подключиться к данным автомобиля прямо сейчас
+Retry now	Повторить сейчас
+Debugging key	Ключ отладки
+This app's key for the car's network debugging	Ключ этого приложения для сетевой отладки автомобиля
+Forget	Забыть
+Automatic backup	Автоматическое резервное копирование
+On: every finished trip is also saved to 	Вкл.: каждая завершённая поездка также сохраняется в 
+Off. Backup folder: 	Выкл. Папка резервных копий: 
+%d trip file(s)	файлов поездок: %d
+newest %s	новейшая: %s
+Warning: Documents is not writable, so this copy is deleted if the app is uninstalled	Внимание: в Documents нельзя записывать, поэтому эта копия будет удалена при удалении приложения
+Back up now	Сделать копию сейчас
+Saves any finished trip that has no backup file yet	Сохраняет все завершённые поездки, у которых ещё нет файла резервной копии
+Back up	Создать копию
+Restore from backup	Восстановить из резервной копии
+Adds the trips from the backup folder that are missing here (nothing is overwritten)	Добавляет поездки из папки резервных копий, которых здесь нет (ничего не перезаписывается)
+Export all trips	Экспорт всех поездок
+Export	Экспорт
+Backup and export	Резервное копирование и экспорт
+Consumption	Расход
+Drive score	Оценка
+Trips	Поездки
+Fuel	Топливо
+Daily	По дням
+Monthly	По месяцам
+Mileage (km)	Пробег (км)
+Consumption (kWh/100km)	Расход (кВт·ч/100 км)
+Electric consumption (kWh/100km, trips without fuel)	Электрический расход (кВт·ч/100 км, поездки без топлива)
+Average drive score	Средняя оценка вождения
+Number of trips	Количество поездок
+Cost (%s)	Стоимость (%s)
+Fuel used (L)	Израсходовано топлива (л)
+Fuel economy (L/100km, hybrid driving)	Расход топлива (л/100 км, гибридное вождение)
+ - last 12 months	 — последние 12 месяцев
+ - last 14 days	 — последние 14 дней
+Lowest	Минимум
+Average	Среднее
+Highest	Максимум
+Novice on the road	Новичок на дороге
+Familiar with the road	Знаком с дорогой
+Handling it with ease	Справляется легко
+In command	Уверенно за рулём
+A cut above	На голову выше
+Fluent driver	Свободно водит
+Skilled driver	Умелый водитель
+Veteran driver	Опытный водитель
+Steady as a mountain	Незыблем как гора
+Solid as a rock	Тверд как скала
+Outdrives everyone	Водит лучше всех
+Mastery	Мастерство
+Wizard of the wheel	Волшебник руля
+Peak performance	Вершина мастерства
+One with the car	Единое целое с машиной
+Mountain-pass legend	Легенда горных перевалов
+GPS	GPS
+Vehicle data	Данные авто
+LIVE	LIVE
+Details	Подробнее
+No trip recorded yet	Пока нет записанных поездок
+Your first drive will appear here	Здесь появится ваша первая поездка
+Duration	Длительность
+Speed	Скорость
+Max	Макс.
+Energy	Энергия
+kWh per 100 km	кВт·ч на 100 км
+Behavior	Поведение
+Hard acceleration	Резкий разгон
+Hard braking	Резкое торм.
+Used	Расход
+Service stopped	Служба остановлена
+Not recording	Нет записи
+off	выкл.
+fix	есть сигнал
+searching	поиск
+Connected	Подключено
+Auto-start is blocked by BYD - see Setting	BYD блокирует автозапуск — см. Настройки
+Data link: %s	Канал данных: %s
+Turn on Vehicle data link in Setting	Включите канал данных в настройках
+Last trip	Последняя поездка
+Current trip	Текущая поездка
+%s km/h	%s км/ч
+No battery data for this trip	Нет данных о батарее для этой поездки
+Battery and energy need the Vehicle data link	Для данных о батарее и энергии нужен «Канал данных автомобиля»
+Elevation	Высота
+Efficiency	Эффективность
+No speed data	Нет данных о скорости
+Touch to see it on the map	Касание — на карте
+Battery along the route was not recorded for this trip (%1$s%% -> %2$s%%)	Заряд батареи по маршруту для этой поездки не записан (%1$s%% -> %2$s%%)
+No altitude data for this trip	Нет данных о высоте для этой поездки
+Energy along the route was not recorded for this trip	Энергия по маршруту для этой поездки не записана
+Not enough distance in any speed band	Недостаточно расстояния ни в одном диапазоне скоростей
+  -  whole trip %s	  -  вся поездка %s
+kWh/100km by speed (km/h)	кВт·ч/100 км по скорости (км/ч)
+Elevation (m)  -  climb %1$d m, descent %2$d m	Высота (м)  -  подъём %1$d м, спуск %2$d м
+%d m	%d м
+Electricity only	Только электричество
+Trip cost	Стоимость поездки
+Trip	Поездка
+Average speed	Средняя скорость
+Max speed	Макс. скорость
+Idle time	Время простоя
+Time above 100 km/h	Время выше 100 км/ч
+Hard accel / braking	Резкий разгон / торможение
+Odometer change	Изменение одометра
+Distance measured by	Расстояние измерено по
+car trip counter	счётчику поездки автомобиля
+speed	скорости
+Electric / hybrid distance	Расстояние: электро / гибрид
+%1$s km / %2$s km	%1$s км / %2$s км
+Electricity cost	Стоимость электричества
+Fuel cost	Стоимость топлива
+Driving advice	Советы по вождению
+100km	100 км
+Engine charging	Зарядка от двигателя
+Whole trip per 100 km	Вся поездка на 100 км
+Energy used	Израсходовано энергии
+%s kWh/100km	%s кВт·ч/100 км
+While parked	На стоянке
+failed at %1$s: %2$s	ошибка на шаге %1$s: %2$s
+failed at %s	ошибка на шаге %s
+turned off at %s	выключено в %s
+already off at %s	уже было выключено в %s
+not available on this car	недоступно на этом автомобиле
+the car kept it on	автомобиль оставил включённым
+Automatic reboot at %s: 	Автоматическая перезагрузка в %s: 
+refused by the phone service	отклонено телефонной службой
+LTE back after %d s	LTE вернулся через %d с
+still not on LTE: reboot again	LTE так и не появился: перезагрузите снова
+Changes need the Vehicle data link turned on in	Для изменений нужен включённый «Канал данных автомобиля» — в разделе
+Data roaming	Роуминг данных
+Keep data roaming on	Держать роуминг данных включённым
+Re-applied at start-up and whenever the car switches it off.	Применяется повторно при запуске и всякий раз, когда автомобиль его выключает.
+Connect to BYD cloud	Подключение к облаку BYD
+Links the car to BYD's server over any network, for the phone app.	Связывает автомобиль с сервером BYD по любой сети — для приложения на телефоне.
+Connect now	Подключить сейчас
+Request sent	Запрос отправлен
+AVAS (external EV sound)	AVAS (внешний звук электромобиля)
+Turns the car's external EV sound (AVAS) off, the same switch as in the control center	Выключает внешний звук электромобиля (AVAS) — тем же переключателем, что и в центре управления
+Turn off now	Выключить сейчас
+Turning off...	Выключение...
+Turned off	Выключено
+Keep AVAS off	Держать AVAS выключенным
+Turned off at every start-up and whenever the car is switched on.	Выключается при каждом запуске и каждый раз, когда автомобиль включают.
+Modem reboot	Перезагрузка модема
+A full modem reboot using AT commands (AT+CFUN=1,1). The mobile connection drops for about a minute.	Полная перезагрузка модема командами AT (AT+CFUN=1,1). Мобильная связь пропадает примерно на минуту.
+Reboot now	Перезагрузить сейчас
+Rebooting...	Перезагрузка...
+Rebooted	Перезагружено
+Reboot automatically	Перезагружать автоматически
+When the mobile connections APN2 and APN3 are both down and there is no signal.	Когда оба мобильных соединения APN2 и APN3 не работают и сигнала нет.
+Blind-spot cameras	Камеры слепых зон
+Shows the side camera in a window while a turn signal is on.	Показывает боковую камеру в окне, пока включён указатель поворота.
+Needs permission	Нужно разрешение
+The camera, and drawing over other apps, are given through the car's network debugging.	Доступ к камере и отображение поверх других приложений выдаются через сетевую отладку автомобиля.
+Picture	Изображение
+Fisheye while parked	Рыбий глаз на стоянке
+In P the picture is the fisheye, whatever the Picture is set to.	В режиме P изображение — «рыбий глаз», что бы ни было выбрано в пункте «Изображение».
+On the instrument cluster	На приборной панели
+The left signal's picture goes to the cluster, the right one stays on this screen. In gear D it can cover part of the car's own Left Rear view. Needs the Vehicle data link.	Изображение левого указателя поворота выводится на приборную панель, правого — остаётся на этом экране. В режиме D оно может закрыть часть собственного вида «Left Rear» автомобиля. Нужен «Канал данных автомобиля».
+Connection	Соединение
+Cellular	Сотовая сеть
+Roaming	Роуминг
+Mobile network	Мобильная сеть
+Apps use	Приложения используют
+How changes are made	Как вносятся изменения
+Changes go through the car's network debugging, so the Vehicle data link must be turned on in Setting.	Изменения вносятся через сетевую отладку автомобиля, поэтому в настройках должен быть включён «Канал данных автомобиля».
+Applied at start-up, whenever the data link helper starts, and again within a minute if the car switches it off.	Применяется при запуске, при каждом запуске помощника канала данных и повторно в течение минуты, если автомобиль его выключит.
+Applied at start-up and whenever the ignition comes on, and checked again for 90 seconds, because the car can bring it back on shortly after it starts. At other times it is left alone.	Применяется при запуске и каждый раз при включении зажигания, а затем ещё 90 секунд проверяется снова, потому что автомобиль может включить его обратно вскоре после запуска. В остальное время его не трогают.
+Restarts the modem with AT commands, as Engineer Mode's AT Command Tool does. The line under the button says how long LTE took to come back.	Перезапускает модем командами AT, как это делает AT Command Tool в инженерном режиме. Строка под кнопкой показывает, сколько времени LTE возвращался.
+While a turn signal is on, the camera on that side is shown in a window next to the car's own blind-spot window, and stays a moment after the signal goes off. A tap on it closes it, and it can be dragged anywhere on the screen. The turn signal is read through the Vehicle data link. Side view is the car's own side view, rebuilt; Fisheye is the camera's picture as it comes, and in P it can be used whatever Picture says. On the cluster, the left signal's picture is shown there instead.	Пока включён указатель поворота, камера с этой стороны показывается в окне рядом с собственным окном слепой зоны автомобиля и остаётся ещё на мгновение после выключения сигнала. Касание закрывает окно, а перетащить его можно в любое место экрана. Указатель поворота читается через «Канал данных автомобиля». «Вид сбоку» — собственный вид автомобиля сбоку, восстановленный по калибровке; «Рыбий глаз» — картинка камеры как есть, и в режиме P его можно использовать независимо от выбора в пункте «Изображение». На приборной панели вместо этого показывается изображение левого указателя.
+Runs the reboot by itself when APN2 and APN3 have both been down and the modem has had no signal for about 2.5 minutes: at most 3 times in a row, 15 minutes apart.	Выполняет перезагрузку сама, когда APN2 и APN3 не работают и у модема нет сигнала около 150 секунд: не более 3 раз подряд, с интервалом 15 минут.
+Commands	Команды
+On	Вкл.
+Unknown	Неизвестно
+Network status unavailable	Состояние сети недоступно
+Not connected	Нет подключения
+Internet works	Интернет работает
+No internet yet	Интернета пока нет
+Wi-Fi	Wi-Fi
+Ethernet	Ethernet
+Other	Другое
+Nothing	Ничего
+Needs the Vehicle data link	Нужен «Канал данных автомобиля»
+Showing now	Показывается сейчас
+Ready	Готово
+Allowing...	Выдача разрешений...
+Side view	Вид сбоку
+Fisheye	Рыбий глаз
+No signal	Нет сигнала
+SIM not ready	SIM-карта не готова
+Disconnected	Отключено
+%1$dh %2$dm	%1$d ч %2$d мин
+%d min	%d мин
+Dev	Dev
+Stable	Stable
+GitHub's answer could not be read	Не удалось прочитать ответ GitHub
+No internet connection (GitHub cannot be reached)	Нет подключения к интернету (GitHub недоступен)
+GitHub answered %s	GitHub ответил: %s
+The connection to GitHub failed	Не удалось подключиться к GitHub
+The download address is not from this project's releases	Адрес загрузки не относится к релизам этого проекта
+No storage is available	Нет доступного хранилища
+The file is larger than expected	Файл больше ожидаемого
+The download is incomplete	Загрузка не завершена
+The downloaded file is damaged (its checksum differs)	Загруженный файл повреждён (контрольная сумма отличается)
+The file could not be saved	Не удалось сохранить файл
+The file is not a valid app	Файл не является корректным приложением
+The file is a different app	Файл — другое приложение
+The file's signature could not be read	Не удалось прочитать подпись файла
+The file is signed with a different key, so Android would not install it over this app	Файл подписан другим ключом, поэтому Android не установит его поверх этого приложения
+The file could not be checked	Не удалось проверить файл

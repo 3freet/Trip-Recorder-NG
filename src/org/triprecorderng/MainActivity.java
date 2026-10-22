@@ -806,14 +806,21 @@ public class MainActivity extends Activity {
     /** The language choice as shown in the Language row (the language names are always in their own language). */
     private String languageName() {
         String v = L.setting(this);
-        if (L.AR.equals(v)) return "العربية";
-        if (L.EN.equals(v)) return "English";
-        return L.t("Automatic (follows the head unit)") + " - " + (L.isArabic() ? "العربية" : "English");
+        if (!L.AUTO.equals(v)) return L.nameOf(v);
+        return L.t("Automatic (follows the head unit)") + " - " + L.nameOf(L.current());
+    }
+
+    /** A language's own name for the list, with a direction mark so it sits right in Arabic and in left-to-right text. */
+    private static String languageLabel(String code) {
+        boolean arabicName = L.AR.equals(code);
+        if (L.isArabic() && !arabicName) return "\u200F" + L.nameOf(code);
+        if (!L.isArabic() && arabicName) return "\u200E" + L.nameOf(code);
+        return L.nameOf(code);
     }
 
     private void showLanguageDialog() {
-        final String[] values = {L.AUTO, L.EN, L.AR};
-        String[] labels = {L.t("Automatic (follows the head unit)"), (L.isArabic() ? "\u200F" : "") + "English", (L.isArabic() ? "" : "\u200E") + "العربية"};
+        final String[] values = {L.AUTO, L.EN, L.AR, L.RU};
+        String[] labels = {L.t("Automatic (follows the head unit)"), languageLabel(L.EN), languageLabel(L.AR), languageLabel(L.RU)};
         Ui.show(new AlertDialog.Builder(this)
                 .setTitle(L.t("Language"))
                 .setItems(labels, new android.content.DialogInterface.OnClickListener() {

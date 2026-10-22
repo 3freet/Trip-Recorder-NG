@@ -1,11 +1,12 @@
-"""Appends English/Arabic pairs to assets/ar.tsv (keys and values are escaped: backslash, newline, tab)."""
+"""Appends English/translation pairs to assets/<lang>.tsv (keys and values are escaped: backslash, newline, tab)."""
 import os
-TSV = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "ar.tsv")
+ASSETS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets")
 
 def esc(s):
     return s.replace("\\", "\\\\").replace("\n", "\\n").replace("\t", "\\t")
 
-def add(pairs):
+def add(pairs, lang="ar"):
+    TSV = os.path.join(ASSETS, lang + ".tsv")
     existing = set()
     if os.path.exists(TSV):
         for line in open(TSV, encoding="utf-8"):
