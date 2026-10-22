@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- the empty-list picture: an open, empty box with a speech bubble, in front of a faint skyline -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="260dp" android:height="173dp"
+    android:viewportWidth="624" android:viewportHeight="416">
+    <!-- skyline -->
+    <path android:fillColor="#12FFFFFF" android:pathData="M104,120 H196 V316 H104 Z" />
+    <path android:fillColor="#1CFFFFFF" android:pathData="M122,142 H142 V166 H122 Z M158,142 H178 V166 H158 Z M122,186 H142 V210 H122 Z M158,186 H178 V210 H158 Z" />
+    <path android:fillColor="#0FFFFFFF" android:pathData="M444,96 H530 V300 H444 Z" />
+    <path android:fillColor="#1AFFFFFF" android:pathData="M462,118 H484 V140 H462 Z M490,118 H512 V140 H490 Z M462,158 H484 V180 H462 Z M490,158 H512 V180 H490 Z" />
+    <!-- floor shadow -->
+    <path android:fillColor="#66000000" android:pathData="M312,326 m-190,0 a190,22 0 1 0 380,0 a190,22 0 1 0 -380,0" />
+    <!-- inside of the box -->
+    <path android:fillColor="#1B1B1B" android:pathData="M186,148 H438 L448,196 H176 Z" />
+    <!-- flaps -->
+    <path android:fillColor="#434343" android:pathData="M176,196 L146,166 Q140,158 150,155 L190,146 L204,196 Z" />
+    <path android:fillColor="#4A4A4A" android:pathData="M448,196 L478,166 Q484,158 474,155 L434,146 L420,196 Z" />
+    <!-- front of the box -->
+    <path android:pathData="M176,196 H448 V322 Q448,330 440,330 H184 Q176,330 176,322 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="0" android:startY="196"
+                android:endX="0" android:endY="330" android:startColor="#4C4C4C" android:endColor="#2A2A2A" />
+        </aapt:attr>
+    </path>
+    <path android:fillColor="#5E5E5E" android:pathData="M296,196 H340 V240 H296 Z" />
+    <path android:fillColor="#2C2C2C" android:pathData="M198,268 H270 V302 H198 Z" />
+    <path android:fillColor="#242424" android:pathData="M176,316 H448 V322 Q448,330 440,330 H184 Q176,330 176,322 Z" />
+    <!-- speech bubble -->
+    <path android:fillColor="#303030" android:pathData="M312,56 m-38,0 a38,38 0 1 0 76,0 a38,38 0 1 0 -76,0 M300,88 L290,116 L326,92 Z" />
+    <path android:fillColor="#606060" android:pathData="M290,56 m-6,0 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 M312,56 m-6,0 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0 M334,56 m-6,0 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0" />
+</vector>

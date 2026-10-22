@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="30dp" android:height="30dp"
+    android:viewportWidth="96" android:viewportHeight="96">
+    <!-- a road bending away: two edges and a dashed centre line -->
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="4" android:fillColor="#00000000"
+        android:pathData="M22,68 Q28,40 52,24 M64,72 Q62,46 74,28" />
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="4" android:fillColor="#00000000"
+        android:pathData="M44,70 L44.5,65.2 M46.6,54.6 L48.5,48.3 M52.7,38.4 L56.3,31.7" />
+</vector>

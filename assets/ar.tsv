@@ -1,13 +1,3 @@
-You have a high frequency of sudden accelerations. It is recommended to stabilize the accelerator pedal, accelerate smoothly.	لديك تكرار مرتفع للتسارع المفاجئ. يُنصح بتثبيت الضغط على دواسة الوقود والتسارع بسلاسة.
-Frequent rapid acceleration will accelerate the wear and aging of parts and shorten the service life of the vehicle. We suggest you accelerate smoothly.	التسارع السريع المتكرر يزيد من تآكل القطع وتقادمها ويقصّر العمر الافتراضي للمركبة. نوصيك بالتسارع بسلاسة.
-When there are many vehicles on the road or when driving at high speeds, it is recommended to control your speed reasonably and maintain a safe distance from the vehicle in front.	عند ازدحام الطريق أو القيادة بسرعات عالية، يُنصح بالتحكم في السرعة والحفاظ على مسافة أمان من المركبة التي أمامك.
-Frequent sudden braking can accelerate wear on tires, braking systems, and cause shocks to the suspension and transmission systems. We recommend maintaining a safe distance and decelerate in advance.	الكبح المفاجئ المتكرر يزيد من تآكل الإطارات ونظام الفرامل ويسبّب صدمات لنظام التعليق ونقل الحركة. نوصي بالحفاظ على مسافة أمان وتخفيف السرعة مبكرًا.
-Driving too fast, easy to cause traffic accidents, it is recommended to follow the prescribed speed to ensure safety.	القيادة بسرعة زائدة تسهّل وقوع الحوادث المرورية، ويُنصح بالالتزام بالسرعة المحددة لضمان السلامة.
-At high speeds, your field of vision narrows, making it difficult to properly handle sudden abnormalities ahead, which can easily lead to accidents. We recommend controlling your speed reasonably.	عند السرعات العالية يضيق مجال الرؤية فيصعب التعامل مع المفاجآت أمامك، مما قد يؤدي بسهولة إلى حوادث. نوصي بالتحكم في السرعة.
-We suggest regular maintenance, avoiding peak traffic times, reducing vehicle weight, and maintaining normal tire pressure to reduce energy consumption from all aspects.	نقترح الصيانة الدورية وتجنّب أوقات الذروة وتقليل الحمولة والحفاظ على ضغط الإطارات الطبيعي لخفض استهلاك الطاقة من جميع الجوانب.
-We recommend driving at an economical speed within the speed limit, as driving too fast or too slow can increase fuel consumption.	نوصي بالقيادة بسرعة اقتصادية ضمن الحد المسموح، فالقيادة السريعة جدًا أو البطيئة جدًا تزيد الاستهلاك.
-It is recommended to rationalize the time of continuous driving, and when you feel tired, stop at a safe place to rest as soon as possible; the longer you delay, the more fatigue you will feel and increasing the risk of accidents.	يُنصح بتنظيم مدة القيادة المتواصلة، وعند الشعور بالتعب توقّف في مكان آمن للراحة في أقرب وقت؛ فكلما تأخرت زاد الإرهاق وارتفع خطر الحوادث.
-Your driving habits are excellent, please continue to keep them up!	عاداتك في القيادة ممتازة، واصل على هذا النهج!
 Charging	الشحن
  - paused	 - متوقف مؤقتًا
 Off	متوقف
@@ -215,7 +205,7 @@ Prices start at 0.010 OMR per kWh and 0.239 OMR per litre. Change them in Settin
 Why does a hybrid trip show two consumption numbers?	لماذا تُظهر الرحلة الهجينة رقمين للاستهلاك؟
 The car's energy counter is net: it also goes down when the engine charges the battery, so one kWh/100km figure for a mixed trip is misleading. On a hybrid trip the app splits it by the car's own electric and hybrid kilometres. Electric: kWh per 100 km driven on electricity, with the energy the engine put into the battery added back. Hybrid: litres per 100 km driven with the engine running; it includes the fuel that charged the battery. Both are estimates; the totals (kWh, litres, cost) are exact, and Whole trip per 100 km is the plain total divided by the distance. In Statistics, Consumption is the car's net figure for every trip, Electric leaves out the trips that burned fuel, Fuel is the litres burned and Fuel economy is litres per 100 km of hybrid driving.	عدّاد الطاقة في السيارة صافٍ: فهو ينقص أيضًا عندما يشحن المحرك البطارية، لذا يكون رقم كيلوواط/100 كم واحد لرحلة مختلطة مضلِّلًا. ولهذا يقسم التطبيق الرحلة الهجينة بحسب الكيلومترات الكهربائية والهجينة التي تسجّلها السيارة نفسها. كهربائي: كيلوواط لكل 100 كم قُطعت بالكهرباء، مع إضافة الطاقة التي دفعها المحرك إلى البطارية. هجين: لترات لكل 100 كم قُطعت والمحرك يعمل، وهي تشمل الوقود الذي شحن البطارية. الرقمان تقديريان، أما الإجماليات (كيلوواط واللترات والتكلفة) فدقيقة، و«الرحلة كاملة لكل 100 كم» هي الإجمالي مقسومًا على المسافة. وفي «الإحصائيات»: «الاستهلاك» هو الرقم الصافي من السيارة لكل الرحلات، و«كهربائي» يستثني الرحلات التي استهلكت وقودًا، و«الوقود» هو اللترات المحروقة، و«اقتصاد الوقود» لترات لكل 100 كم من القيادة الهجينة.
 What are Driving advice, CO2 avoided and the driving level?	ما هي نصائح القيادة وثاني أكسيد الكربون المتجنَّب ومستوى القيادة؟
-Driving advice on a trip uses the stock app's advice texts, chosen by simple rules (hard braking or acceleration, high average speed, high consumption, a long drive). CO2 avoided compares your trips with a typical petrol car (8 L per 100 km) minus the fuel you burned and an assumed 0.4 kg CO2 per kWh of grid electricity: it is an estimate. The driving level uses the stock app's level names but steps by the distance recorded here.	تستخدم نصائح القيادة نصوص النصائح من تطبيق BYD الأصلي، وتُختار بقواعد بسيطة (كبح أو تسارع حاد، متوسط سرعة مرتفع، استهلاك مرتفع، قيادة طويلة). ويقارن ثاني أكسيد الكربون المتجنَّب رحلاتك بسيارة بنزين نموذجية (8 لتر لكل 100 كم) مطروحًا منه الوقود الذي استهلكته وافتراض 0.4 كجم لكل كيلوواط من كهرباء الشبكة: وهو تقدير. أما مستوى القيادة فيستخدم أسماء مستويات التطبيق الأصلي لكن بحسب المسافة المسجَّلة هنا.
+Driving advice on a trip is chosen by simple rules from a short list of tips (hard braking or acceleration, high average speed, high consumption, a long drive). CO2 avoided compares your trips with a typical petrol car (8 L per 100 km) minus the fuel you burned and an assumed 0.4 kg CO2 per kWh of grid electricity: it is an estimate. The driving level has 16 steps, based on the distance recorded here.	تُختار نصائح القيادة في الرحلة بقواعد بسيطة من قائمة قصيرة من النصائح (كبح أو تسارع حاد، متوسط سرعة مرتفع، استهلاك مرتفع، قيادة طويلة). ويقارن ثاني أكسيد الكربون المتجنَّب رحلاتك بسيارة بنزين نموذجية (8 لتر لكل 100 كم) مطروحًا منه الوقود الذي استهلكته وافتراض 0.4 كجم لكل كيلوواط من كهرباء الشبكة: وهو تقدير. أما مستوى القيادة فله 16 درجة بحسب المسافة المسجَّلة هنا.
 What are Tweaks?	ما هي «تعديلات»؟
 Small changes to the car that need the shell user's rights, made through the car's network debugging, so they need the Vehicle data link. The first one turns mobile data roaming on (settings put global data_roaming 1). "Keep data roaming on" repeats it at start-up, whenever the helper starts, and within a minute if something switches roaming off.	تغييرات صغيرة على السيارة تحتاج صلاحيات مستخدم shell وتتم عبر تصحيح الشبكة في السيارة، لذلك تتطلب رابط بيانات المركبة. أولها يشغّل التجوال بالبيانات (settings put global data_roaming 1). و«إبقاء التجوال بالبيانات مفعّلًا» يكرّره عند بدء التشغيل وكلما بدأ المساعد وخلال دقيقة إذا أوقف شيء ما التجوال.
 How are charging sessions recorded?	كيف تُسجَّل جلسات الشحن؟
@@ -259,22 +249,6 @@ No GPS track for this trip	لا يوجد مسار GPS لهذه الرحلة
 130+ km/h	130+ كم/س
 hard braking %d	كبح حاد %d
 hard accel %d	تسارع حاد %d
-Novice on the road	مبتدئ على الطريق
-Familiar with the road	ألِف الطريق
-Handling it with ease	يتعامل بسهولة
-In command	متحكّم
-A cut above	أرفع شأنًا
-Fluent driver	سائق طليق
-Skilled driver	سائق ماهر
-Veteran driver	سائق متمرّس
-Steady as a mountain	ثابت كالجبل
-Solid as a rock	صلب كالصخر
-Outdrives everyone	يتفوق على الجميع
-Mastery	إتقان
-Wizard of the wheel	ساحر المقود
-Peak performance	قمة الأداء
-One with the car	واحد مع السيارة
-Mountain-pass legend	أسطورة الممرات الجبلية
 Speed	السرعة
 Elevation	الارتفاع
 Efficiency	الكفاءة
@@ -493,3 +467,29 @@ Fisheye	عين السمكة
 Fisheye while parked	عين السمكة أثناء الوقوف
 In P the picture is the fisheye, whatever the Picture is set to.	في وضع الوقوف P تكون الصورة عين السمكة مهما كان اختيار الصورة.
 Not now	ليس الآن
+You often accelerate hard. Pressing the pedal gently and steadily makes the drive smoother and safer.	تتسارع بقوة كثيرًا. الضغط على دواسة الوقود برفق وثبات يجعل القيادة أكثر سلاسة وأمانًا.
+Repeated hard acceleration wears parts faster and shortens the life of the car. Build up speed gradually.	التسارع القوي المتكرر يُبلي القطع أسرع ويقصّر عمر السيارة. ارفع سرعتك تدريجيًا.
+In busy traffic or at high speed, keep your speed in check and leave a generous gap to the car ahead.	في الزحام أو عند السرعات العالية، تحكّم في سرعتك واترك مسافة كافية بينك وبين السيارة التي أمامك.
+Braking hard again and again wears the tires and brakes and shakes the suspension and drivetrain. Keep your distance and ease off the pedal early.	الفرملة القوية المتكررة تُبلي الإطارات والفرامل وتُجهد نظام التعليق ونقل الحركة. حافظ على مسافة كافية وخفّف السرعة مبكرًا.
+Driving fast raises the risk of a crash. Stay within the posted speed limits.	القيادة بسرعة عالية ترفع خطر الحوادث. التزم بحدود السرعة المسموحة.
+The faster you go, the narrower your view and the less time you have to react to something unexpected ahead. Keep your speed under control.	كلما زادت سرعتك ضاق مجال رؤيتك وقلّ الوقت المتاح لك للتصرف عند ظهور أمر مفاجئ أمامك. تحكّم في سرعتك.
+To use less energy: service the car regularly, avoid rush hour where you can, carry less load and keep the tires at the right pressure.	لتقليل استهلاك الطاقة: أجرِ الصيانة الدورية، وتجنّب أوقات الذروة قدر الإمكان، وقلّل الحمولة، وحافظ على ضغط الإطارات الصحيح.
+Steady driving at a moderate speed within the limit uses the least; going much faster or much slower costs more energy.	القيادة بسرعة معتدلة وثابتة وضمن الحد المسموح هي الأوفر؛ فالسرعة العالية جدًا أو المنخفضة جدًا تستهلك طاقة أكثر.
+Plan breaks on long drives. If you feel tired, stop somewhere safe and rest; pushing on only adds to the tiredness and the risk of an accident.	خطّط لفترات راحة في الرحلات الطويلة. إذا شعرت بالتعب فتوقف في مكان آمن واسترح؛ فمواصلة القيادة تزيد التعب وخطر الحوادث.
+Great driving! Keep it up.	قيادة رائعة! واصل على هذا النهج.
+Just starting out	في البداية
+Finding your way	تتلمّس طريقك
+Getting comfortable	بدأت تألف القيادة
+Confident	واثق
+Capable	كفء
+Smooth operator	قيادة سلسة
+Experienced	ذو خبرة
+Seasoned	متمرّس
+Road-wise	عارف بالطريق
+Dependable	يُعتمد عليه
+Expert	خبير
+Master	بارع
+Virtuoso	مبدع
+Elite	من النخبة
+Grand master	أستاذ كبير
+Legend of the road	أسطورة الطريق

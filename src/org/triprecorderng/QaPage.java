@@ -84,12 +84,12 @@ final class QaPage {
                                 + "are worked out again from their saved samples; a trip with no saved samples "
                                 + "keeps its whole figures.")},
                 {L.t("What are Driving advice, CO2 avoided and the driving level?"),
-                        L.t("Driving advice on a trip uses the stock app's advice texts, chosen by simple rules "
+                        L.t("Driving advice on a trip is chosen by simple rules from a short list of tips "
                                 + "(hard braking or acceleration, high average speed, high consumption, a long "
                                 + "drive). CO2 avoided compares your trips with a typical petrol car (8 L per "
                                 + "100 km) minus the fuel you burned and an assumed 0.4 kg CO2 per kWh of grid "
-                                + "electricity: it is an estimate. The driving level uses the stock app's level "
-                                + "names but steps by the distance recorded here.")},
+                                + "electricity: it is an estimate. The driving level has 16 steps, "
+                                + "based on the distance recorded here.")},
                 {L.t("What are Tweaks?"),
                         L.t("Small changes to the car that need the shell user's rights, made through the car's "
                                 + "network debugging, so they need the Vehicle data link. The first one turns "

@@ -1,13 +1,3 @@
-You have a high frequency of sudden accelerations. It is recommended to stabilize the accelerator pedal, accelerate smoothly.	У вас часто бывают резкие разгоны. Рекомендуем держать педаль акселератора ровнее и разгоняться плавно.
-Frequent rapid acceleration will accelerate the wear and aging of parts and shorten the service life of the vehicle. We suggest you accelerate smoothly.	Частые резкие разгоны ускоряют износ и старение деталей и сокращают срок службы автомобиля. Рекомендуем разгоняться плавно.
-When there are many vehicles on the road or when driving at high speeds, it is recommended to control your speed reasonably and maintain a safe distance from the vehicle in front.	Когда на дороге много машин или вы едете на высокой скорости, разумно контролируйте скорость и держите безопасную дистанцию до впереди идущего автомобиля.
-Frequent sudden braking can accelerate wear on tires, braking systems, and cause shocks to the suspension and transmission systems. We recommend maintaining a safe distance and decelerate in advance.	Частое резкое торможение ускоряет износ шин и тормозной системы и создаёт ударные нагрузки на подвеску и трансмиссию. Рекомендуем держать безопасную дистанцию и притормаживать заранее.
-Driving too fast, easy to cause traffic accidents, it is recommended to follow the prescribed speed to ensure safety.	Слишком быстрая езда легко приводит к авариям. Рекомендуем соблюдать установленный скоростной режим.
-At high speeds, your field of vision narrows, making it difficult to properly handle sudden abnormalities ahead, which can easily lead to accidents. We recommend controlling your speed reasonably.	На высокой скорости поле зрения сужается, и трудно вовремя среагировать на внезапную опасность впереди — это легко приводит к авариям. Рекомендуем разумно контролировать скорость.
-We suggest regular maintenance, avoiding peak traffic times, reducing vehicle weight, and maintaining normal tire pressure to reduce energy consumption from all aspects.	Рекомендуем проходить регулярное обслуживание, избегать часов пик, снижать вес автомобиля и поддерживать нормальное давление в шинах, чтобы снизить расход энергии по всем статьям.
-We recommend driving at an economical speed within the speed limit, as driving too fast or too slow can increase fuel consumption.	Рекомендуем ездить с экономичной скоростью в пределах ограничения: слишком быстрая или слишком медленная езда увеличивает расход топлива.
-It is recommended to rationalize the time of continuous driving, and when you feel tired, stop at a safe place to rest as soon as possible; the longer you delay, the more fatigue you will feel and increasing the risk of accidents.	Рекомендуем разумно планировать время непрерывного вождения, а при усталости как можно скорее остановиться в безопасном месте и отдохнуть: чем дольше вы откладываете, тем сильнее усталость и выше риск аварии.
-Your driving habits are excellent, please continue to keep them up!	У вас отличные привычки вождения, так держать!
 Highest achievements	Лучшие достижения
 Longest trip	Дальняя поездка
 km	км
@@ -235,7 +225,7 @@ The car's energy counter is net: it also goes down when the engine charges the b
 Why is a parked car not counted in kWh/100km and the drive time?	Почему стоянка не учитывается в кВт·ч/100 км и во времени в пути?
 A trip lasts while the ignition is on, so a car left parked with the air conditioning on, or with the cable in, stays in the same trip for hours. Standing still for 5 minutes or more counts as parked: the energy used then (shown as While parked in the trip details) and the time are left out of kWh/100km, the drive time and the longest drive. The totals, the battery used and the cost still include everything the trip used. Shorter stops, like traffic lights, are part of the drive. Trips recorded before this was added are worked out again from their saved samples; a trip with no saved samples keeps its whole figures.	Поездка длится, пока включено зажигание, поэтому автомобиль, оставленный на стоянке с включённым кондиционером или с подключённым кабелем, остаётся в той же поездке часами. Стоянка от 5 минут и дольше считается парковкой: потраченная за это время энергия (в сведениях о поездке она показана как «На стоянке») и время не входят в кВт·ч/100 км, время в пути и значение «Дольше всего за рулём». Итоги, использованный заряд батареи и стоимость по-прежнему включают всё, что поездка израсходовала. Более короткие остановки, например на светофорах, считаются частью езды. Поездки, записанные до появления этого правила, пересчитываются по сохранённым замерам; у поездки без сохранённых замеров остаются полные значения.
 What are Driving advice, CO2 avoided and the driving level?	Что такое советы по вождению, избежанный CO2 и уровень вождения?
-Driving advice on a trip uses the stock app's advice texts, chosen by simple rules (hard braking or acceleration, high average speed, high consumption, a long drive). CO2 avoided compares your trips with a typical petrol car (8 L per 100 km) minus the fuel you burned and an assumed 0.4 kg CO2 per kWh of grid electricity: it is an estimate. The driving level uses the stock app's level names but steps by the distance recorded here.	Советы по вождению в поездке используют тексты советов штатного приложения, выбираемые простыми правилами (резкое торможение или разгон, высокая средняя скорость, высокий расход, долгая поездка). Избежанный CO2 сравнивает ваши поездки с типичным бензиновым автомобилем (8 л на 100 км) за вычетом израсходованного вами топлива и предполагаемых 0.4 кг CO2 на кВт·ч сетевого электричества: это оценка. Уровень вождения использует названия уровней штатного приложения, но повышается по записанному здесь пробегу.
+Driving advice on a trip is chosen by simple rules from a short list of tips (hard braking or acceleration, high average speed, high consumption, a long drive). CO2 avoided compares your trips with a typical petrol car (8 L per 100 km) minus the fuel you burned and an assumed 0.4 kg CO2 per kWh of grid electricity: it is an estimate. The driving level has 16 steps, based on the distance recorded here.	Советы по вождению в поездке выбираются простыми правилами из короткого списка подсказок (резкое торможение или разгон, высокая средняя скорость, высокий расход, долгая поездка). Избежанный CO2 сравнивает ваши поездки с типичным бензиновым автомобилем (8 л на 100 км) за вычетом израсходованного вами топлива и предполагаемых 0.4 кг CO2 на кВт·ч сетевого электричества: это оценка. У уровня вождения 16 ступеней, они зависят от записанного здесь пробега.
 What are Tweaks?	Что такое «Твики»?
 Small changes to the car that need the shell user's rights, made through the car's network debugging, so they need the Vehicle data link. The first one turns mobile data roaming on (settings put global data_roaming 1). "Keep data roaming on" repeats it at start-up, whenever the helper starts, and within a minute if something switches roaming off.	Небольшие изменения в автомобиле, требующие прав пользователя shell. Они вносятся через сетевую отладку автомобиля, поэтому нужен «Канал данных автомобиля». Первое из них включает мобильный интернет в роуминге (settings put global data_roaming 1). «Держать роуминг данных включённым» повторяет это при запуске, при каждом запуске помощника и в течение минуты, если что-то выключит роуминг.
 How are charging sessions recorded?	Как записываются сессии зарядки?
@@ -321,22 +311,6 @@ Fuel economy (L/100km, hybrid driving)	Расход топлива (л/100 км,
 Lowest	Минимум
 Average	Среднее
 Highest	Максимум
-Novice on the road	Новичок на дороге
-Familiar with the road	Знаком с дорогой
-Handling it with ease	Справляется легко
-In command	Уверенно за рулём
-A cut above	На голову выше
-Fluent driver	Свободно водит
-Skilled driver	Умелый водитель
-Veteran driver	Опытный водитель
-Steady as a mountain	Незыблем как гора
-Solid as a rock	Тверд как скала
-Outdrives everyone	Водит лучше всех
-Mastery	Мастерство
-Wizard of the wheel	Волшебник руля
-Peak performance	Вершина мастерства
-One with the car	Единое целое с машиной
-Mountain-pass legend	Легенда горных перевалов
 GPS	GPS
 Vehicle data	Данные авто
 LIVE	LIVE
@@ -493,3 +467,29 @@ The file is a different app	Файл — другое приложение
 The file's signature could not be read	Не удалось прочитать подпись файла
 The file is signed with a different key, so Android would not install it over this app	Файл подписан другим ключом, поэтому Android не установит его поверх этого приложения
 The file could not be checked	Не удалось проверить файл
+You often accelerate hard. Pressing the pedal gently and steadily makes the drive smoother and safer.	Вы часто резко разгоняетесь. Если нажимать на педаль плавно и равномерно, езда станет мягче и безопаснее.
+Repeated hard acceleration wears parts faster and shortens the life of the car. Build up speed gradually.	Частые резкие разгоны быстрее изнашивают детали и сокращают срок службы автомобиля. Набирайте скорость постепенно.
+In busy traffic or at high speed, keep your speed in check and leave a generous gap to the car ahead.	В плотном потоке и на высокой скорости контролируйте скорость и держите достаточную дистанцию до машины впереди.
+Braking hard again and again wears the tires and brakes and shakes the suspension and drivetrain. Keep your distance and ease off the pedal early.	Частое резкое торможение изнашивает шины и тормоза и нагружает подвеску и трансмиссию. Держите дистанцию и сбавляйте скорость заранее.
+Driving fast raises the risk of a crash. Stay within the posted speed limits.	Быстрая езда повышает риск аварии. Соблюдайте установленные ограничения скорости.
+The faster you go, the narrower your view and the less time you have to react to something unexpected ahead. Keep your speed under control.	Чем выше скорость, тем уже поле зрения и меньше времени, чтобы среагировать на неожиданность впереди. Держите скорость под контролем.
+To use less energy: service the car regularly, avoid rush hour where you can, carry less load and keep the tires at the right pressure.	Чтобы тратить меньше энергии: регулярно обслуживайте автомобиль, по возможности избегайте часов пик, не возите лишний груз и следите за давлением в шинах.
+Steady driving at a moderate speed within the limit uses the least; going much faster or much slower costs more energy.	Равномерная езда с умеренной скоростью в пределах ограничения — самая экономичная; и очень высокая, и очень низкая скорость расходуют больше энергии.
+Plan breaks on long drives. If you feel tired, stop somewhere safe and rest; pushing on only adds to the tiredness and the risk of an accident.	Планируйте перерывы в долгих поездках. Если чувствуете усталость, остановитесь в безопасном месте и отдохните: чем дольше терпеть, тем сильнее усталость и выше риск аварии.
+Great driving! Keep it up.	Отличное вождение! Так держать!
+Just starting out	Первые шаги
+Finding your way	Находите свой путь
+Getting comfortable	Осваиваетесь за рулём
+Confident	Уверенное вождение
+Capable	Умелый водитель
+Smooth operator	Плавное вождение
+Experienced	Опытный водитель
+Seasoned	Бывалый водитель
+Road-wise	Знаток дороги
+Dependable	Надёжный водитель
+Expert	Эксперт
+Master	Мастер
+Virtuoso	Виртуоз
+Elite	Элита
+Grand master	Гроссмейстер
+Legend of the road	Легенда дорог

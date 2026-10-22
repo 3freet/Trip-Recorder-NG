@@ -231,27 +231,27 @@ final class Stats {
         return r;
     }
 
-    // ---- driving level (names from the stock app's "My achievement"; steps by distance driven) ----
+    // ---- driving level (steps by distance driven) ----
     static final double[] LEVEL_KM = {0, 100, 300, 600, 1000, 2000, 3500, 5000, 7500, 10000, 15000, 20000,
             30000, 40000, 60000, 100000};
     static String levelName(int level) {
         switch (level) {
-            case 0: return L.t("Novice on the road");
-            case 1: return L.t("Familiar with the road");
-            case 2: return L.t("Handling it with ease");
-            case 3: return L.t("In command");
-            case 4: return L.t("A cut above");
-            case 5: return L.t("Fluent driver");
-            case 6: return L.t("Skilled driver");
-            case 7: return L.t("Veteran driver");
-            case 8: return L.t("Steady as a mountain");
-            case 9: return L.t("Solid as a rock");
-            case 10: return L.t("Outdrives everyone");
-            case 11: return L.t("Mastery");
-            case 12: return L.t("Wizard of the wheel");
-            case 13: return L.t("Peak performance");
-            case 14: return L.t("One with the car");
-            default: return L.t("Mountain-pass legend");
+            case 0: return L.t("Just starting out");
+            case 1: return L.t("Finding your way");
+            case 2: return L.t("Getting comfortable");
+            case 3: return L.t("Confident");
+            case 4: return L.t("Capable");
+            case 5: return L.t("Smooth operator");
+            case 6: return L.t("Experienced");
+            case 7: return L.t("Seasoned");
+            case 8: return L.t("Road-wise");
+            case 9: return L.t("Dependable");
+            case 10: return L.t("Expert");
+            case 11: return L.t("Master");
+            case 12: return L.t("Virtuoso");
+            case 13: return L.t("Elite");
+            case 14: return L.t("Grand master");
+            default: return L.t("Legend of the road");
         }
     }
 

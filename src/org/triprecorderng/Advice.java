@@ -4,54 +4,49 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Short driving advice for a trip, picked by simple rules from the stock app's own advice texts
- * (hard acceleration, hard braking, speed, consumption, long drives).
+ * Short driving advice for a trip, picked by simple rules (hard acceleration, hard braking, speed,
+ * consumption, long drives).
  */
 final class Advice {
     private Advice() {}
 
     private static String acc1() {
-        return L.t("You have a high frequency of sudden accelerations. It is recommended "
-            + "to stabilize the accelerator pedal, accelerate smoothly.");
+        return L.t("You often accelerate hard. Pressing the pedal gently and steadily makes the drive "
+            + "smoother and safer.");
     }
     private static String acc2() {
-        return L.t("Frequent rapid acceleration will accelerate the wear and aging of parts "
-            + "and shorten the service life of the vehicle. We suggest you accelerate smoothly.");
+        return L.t("Repeated hard acceleration wears parts faster and shortens the life of the car. "
+            + "Build up speed gradually.");
     }
     private static String dec1() {
-        return L.t("When there are many vehicles on the road or when driving at high speeds, "
-            + "it is recommended to control your speed reasonably and maintain a safe distance from the vehicle "
-            + "in front.");
+        return L.t("In busy traffic or at high speed, keep your speed in check and leave a generous "
+            + "gap to the car ahead.");
     }
     private static String dec2() {
-        return L.t("Frequent sudden braking can accelerate wear on tires, braking systems, "
-            + "and cause shocks to the suspension and transmission systems. We recommend maintaining a safe "
-            + "distance and decelerate in advance.");
+        return L.t("Braking hard again and again wears the tires and brakes and shakes the suspension "
+            + "and drivetrain. Keep your distance and ease off the pedal early.");
     }
     private static String speed1() {
-        return L.t("Driving too fast, easy to cause traffic accidents, it is recommended "
-            + "to follow the prescribed speed to ensure safety.");
+        return L.t("Driving fast raises the risk of a crash. Stay within the posted speed limits.");
     }
     private static String speed2() {
-        return L.t("At high speeds, your field of vision narrows, making it difficult to "
-            + "properly handle sudden abnormalities ahead, which can easily lead to accidents. We recommend "
-            + "controlling your speed reasonably.");
+        return L.t("The faster you go, the narrower your view and the less time you have to react to "
+            + "something unexpected ahead. Keep your speed under control.");
     }
     private static String energy1() {
-        return L.t("We suggest regular maintenance, avoiding peak traffic times, reducing "
-            + "vehicle weight, and maintaining normal tire pressure to reduce energy consumption from all aspects.");
+        return L.t("To use less energy: service the car regularly, avoid rush hour where you can, "
+            + "carry less load and keep the tires at the right pressure.");
     }
     private static String energy2() {
-        return L.t("We recommend driving at an economical speed within the speed limit, as "
-            + "driving too fast or too slow can increase fuel consumption.");
+        return L.t("Steady driving at a moderate speed within the limit uses the least; going much "
+            + "faster or much slower costs more energy.");
     }
     private static String fatigue1() {
-        return L.t("It is recommended to rationalize the time of continuous driving, and "
-            + "when you feel tired, stop at a safe place to rest as soon as possible; the longer you delay, the "
-            + "more fatigue you will feel and increasing the risk of accidents.");
+        return L.t("Plan breaks on long drives. If you feel tired, stop somewhere safe and rest; "
+            + "pushing on only adds to the tiredness and the risk of an accident.");
     }
     private static String excellent() {
-        return L.t("Your driving habits are excellent, please continue to keep them up!");
+        return L.t("Great driving! Keep it up.");
     }
 
     /** Up to three pieces of advice, most important first; empty for a trip too short to judge. */

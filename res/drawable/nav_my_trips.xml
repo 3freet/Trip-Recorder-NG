@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="30dp" android:height="30dp"
+    android:viewportWidth="96" android:viewportHeight="96">
+    <!-- a trip sheet with a place marker -->
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="4" android:strokeLineJoin="round" android:fillColor="#00000000"
+        android:pathData="M58,22 H32 A4,4 0 0 0 28,26 V66 A4,4 0 0 0 32,70 H48" />
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="4" android:fillColor="#00000000"
+        android:pathData="M36,33 H56 M36,42 H56 M36,51 H46" />
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="4" android:strokeLineJoin="round" android:fillColor="#00000000"
+        android:pathData="M65,77 L57,66 A10,10 0 1 1 73,66 Z M65,63.5 m-3.5,0 a3.5,3.5 0 1 0 7,0 a3.5,3.5 0 1 0 -7,0" />
+</vector>

@@ -230,8 +230,8 @@ this update have no fuel data.
   the energy added. Charging losses are not included. `Cost`, `Prefs`.
 - **Trip details**: the trip's cost at the top, a Consumption block (electric and hybrid figures, engine charging,
   the whole trip per 100 km, cost per 100 km), fuel used, electric/hybrid distance, idle time, time above 100 km/h
-  and Driving advice (the stock app's advice texts, picked by simple rules). `Advice`.
-- **Attainment**: the driving level and the way to the next one (stock level names, stepped by recorded km),
+  and Driving advice (short tips picked by simple rules). `Advice`.
+- **Attainment**: the driving level and the way to the next one (16 levels, stepped by recorded km),
   records (longest trip and drive, top speed, most efficient trip and most efficient electric-only trip, best fuel
   economy of hybrid driving, best drive score) and totals (trips, drive time, cost, fuel used, fuel economy, CO2 avoided: an estimate against
   a petrol car at 8 L/100 km, minus fuel burned and 0.4 kg CO2 per kWh).
@@ -450,14 +450,6 @@ socket protected by a random token. Trips then get battery used, consumption and
 - Real drives were recorded with GPS routes and, with the link on, battery and energy per trip (e.g. one
   186 km trip, 99% to 27%, 22.9 kWh).
 - Not confirmed: auto-start after a real head-unit restart with the BYD switch off for the newest install.
-
-## Third-party content
-The GPL license below covers the code and original material written for this project. It does **not** cover
-material that comes from BYD's stock "Driving behavior" app and is included only to match its look and wording:
-the driving-advice sentences (`Advice.java`, with their translations in `assets/ar.tsv` and `assets/ru.tsv`), the driving
-level names (`Stats.java`) and the interface images in `res/drawable-xhdpi/` (tab icons, empty-trips picture,
-selected-tab background). That material belongs to BYD and is not offered under the GPL. If you redistribute this
-project, check that you may do so, or replace those items.
 
 ## License
 Trip Recorder NG is free software under the **GNU General Public License v3.0**; see [LICENSE](LICENSE).
