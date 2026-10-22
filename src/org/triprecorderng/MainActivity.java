@@ -142,6 +142,8 @@ public class MainActivity extends Activity {
         long away = android.os.SystemClock.elapsedRealtime() - lastStopMs;
         if (freshOpening || away > NEW_OPENING_AFTER_MS) ui.postDelayed(autoStartCheck, 1200);
         freshOpening = false;
+        // also after coming back from a system prompt (the first launch starts with a permission question)
+        ui.postDelayed(linkCheck, 1500);
     }
 
     @Override protected void onStop() {
@@ -153,13 +155,47 @@ public class MainActivity extends Activity {
         super.onPause();
         ui.removeCallbacks(ticker);
         ui.removeCallbacks(autoStartCheck);
+        ui.removeCallbacks(linkCheck);
     }
 
     private final Runnable autoStartCheck = new Runnable() {
         @Override public void run() {
-            maybeAutoStartAlert();
+            // the one-time question comes first; the auto-start reminder follows on a later opening
+            if (!maybeAskLink()) maybeAutoStartAlert();
         }
     };
+
+    private AlertDialog linkDialog;
+
+    private final Runnable linkCheck = new Runnable() {
+        @Override public void run() {
+            maybeAskLink();
+        }
+    };
+
+    /**
+     * Asks whether to turn on the Vehicle data link, so that nobody has to find the switch: the first time the app is
+     * opened after an install or an update with it off, and again after a week if it is still off, never at every
+     * opening. It is the same explanation and consent as the switch in Setting, and it does not look at the speed.
+     * Skipped for anyone who has already decided in Setting. Returns whether a question is on screen.
+     */
+    private boolean maybeAskLink() {
+        if (isFinishing() || isDestroyed()) return false;
+        if (linkDialog != null && linkDialog.isShowing()) return true;
+        if (Prefs.linkEnabled(this) || Prefs.linkConsented(this) || !Prefs.linkQuestionDue(this)) return false;
+        Intent in = getIntent();
+        if (in != null && in.getBooleanExtra("skip_alert", false)) return false;
+        if (autoStartDialog != null && autoStartDialog.isShowing()) return false;
+        Prefs.setLinkAsked(this);
+        Diag.log("asking whether to turn on the vehicle data link");
+        try {
+            linkDialog = confirmEnableLink(true);
+        } catch (Throwable t) {
+            Diag.log("could not show the data link question", t);
+            linkDialog = null;
+        }
+        return linkDialog != null;
+    }
 
     private AlertDialog autoStartDialog;
 
@@ -1037,7 +1073,12 @@ public class MainActivity extends Activity {
     }
 
     private void confirmEnableLink() {
-        Ui.show(new AlertDialog.Builder(this)
+        confirmEnableLink(false);
+    }
+
+    /** The explanation and consent for the Vehicle data link; {@code firstRun} is the question asked at opening. */
+    private AlertDialog confirmEnableLink(boolean firstRun) {
+        return Ui.show(new AlertDialog.Builder(this)
                 .setTitle(L.t("Turn on Vehicle data link?"))
                 .setMessage(L.t("This adds battery, energy, odometer and ignition data to your trips.\n\n"
                         + "To get them, Trip Recorder NG uses the car's own network debugging (ADB) on "
@@ -1059,7 +1100,7 @@ public class MainActivity extends Activity {
                         }, 600);
                     }
                 })
-                .setNegativeButton(L.t("Cancel"), null));
+                .setNegativeButton(firstRun ? L.t("Not now") : L.t("Cancel"), null));
     }
 
     private EditText priceField(LinearLayout box, String label, String hint, String value, boolean decimal) {

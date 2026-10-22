@@ -77,6 +77,31 @@ final class Prefs {
         sp(c).edit().putBoolean("link_consent", true).apply();
     }
 
+    /** How long the question about the Vehicle data link stays quiet after it was asked. */
+    private static final long LINK_QUESTION_EVERY_MS = 7L * 24 * 60 * 60 * 1000;
+
+    /**
+     * Whether it is time to ask about the Vehicle data link: the first opening after an install or an update (they
+     * change the package's update time), and again after a week; never at every opening.
+     */
+    static boolean linkQuestionDue(Context c) {
+        SharedPreferences p = sp(c);
+        if (p.getLong("link_asked_for", -1) != installStamp(c)) return true;
+        return System.currentTimeMillis() - p.getLong("link_asked_at", 0) >= LINK_QUESTION_EVERY_MS;
+    }
+
+    static void setLinkAsked(Context c) {
+        sp(c).edit().putLong("link_asked_for", installStamp(c)).putLong("link_asked_at", System.currentTimeMillis()).apply();
+    }
+
+    private static long installStamp(Context c) {
+        try {
+            return c.getPackageManager().getPackageInfo(c.getPackageName(), 0).lastUpdateTime;
+        } catch (Throwable t) {
+            return 0;
+        }
+    }
+
     /** Whether the optional "vehicle data link" (ADB helper) is switched on. Off by default. */
     static boolean linkEnabled(Context c) {
         return sp(c).getBoolean("link_enabled", false);

@@ -43,7 +43,8 @@ The Arabic screens are mirrored right to left in the content area, with the menu
    (OFF = allowed to start), then restart the head unit once. Without this BYD blocks the app from starting
    by itself. This switch is reset by **every** install or update (see [Install / update](#install--update)).
 5. Optional but recommended: switch on Setting > Vehicle data link, to get battery, energy, odometer, fuel and
-   charging data (see [Vehicle data link](#vehicle-data-link-optional-off-by-default)).
+   charging data (see [Vehicle data link](#vehicle-data-link-optional-off-by-default)). The app also asks about it
+   when it is first opened after an install or an update, and again after a week while it is off.
 
 ## Disclaimer
 - This is an unofficial hobby project, provided as is with no warranty (see [LICENSE](LICENSE)). You install
@@ -403,6 +404,10 @@ The Setting > Vehicle data link switch turns it on. When on, the app asks the ca
 vehicle API and serves ignition, battery %, energy counter and odometer to the app over a loopback
 socket protected by a random token. Trips then get battery used, consumption and odometer change.
 
+- The first time the app is opened after an install or an update with the link off, it asks whether to turn it on, with the
+  same explanation as the switch (**Turn on**, or **Not now**, which keeps it off). It asks again only after a week if the
+  link is still off, never at every opening, and it does not look at the speed. The switch in Setting stays the place to
+  change it.
 - First enable: some head units show "Allow debugging?" for this app (tick **Always allow**, tap Allow).
   On the tested unit the car accepted the app's key over loopback automatically, with no prompt.
 - After that the helper is restarted automatically at every boot while the switch is on.
