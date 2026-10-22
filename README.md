@@ -36,8 +36,8 @@ The Arabic screens are mirrored right to left in the content area, with the menu
 
 ## Quick start
 1. Build the APK with `./build.sh` (see [Build](#build)).
-2. Install it on the head unit over ADB: `adb install -r TripRecorderNG.apk` (you need ADB access to the head
-   unit; how to enable it depends on the model and software version).
+2. Install it on the head unit over ADB: `adb install -r --user 0 TripRecorderNG.apk` (you need ADB access to the head
+   unit; how to enable it depends on the model and software version; see [Install / update](#install--update) for `--user 0`).
 3. Open the app and allow location.
 4. In the car's Setting > BYD auto-start apps ("Disable background Apps"), turn **Trip Recorder NG OFF**
    (OFF = allowed to start), then restart the head unit once. Without this BYD blocks the app from starting
@@ -332,7 +332,8 @@ key as the installed one, saves a backup of the trips, and then replaces itself 
 debugging and starts again. So installing needs the **Vehicle data link** to be on, and the car to be parked. BYD
 resets its auto-start switch on every install, so afterwards do the same two steps as after any update (Install /
 update). The downloaded file stays in `Android/data/org.triprecorderng/files/update`. The file is streamed into the
-installer (`cat file | pm install -r -S size`, as `adb install` does): handing `pm install` the path failed on the
+installer (`cat file | pm install -r --user 0 -S size`, as `adb install` does, for the main user only, after which the app's copy in the
+second user is removed): handing `pm install` the path failed on the
 tested unit with "Failed to load asset path from fd" because the system could not read the shared-storage file.
 Replacing the app ends the debugging connection the command runs in, and the shell goes with it, so the install and
 the restart run detached (`nohup`, writing to `/data/local/tmp/triprecng-update.out`) and the command only waits for
@@ -386,7 +387,11 @@ existing keystore set `KEYSTORE=path` and `KS_PASS=password`.
 **Translations.** `python3 tools/check_translations.py` checks `assets/ar.tsv` against the code (see Languages).
 
 ## Install / update
-`adb install -r TripRecorderNG.apk`, then grant location (or accept the on-screen prompt).
+`adb install -r --user 0 TripRecorderNG.apk`, then grant location (or accept the on-screen prompt).
+
+**Use `--user 0`.** The head unit has a second Android user (999, the second display). A plain `adb install -r` puts the app
+there too, where it only receives boot events and does nothing. `--user 0` keeps it in the main user. To remove a copy that is
+already in user 999: `adb shell pm uninstall --user 999 org.triprecorderng`. The in-app update does both.
 
 **Every install or update resets BYD's per-app start switch to "disabled"**, which blocks the
 recorder from starting by itself after a restart. After each install: in the car's Setting > BYD

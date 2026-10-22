@@ -448,12 +448,17 @@ final class Updates {
      * plain "pm install && am start" sometimes never reached the restart. The install and the restart therefore
      * run detached (nohup, output to a file); the command itself only waits, for at most 12 seconds, for the file
      * to say it is done and prints it, which is how a refused install is reported.
+     *
+     * The head unit has a second Android user (999, the second display). A plain install puts the app there too,
+     * where it only receives boot events, so the install is for user 0 only and the copy in user 999, if there
+     * is one, is removed afterwards (its errors are of no interest: there may be no such user).
      */
     static String installCommand(String pkg, String path, long size) {
         if (!path.matches("[A-Za-z0-9/._-]+") || size <= 0) return null;
-        return "rm -f " + RESULT_FILE + "; (nohup sh -c 'cat " + path + " | pm install -r -S " + size + " > "
-                + RESULT_FILE + " 2>&1 && am start -n " + pkg + "/.MainActivity >> " + RESULT_FILE
-                + " 2>&1; echo done >> " + RESULT_FILE + "' > /dev/null 2>&1 < /dev/null &); "
+        return "rm -f " + RESULT_FILE + "; (nohup sh -c 'cat " + path + " | pm install -r --user 0 -S " + size + " > "
+                + RESULT_FILE + " 2>&1 && { pm uninstall --user 999 " + pkg + " > /dev/null 2>&1; am start -n " + pkg
+                + "/.MainActivity >> " + RESULT_FILE + " 2>&1; }; echo done >> " + RESULT_FILE
+                + "' > /dev/null 2>&1 < /dev/null &); "
                 + "i=0; while [ $i -lt 24 ] && ! grep -q '^done$' " + RESULT_FILE + " 2>/dev/null; "
                 + "do sleep 0.5; i=$((i+1)); done; cat " + RESULT_FILE;
     }
