@@ -175,6 +175,11 @@ final class BlindSpot {
                 return;
             } catch (Throwable t) {
                 Diag.log("blind-spot watcher error", t);
+                try {
+                    Thread.sleep(LINK_RETRY_MS); // an error that repeats (the system itself is down, say) must not spin
+                } catch (InterruptedException e) {
+                    return;
+                }
             }
         }
     }
