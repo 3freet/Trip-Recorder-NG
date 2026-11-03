@@ -34,6 +34,8 @@ final class BlindSpot {
      */
     private static final long HOLD_MS = 1900;
     private static final long FLAG_CHECK_MS = 1000;
+    /** The speed range goes by the recorder's speed reading, which counts while it is not older than this. */
+    private static final long SPEED_FRESH_MS = 5000;
     /** The car's full-screen turn-signal image comes in gear D at this speed or less. */
     private static final double CAR_FULL_SCREEN_KMH = 15;
 
@@ -52,6 +54,9 @@ final class BlindSpot {
     // test hook: act as if this side's signal were on until then
     private static volatile int forcedSide;
     private static volatile long forcedUntil;
+    // test hook: act as if the car went at this speed until then
+    private static volatile double forcedSpeed = Double.NaN;
+    private static volatile long forcedSpeedUntil;
 
     private final Context ctx;
     private final Handler ui = new Handler(Looper.getMainLooper());
@@ -66,6 +71,7 @@ final class BlindSpot {
     private long offSince;
     private int lastRaw = Integer.MIN_VALUE;
     private long flagCheckedAt;
+    private boolean lastSpeedOk = true;
     // what the car's Image app is set to do on a turn signal, asked now and then in the background
     private static final long SETTING_EVERY_MS = 5000;
     private volatile int imageSetting = ImageSetting.UNKNOWN;
@@ -104,6 +110,12 @@ final class BlindSpot {
     static void test(int side, int seconds) {
         forcedSide = side;
         forcedUntil = SystemClock.elapsedRealtime() + seconds * 1000L;
+    }
+
+    /** Test hook ("... --ed blind_speed 30 --ei blind_secs 20"): the speed range is judged as if the car went at this speed. */
+    static void testSpeed(double kmh, int seconds) {
+        forcedSpeed = kmh;
+        forcedSpeedUntil = SystemClock.elapsedRealtime() + seconds * 1000L;
     }
 
     /** Whether the camera and the right to draw over other apps are in place. */
@@ -168,6 +180,7 @@ final class BlindSpot {
                 }
                 int side = t == 2 || t == 3 ? SideCamera.LEFT : t == 4 || t == 5 ? SideCamera.RIGHT : 0;
                 if (forcedUntil > SystemClock.elapsedRealtime()) side = forcedSide;
+                if (side != 0 && !speedAllows(shownSide != 0)) side = 0; // outside the speeds set in Tweaks: as if the signal were off
                 if (shownSide == 0) askImageSetting();
                 step(side);
                 Thread.sleep(POLL_MS);
@@ -182,6 +195,35 @@ final class BlindSpot {
                 }
             }
         }
+    }
+
+    /**
+     * Whether the speed is where the pictures are wanted: always, unless the speed range is switched on in Tweaks, and
+     * the range only holds the car back while it is not parked (in P the pictures show whatever the knobs say). Without
+     * a fresh speed reading the range cannot be judged and the picture is let through.
+     */
+    private boolean speedAllows(boolean showing) {
+        if (!Prefs.blindSpotSpeedLimit(ctx)) return true;
+        double speed;
+        if (forcedSpeedUntil > SystemClock.elapsedRealtime()) {
+            speed = forcedSpeed; // the test speed counts as driving
+        } else {
+            if (link.gear() == 1) return true;
+            RecorderService.Live live = RecorderService.live;
+            boolean fresh = live.running && !"none".equals(live.vehicle)
+                    && System.currentTimeMillis() - live.lastTickWall < SPEED_FRESH_MS;
+            if (!fresh) return true;
+            speed = live.speed;
+        }
+        int[] range = Prefs.blindSpotSpeedRange(ctx);
+        boolean ok = SpeedRange.allows(speed, range[0], range[1], showing);
+        if (ok != lastSpeedOk) {
+            lastSpeedOk = ok;
+            Diag.log("blind-spot: " + (Double.isNaN(speed) ? "an unknown speed" : "speed " + Math.round(speed) + " km/h")
+                    + " is " + (ok ? "inside" : "outside") + " the range "
+                    + range[0] + "-" + (range[1] >= SpeedRange.TOP ? "no limit" : String.valueOf(range[1])));
+        }
+        return ok;
     }
 
     /** Asks the car's Image app for its turn-signal setting now and then, without holding the signal watching up. */

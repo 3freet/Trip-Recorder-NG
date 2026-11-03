@@ -102,12 +102,15 @@ public class MainActivity extends Activity {
 
     /**
      * Test hooks: "adb shell am start ... --ez demo_trips true" adds sample trips, clear_demo removes them;
-     * "--es blind_test left|right --ei blind_secs 20" shows the blind-spot window as if that signal were on.
+     * "--es blind_test left|right --ei blind_secs 20" shows the blind-spot window as if that signal were on, and
+     * "--ed blind_speed 30" makes its speed range judge as if the car went that fast, for as long.
      */
     private void handleExtras(final Intent i) {
         if (i == null) return;
         String blind = i.getStringExtra("blind_test");
         if (blind != null) BlindSpot.test("left".equals(blind) ? SideCamera.LEFT : SideCamera.RIGHT, i.getIntExtra("blind_secs", 20));
+        double blindSpeed = i.getDoubleExtra("blind_speed", Double.NaN);
+        if (!Double.isNaN(blindSpeed)) BlindSpot.testSpeed(blindSpeed, i.getIntExtra("blind_secs", 20));
         final boolean add = i.getBooleanExtra("demo_trips", false);
         final boolean clear = i.getBooleanExtra("clear_demo", false);
         if (!add && !clear) return;

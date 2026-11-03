@@ -200,6 +200,27 @@ final class Prefs {
         sp(c).edit().putBoolean("blind_spot_cluster", on).apply();
     }
 
+    /** Whether the blind-spot pictures only show while the speed is inside {@link #blindSpotSpeedRange}. Off by default: any speed. */
+    static boolean blindSpotSpeedLimit(Context c) {
+        return sp(c).getBoolean("blind_spot_speed_limit", false);
+    }
+
+    static void setBlindSpotSpeedLimit(Context c, boolean on) {
+        sp(c).edit().putBoolean("blind_spot_speed_limit", on).apply();
+    }
+
+    /** The lowest and the highest speed, in km/h, at which the blind-spot pictures show up; a highest speed of {@link SpeedRange#TOP} has no limit. */
+    static int[] blindSpotSpeedRange(Context c) {
+        SharedPreferences p = sp(c);
+        return SpeedRange.clamp(p.getInt("blind_spot_speed_min", SpeedRange.DEFAULT_MIN),
+                p.getInt("blind_spot_speed_max", SpeedRange.DEFAULT_MAX));
+    }
+
+    static void setBlindSpotSpeedRange(Context c, int min, int max) {
+        int[] r = SpeedRange.clamp(min, max);
+        sp(c).edit().putInt("blind_spot_speed_min", r[0]).putInt("blind_spot_speed_max", r[1]).apply();
+    }
+
     /** Where the blind-spot window was last left on the centre screen, as {x, y} in 2560 x 1440 pixels, or null. */
     static int[] blindSpotPlace(Context c) {
         SharedPreferences p = sp(c);

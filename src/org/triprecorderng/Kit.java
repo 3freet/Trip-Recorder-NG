@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -310,6 +311,149 @@ final class Kit {
                 r.set(w * from, 0, w * to, h);
                 cv.drawRoundRect(r, h / 2f, h / 2f, p);
             }
+        }
+    }
+
+    /**
+     * A slider with two knobs for a range of speeds in km/h, from 0 to {@link SpeedRange#TOP} in steps of
+     * {@link SpeedRange#STEP}: the lit stretch between the knobs is the range. Like the other bars and switches it
+     * follows the page's direction: in Arabic 0 is on the right, where the range's first number is read.
+     */
+    static final class SpeedSlider extends View {
+        interface Listener {
+            /** The knobs moved. */
+            void onChange(int min, int max);
+        }
+
+        private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final RectF r = new RectF();
+        private final float edge, trackH, knobR, reach, labelSize;
+        private int min = SpeedRange.DEFAULT_MIN;
+        private int max = SpeedRange.DEFAULT_MAX;
+        private int held; // 0 none, 1 the lower knob, 2 the upper knob
+        private float grabDx;
+        private Listener listener;
+
+        SpeedSlider(Context c) {
+            super(c);
+            edge = Ui.dp(c, 24);
+            trackH = Ui.dp(c, 8);
+            knobR = Ui.dp(c, 15);
+            reach = Ui.dp(c, 34);
+            labelSize = Ui.dp(c, 15);
+        }
+
+        void setListener(Listener l) {
+            listener = l;
+        }
+
+        /** Shows these positions, unless a knob is being held (the page refreshes now and then). */
+        void setRange(int lo, int hi) {
+            if (held != 0 || (lo == min && hi == max)) return;
+            min = lo;
+            max = hi;
+            invalidate();
+        }
+
+        private boolean rtl() {
+            return getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+        }
+
+        private float xOf(int v) {
+            float x = edge + (getWidth() - 2 * edge) * v / SpeedRange.TOP;
+            return rtl() ? getWidth() - x : x;
+        }
+
+        private float centreY() {
+            return Ui.dp(getContext(), 24);
+        }
+
+        @Override protected void onMeasure(int wSpec, int hSpec) {
+            setMeasuredDimension(resolveSize(Ui.dp(getContext(), 300), wSpec), Ui.dp(getContext(), 70));
+        }
+
+        @Override protected void onDraw(Canvas cv) {
+            float cy = centreY();
+            r.set(edge, cy - trackH / 2, getWidth() - edge, cy + trackH / 2);
+            p.setColor(OFF_TRACK);
+            cv.drawRoundRect(r, trackH / 2, trackH / 2, p);
+            r.set(xOf(min), cy - trackH / 2, xOf(max), cy + trackH / 2);
+            p.setColor(ACCENT);
+            cv.drawRoundRect(r, trackH / 2, trackH / 2, p);
+            p.setTextSize(labelSize);
+            p.setTextAlign(Paint.Align.CENTER);
+            p.setColor(MUTED);
+            int[] marks = {0, 50, 100, SpeedRange.TOP};
+            for (int m : marks) {
+                String s = m == SpeedRange.TOP ? m + "+" : String.valueOf(m);
+                cv.drawText(s, xOf(m), cy + knobR + labelSize + Ui.dp(getContext(), 4), p);
+            }
+            // the knob being held goes on top, where the other one is close
+            if (held == 1) {
+                knob(cv, xOf(max), false);
+                knob(cv, xOf(min), true);
+            } else {
+                knob(cv, xOf(min), false);
+                knob(cv, xOf(max), held == 2);
+            }
+        }
+
+        private void knob(Canvas cv, float x, boolean lifted) {
+            float cy = centreY();
+            if (lifted) {
+                p.setColor(ACCENT_SOFT);
+                cv.drawCircle(x, cy, knobR * 1.6f, p);
+            }
+            p.setColor(CARD);
+            cv.drawCircle(x, cy, knobR + Ui.dp(getContext(), 3), p);
+            p.setColor(0xFFFFFFFF);
+            cv.drawCircle(x, cy, lifted ? knobR * 1.1f : knobR, p);
+        }
+
+        @Override public boolean onTouchEvent(MotionEvent e) {
+            switch (e.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN: {
+                    float x = e.getX();
+                    float dMin = Math.abs(x - xOf(min));
+                    float dMax = Math.abs(x - xOf(max));
+                    if (dMin > reach && dMax > reach) return false;
+                    // knobs side by side: the one on the side of the finger
+                    held = dMin == dMax ? (x < xOf(min) ? 1 : 2) : dMin < dMax ? 1 : 2;
+                    grabDx = x - xOf(held == 1 ? min : max);
+                    if (getParent() != null) getParent().requestDisallowInterceptTouchEvent(true);
+                    invalidate();
+                    return true;
+                }
+                case MotionEvent.ACTION_MOVE:
+                    if (held != 0) move(e.getX() - grabDx);
+                    return true;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                case MotionEvent.ACTION_POINTER_DOWN: // a second finger ends the drag, so it cannot take the knob over
+                    if (held != 0) {
+                        held = 0;
+                        invalidate();
+                    }
+                    return true;
+                default:
+                    return true;
+            }
+        }
+
+        private void move(float x) {
+            float span = getWidth() - 2 * edge;
+            if (span <= 0) return;
+            if (rtl()) x = getWidth() - x;
+            int v = Math.round((x - edge) / span * SpeedRange.TOP / SpeedRange.STEP) * SpeedRange.STEP;
+            v = Math.max(0, Math.min(SpeedRange.TOP, v));
+            int lo = min, hi = max;
+            if (held == 1) lo = Math.min(v, max - SpeedRange.STEP);
+            else hi = Math.max(v, min + SpeedRange.STEP);
+            if (lo == min && hi == max) return;
+            min = lo;
+            max = hi;
+            invalidate();
+            if (listener != null) listener.onChange(min, max);
         }
     }
 

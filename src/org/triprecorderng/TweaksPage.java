@@ -37,12 +37,19 @@ final class TweaksPage {
     private ActionView modem;
     private Kit.SwitchView autoModemSwitch;
     private Kit.SwitchView blindSwitch;
+    private LinearLayout blindCard;
+    private LinearLayout blindOptions;
+    private int blindOptionsShown = -1; // -1 not drawn yet, 0 folded, 1 unfolded
     private TextView blindState;
     private LinearLayout blindViews;
     private Kit.SwitchView blindParkSwitch;
     private Kit.SwitchView blindClusterSwitch;
     private Kit.Row blindClusterRow;
     private Kit.Row blindAllowRow;
+    private Kit.SwitchView blindSpeedSwitch;
+    private LinearLayout blindSpeedBox;
+    private TextView blindSpeedValue;
+    private Kit.SpeedSlider blindSpeedSlider;
     private int shownView = -1;
     private View dotCell;
     private TextView connCell;
@@ -257,6 +264,7 @@ final class TweaksPage {
 
     private View blindSpotCard() {
         LinearLayout card = k.card();
+        blindCard = card;
 
         LinearLayout big = k.row();
         big.setPadding(k.d(16), k.d(10), k.d(16), k.d(10));
@@ -294,13 +302,17 @@ final class TweaksPage {
         blindAllowRow.divider();
         card.addView(blindAllowRow.view, new LinearLayout.LayoutParams(-1, -2));
 
+        // everything under the switch folds away while the cameras are off
+        blindOptions = k.column();
+        card.addView(blindOptions, new LinearLayout.LayoutParams(-1, -2));
+
         LinearLayout pick = k.row();
         pick.setPadding(k.d(16), k.d(10), k.d(16), k.d(10));
         pick.addView(k.label(L.t("Picture"), 15, Kit.TEXT, Kit.BOLD), new LinearLayout.LayoutParams(0, -2, 1f));
         blindViews = k.row();
         pick.addView(blindViews);
-        card.addView(k.line(16));
-        card.addView(pick, new LinearLayout.LayoutParams(-1, -2));
+        blindOptions.addView(k.line(16));
+        blindOptions.addView(pick, new LinearLayout.LayoutParams(-1, -2));
 
         blindParkSwitch = new Kit.SwitchView(c);
         Kit.Row park = k.switchRow(L.t("Fisheye while parked"),
@@ -312,7 +324,7 @@ final class TweaksPage {
             }
         });
         park.divider();
-        card.addView(park.view, new LinearLayout.LayoutParams(-1, -2));
+        blindOptions.addView(park.view, new LinearLayout.LayoutParams(-1, -2));
 
         blindClusterSwitch = new Kit.SwitchView(c);
         blindClusterRow = k.switchRow(L.t("On the instrument cluster"),
@@ -326,8 +338,53 @@ final class TweaksPage {
             }
         });
         blindClusterRow.divider();
-        card.addView(blindClusterRow.view, new LinearLayout.LayoutParams(-1, -2));
+        blindOptions.addView(blindClusterRow.view, new LinearLayout.LayoutParams(-1, -2));
+
+        // only at the speeds between the two knobs of the slider under it
+        blindSpeedSwitch = new Kit.SwitchView(c);
+        Kit.Row speed = k.switchRow(L.t("Show cameras only within a speed range"),
+                L.t("The pictures only show at speeds between the two knobs. In P they always show."), blindSpeedSwitch, true);
+        speed.onClick(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Prefs.setBlindSpotSpeedLimit(c, !Prefs.blindSpotSpeedLimit(c));
+                refresh();
+                if (Prefs.blindSpotSpeedLimit(c)) {
+                    // the slider has just appeared under the switch: scroll it into view
+                    blindSpeedBox.post(new Runnable() {
+                        @Override public void run() {
+                            blindSpeedBox.requestRectangleOnScreen(
+                                    new android.graphics.Rect(0, 0, blindSpeedBox.getWidth(), blindSpeedBox.getHeight()));
+                        }
+                    });
+                }
+            }
+        });
+        speed.divider();
+        blindOptions.addView(speed.view, new LinearLayout.LayoutParams(-1, -2));
+
+        blindSpeedBox = k.column();
+        blindSpeedBox.setPadding(k.d(30), k.d(2), k.d(16), k.d(10));
+        blindSpeedValue = k.label("", 17, Kit.ACCENT, Kit.BOLD);
+        blindSpeedBox.addView(blindSpeedValue);
+        blindSpeedSlider = new Kit.SpeedSlider(c);
+        blindSpeedSlider.setListener(new Kit.SpeedSlider.Listener() {
+            @Override public void onChange(int min, int max) {
+                Prefs.setBlindSpotSpeedRange(c, min, max);
+                blindSpeedValue.setText(speedRangeText(min, max));
+            }
+        });
+        blindSpeedBox.addView(blindSpeedSlider, new LinearLayout.LayoutParams(-1, -2));
+        blindOptions.addView(blindSpeedBox, new LinearLayout.LayoutParams(-1, -2));
         return card;
+    }
+
+    /** The range of the slider in words: "Any speed", "Up to 60 km/h", "40 km/h and above" or "10 - 60 km/h". */
+    private static String speedRangeText(int min, int max) {
+        boolean open = max >= SpeedRange.TOP;
+        if (min <= 0 && open) return L.t("Any speed");
+        if (min <= 0) return L.f("Up to %d km/h", max);
+        if (open) return L.f("%d km/h and above", min);
+        return L.f("%1$d - %2$d km/h", min, max);
     }
 
     /** One choice of the picture: the selected one carries the accent tint. */
@@ -519,7 +576,8 @@ final class TweaksPage {
                         + "The turn signal is read through the Vehicle data link. Side view is the car's own side "
                         + "view, rebuilt; Fisheye is the camera's picture as it comes, and in P it can be used "
                         + "whatever Picture says. On the cluster, the left "
-                        + "signal's picture is shown there instead."));
+                        + "signal's picture is shown there instead. With the speed range on, the pictures only "
+                        + "show at speeds between the two knobs, except in P, where they always show."));
         addExplain(explain, L.t("Reboot automatically"),
                 L.t("Runs the reboot by itself when APN2 and APN3 have both been down and the modem has had no "
                         + "signal for about 2.5 minutes: at most 3 times in a row, 15 minutes apart."));
@@ -643,8 +701,20 @@ final class TweaksPage {
             blindViews.addView(chip(L.t("Side view"), view == SideCamera.VIEW_SIDE, pickView(SideCamera.VIEW_SIDE)));
             blindViews.addView(chip(L.t("Fisheye"), view == SideCamera.VIEW_FISHEYE, pickView(SideCamera.VIEW_FISHEYE)));
         }
+        int want = on ? 1 : 0;
+        if (want != blindOptionsShown) {
+            if (blindOptionsShown >= 0) android.transition.TransitionManager.beginDelayedTransition(blindCard);
+            blindOptionsShown = want;
+            blindOptions.setVisibility(on ? View.VISIBLE : View.GONE);
+        }
         blindParkSwitch.setOn(Prefs.blindSpotFisheyeInPark(c));
         blindClusterSwitch.setOn(Prefs.blindSpotCluster(c));
+        boolean limit = Prefs.blindSpotSpeedLimit(c);
+        blindSpeedSwitch.setOn(limit);
+        blindSpeedBox.setVisibility(limit ? View.VISIBLE : View.GONE);
+        int[] range = Prefs.blindSpotSpeedRange(c);
+        blindSpeedSlider.setRange(range[0], range[1]);
+        blindSpeedValue.setText(speedRangeText(range[0], range[1]));
     }
 
     /** The radio and the two mobile connections, from the helper's latest reading (nothing without the link). */
