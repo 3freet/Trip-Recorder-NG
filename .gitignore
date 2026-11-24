@@ -12,3 +12,4 @@
 # local files
 .DS_Store
 *.log
+.Scratch/
