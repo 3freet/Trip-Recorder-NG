@@ -499,3 +499,6 @@ Any speed	أي سرعة
 Up to %d km/h	حتى %d كم/س
 %d km/h and above	%d كم/س فأكثر
 %1$d - %2$d km/h	%1$d - %2$d كم/س
+Turn off daytime running lights when parked	إيقاف أضواء النهار عند التوقف
+Switched back on as soon as the car is no longer in P.	تعاد إضاءتها فور خروج السيارة من وضع P.
+Turned off while the gearbox is in P, and switched back on as soon as it is not. The gearbox position is read through the Vehicle data link.	تُطفأ أضواء النهار ما دام ناقل الحركة في وضع P، وتعاد إضاءتها فور خروجه من هذا الوضع. تُقرأ وضعية ناقل الحركة عبر رابط بيانات المركبة.

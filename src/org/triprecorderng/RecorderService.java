@@ -204,6 +204,7 @@ public class RecorderService extends Service {
             return;
         }
         BlindSpot.shutdown();
+        DaytimeLights.shutdown();
         try {
             unregisterReceiver(shutdownReceiver);
         } catch (Throwable ignored) {
@@ -264,6 +265,7 @@ public class RecorderService extends Service {
         Tweaks.ensureRoaming(this, false, "periodic check");
         Tweaks.ensureAvas(this, "periodic check");
         BlindSpot.sync(this);
+        DaytimeLights.sync(this);
         if (v instanceof HelperVehicle && now - lastNetPollMs >= NET_POLL_MS) {
             lastNetPollMs = now;
             Tweaks.noteNet(this, ((HelperVehicle) v).net());

@@ -26,10 +26,12 @@ import java.util.Locale;
  * "turn" -> "t1 state lamps stalk gear" (the turn signal: state 1 off, 2 and 3 left, 4 and 5 right, nan when unreadable;
  * lamps and stalk are the two readings it comes from, see turnSnapshot; gear is the gearbox mode, 1 = P, 4 = D);
  * "proj 0", "proj 1" or "proj 2" -> "p1 state" (read, start or stop showing a head-unit window on the instrument
- * cluster; the state read back, nan when unreadable).
+ * cluster; the state read back, nan when unreadable);
+ * "drl 0", "drl 1" or "drl 2" -> "d1 state" (read, turn the daytime running lights on or off; the state read
+ * back, 1 on, 2 off, nan when unreadable).
  */
 public final class Helper {
-    static final String VERSION = "8";
+    static final String VERSION = "9";
     private static BydFrameworkVehicle vehicle;
     private static String bindError;
     private static String token;
@@ -115,6 +117,8 @@ public final class Helper {
                     w.println(turnSnapshot());
                 } else if (line.equals("proj 0") || line.equals("proj 1") || line.equals("proj 2")) {
                     w.println(projection(line.charAt(5) - '0'));
+                } else if (line.equals("drl 0") || line.equals("drl 1") || line.equals("drl 2")) {
+                    w.println(drl(line.charAt(4) - '0'));
                 } else if (line.equals("exit")) {
                     w.println("bye");
                     System.exit(0);
@@ -222,6 +226,23 @@ public final class Helper {
         } catch (Throwable t) {
             System.out.println("projection failed: " + t + (t.getCause() != null ? " / " + t.getCause() : ""));
             return "p1 nan";
+        }
+    }
+
+    /** Reads (0) or sets (1 on, 2 off) the daytime running lights; the state read back, nan when unreadable. */
+    private static synchronized String drl(int value) {
+        try {
+            if (light == null) {
+                light = Class.forName("android.hardware.bydauto.light.BYDAutoLightDevice")
+                        .getMethod("getInstance", Context.class).invoke(null, sysCtx);
+            }
+            if (value != 0) {
+                light.getClass().getMethod("setDayTimeLightState", int.class).invoke(light, value);
+            }
+            int r = ((Number) light.getClass().getMethod("getDayTimeLightState").invoke(light)).intValue();
+            return "d1 " + r;
+        } catch (Throwable t) {
+            return "d1 nan";
         }
     }
 

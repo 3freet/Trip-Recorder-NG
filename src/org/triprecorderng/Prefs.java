@@ -241,6 +241,15 @@ final class Prefs {
         sp(c).edit().putBoolean("auto_modem_reboot", on).apply();
     }
 
+    /** Whether the Tweaks screen's daytime running lights tweak (off while the gearbox is in P) is on. Off by default. */
+    static boolean daytimeLightsOffWhenParked(Context c) {
+        return sp(c).getBoolean("daytime_lights_off_parked", false);
+    }
+
+    static void setDaytimeLightsOffWhenParked(Context c, boolean on) {
+        sp(c).edit().putBoolean("daytime_lights_off_parked", on).apply();
+    }
+
     /** Whether trips store their GPS route and event positions. On by default. */
     static boolean recordRoute(Context c) {
         return sp(c).getBoolean("record_route", true);

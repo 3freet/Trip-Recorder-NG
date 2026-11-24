@@ -499,3 +499,6 @@ Any speed	Любая скорость
 Up to %d km/h	До %d км/ч
 %d km/h and above	От %d км/ч и выше
 %1$d - %2$d km/h	%1$d - %2$d км/ч
+Turn off daytime running lights when parked	Выключать дневные ходовые огни на стоянке
+Switched back on as soon as the car is no longer in P.	Включаются снова, как только автомобиль выходит из режима P.
+Turned off while the gearbox is in P, and switched back on as soon as it is not. The gearbox position is read through the Vehicle data link.	Огни выключены, пока коробка передач в положении P, и включаются снова, как только это не так. Положение коробки передач считывается через «Канал данных автомобиля».

@@ -62,6 +62,11 @@ final class HelperLink {
         return ask("proj " + state, "p1");
     }
 
+    /** Turns the daytime running lights on (1) or off (2), or just reads them (0); returns the state, or -1. */
+    synchronized int drl(int state) {
+        return ask("drl " + state, "d1");
+    }
+
     private int ask(String request, String tag) {
         if (socket == null) return -1;
         try {

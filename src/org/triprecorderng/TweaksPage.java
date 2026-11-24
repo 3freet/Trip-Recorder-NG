@@ -36,6 +36,7 @@ final class TweaksPage {
     private Kit.SwitchView keepAvasSwitch;
     private ActionView modem;
     private Kit.SwitchView autoModemSwitch;
+    private Kit.SwitchView daytimeLightsSwitch;
     private Kit.SwitchView blindSwitch;
     private LinearLayout blindCard;
     private LinearLayout blindOptions;
@@ -98,6 +99,7 @@ final class TweaksPage {
         left.addView(cloudCard(), k.gap(-1, -2, 0, 8));
         left.addView(avasCard(), k.gap(-1, -2, 0, 8));
         left.addView(modemCard(), k.gap(-1, -2, 0, 8));
+        left.addView(daytimeLightsCard(), k.gap(-1, -2, 0, 8));
         left.addView(blindSpotCard(), k.gap(-1, -2, 0, 8));
         left.addView(noteLine(), k.gap(-1, k.d(30), 0, 6));
         sv.addView(left, new ViewGroup.LayoutParams(-1, -2));
@@ -260,6 +262,22 @@ final class TweaksPage {
         auto.divider();
         modem.card.addView(auto.view, new LinearLayout.LayoutParams(-1, -2));
         return modem.card;
+    }
+
+    private View daytimeLightsCard() {
+        LinearLayout card = k.card();
+        daytimeLightsSwitch = new Kit.SwitchView(c);
+        Kit.Row row = k.switchRow(L.t("Turn off daytime running lights when parked"),
+                L.t("Switched back on as soon as the car is no longer in P."), daytimeLightsSwitch, false);
+        row.onClick(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Prefs.setDaytimeLightsOffWhenParked(c, !Prefs.daytimeLightsOffWhenParked(c));
+                DaytimeLights.sync(c);
+                refresh();
+            }
+        });
+        card.addView(row.view, new LinearLayout.LayoutParams(-1, -2));
+        return card;
     }
 
     private View blindSpotCard() {
@@ -569,6 +587,9 @@ final class TweaksPage {
         addExplain(explain, L.t("Modem reboot"),
                 L.t("Restarts the modem with AT commands, as Engineer Mode's AT Command Tool does. The line under "
                         + "the button says how long LTE took to come back."));
+        addExplain(explain, L.t("Turn off daytime running lights when parked"),
+                L.t("Turned off while the gearbox is in P, and switched back on as soon as it is not. The "
+                        + "gearbox position is read through the Vehicle data link."));
         addExplain(explain, L.t("Blind-spot cameras"),
                 L.t("While a turn signal is on, the camera on that side is shown in a window next to the car's own "
                         + "blind-spot window, and stays a moment after the signal goes off. A tap on it closes it, "
@@ -652,6 +673,7 @@ final class TweaksPage {
         keepRoamSwitch.setOn(Prefs.keepRoaming(c));
         keepAvasSwitch.setOn(Prefs.keepAvasOff(c));
         autoModemSwitch.setOn(Prefs.autoModemReboot(c));
+        daytimeLightsSwitch.setOn(Prefs.daytimeLightsOffWhenParked(c));
         refreshBlindSpot();
         cloud.update(Tweaks.CLOUD);
         avas.update(Tweaks.AVAS);
